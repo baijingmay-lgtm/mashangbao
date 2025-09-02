@@ -386,19 +386,8 @@
         <div class="nav-container">
             <div class="nav-section">
                 <div class="section-title">工具导航</div>
-                
-                <!-- 一级导航项 - 工作台导航 -->
-                <div class="nav-item">
-                    <a class="nav-link" data-title="工作台" data-url="work.html" onclick="loadPage(this, event)">
-                        <i class="icon"></i>
-                        <span class="nav-text">工作台导航</span>
-                        <div class="nav-actions">
-                            <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- 一级导航项 - 选品工具 -->
+             
+ <!-- 一级导航项 - 选品工具 -->
                 <div class="nav-item">
                     <div class="nav-link" onclick="toggleSubNav(this)">
                         <i class="icon"></i>
@@ -476,47 +465,58 @@
                 <div class="nav-item">
                     <div class="nav-link" onclick="toggleSubNav(this)">
                         <i class="icon"></i>
-                        <span class="nav-text">素材处理</span>
+                        <span class="nav-text">素材投放</span>
                         <div class="nav-actions">
                             <i class="icon" onclick="event.stopPropagation(); showModal('add', this)"></i>
                         </div>
                     </div>
                     <div class="sub-nav">
-                        <a class="nav-link" data-title="预处理下载" data-url="preprocess.html" onclick="loadPage(this, event)">
-                            <span class="nav-text">预处理下载</span>
+                        <a class="nav-link" data-title="预处理" data-url="素材_预处理.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">预处理</span>
                             <div class="nav-actions">
                                 <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
                                 <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
                             </div>
                         </a>
-                        <a class="nav-link" data-title="视频解析" data-title="视频解析" data-url="modified-video-analysis.html" onclick="loadPage(this, event)">
-                            <span class="nav-text">视频解析</span>
+                      <a class="nav-link" data-title="上传任务管理" data-title="上传任务管理" data-url="素材_视频处理任务.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">上传任务管理</span>
                             <div class="nav-actions">
                                 <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
                                 <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
                             </div>
                         </a>
-                        <a class="nav-link" data-title="素材库老版本" data-url="media-management.html" onclick="loadPage(this, event)">
-                            <span class="nav-text">素材库老版本</span>
+                            <a class="nav-link" data-title="视频管理" data-url="素材_投放视频管理.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">视频管理</span>
                             <div class="nav-actions">
                                 <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
                                 <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
                             </div>
                         </a>
-                       <a class="nav-link" data-title="视频投后诊断" data-title="视频投后诊断" data-url="video-diagnosis-with-reasons.html" onclick="loadPage(this, event)">
+                        <a class="nav-link" data-title="批量视频解析" data-title="批量视频解析" data-url="素材_批量视频解析.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">批量视频解析</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                       
+                           <a class="nav-link" data-title="单个视频解析" data-title="单个视频解析" data-url="素材_单个视频解析.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">单个视频解析</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+
+                       
+                       <a class="nav-link" data-title="视频投后诊断" data-title="视频投后诊断" data-url="素材_视频投后诊断.html" onclick="loadPage(this, event)">
                             <span class="nav-text">视频投后诊断</span>
                             <div class="nav-actions">
                                 <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
                                 <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
                             </div>
                         </a>
-                      <a class="nav-link" data-title="视频库管理" data-title="视频库管理" data-url="页面4__视频库管理.html" onclick="loadPage(this, event)">
-                            <span class="nav-text">视频库管理</span>
-                            <div class="nav-actions">
-                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
-                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
-                            </div>
-                        </a>
+                      
                     </div>
                 </div>
                 
@@ -524,7 +524,7 @@
                 <div class="nav-item">
                     <div class="nav-link" onclick="toggleSubNav(this)">
                         <i class="icon"></i>
-                        <span class="nav-text">投放管理</span>
+                        <span class="nav-text">投放工具</span>
                         <div class="nav-actions">
                             <i class="icon" onclick="event.stopPropagation(); showModal('add', this)"></i>
                         </div>
@@ -532,20 +532,6 @@
                     <div class="sub-nav">
                         <a class="nav-link" data-title="磁力金牛" data-url="https://niu.e.kuaishou.com" onclick="loadPage(this, event)">
                             <span class="nav-text">磁力金牛</span>
-                            <div class="nav-actions">
-                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
-                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
-                            </div>
-                        </a>
-                          <a class="nav-link" data-title="视频上传任务" data-url="页面1-视频上传任务管理.html" onclick="loadPage(this, event)">
-                            <span class="nav-text">视频上传任务</span>
-                            <div class="nav-actions">
-                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
-                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
-                            </div>
-                        </a>
-                   <a class="nav-link" data-title="视频数据回传" data-url="页面6_投放数据回传.html" onclick="loadPage(this, event)">
-                            <span class="nav-text">视频数据回传</span>
                             <div class="nav-actions">
                                 <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
                                 <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
