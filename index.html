@@ -1,151 +1,944 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html lang="zh-CN">
 <head>
-    <title>Untitled Document</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <link type="text/css" href="resources/css/reset.css" rel="Stylesheet" />
-    <link type="text/css" href="resources/css/default.css" rel="Stylesheet" />
-    <link rel="shortcut icon" href="resources/images/favicon_play.ico" />
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600' rel='stylesheet'>
-
-    <script type="text/javascript">
-        if (location.href.toString().indexOf('file://localhost/') == 0) {
-            location.href = location.href.toString().replace('file://localhost/', 'file:///');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马上豹AI中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
         }
-    </script>
-
-    <!--<link type="text/css" rel="Stylesheet" href="plugins/sitemap/styles/sitemap.css" />
-    <link type="text/css" rel="Stylesheet" href="plugins/page_notes/styles/page_notes.css" />
-    <link type="text/css" rel="Stylesheet" href="plugins/debug/styles/debug.css" />
-    <link type="text/css" rel="Stylesheet" href="plugins/handoff/styles/handoff.css" />
-    <link type="text/css" rel="Stylesheet" href="plugins/handoff/styles/codemirror.css" />-->
+        
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f5f5f5;
+            overflow: hidden;
+        }
+        
+        /* 左侧导航栏 - 深色风格 */
+        .sidebar {
+            width: 240px;
+            background-color: #1a1a1a;
+            color: #e6e6e6;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border-right: 1px solid #333;
+        }
+        
+        .logo-area {
+            padding: 20px;
+            text-align: left;
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .nav-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        
+        .nav-section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            padding: 0 20px;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .nav-item {
+            position: relative;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #e6e6e6;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .nav-link:hover {
+            background-color: #2a2a2a;
+        }
+        
+        .nav-link.active {
+            background-color: #333;
+            border-left: 3px solid #1890ff;
+        }
+        
+        .nav-link i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+        .nav-text {
+            flex: 1;
+        }
+        
+        .nav-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-actions i {
+            margin-left: 8px;
+            font-size: 14px;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .nav-actions i:hover {
+            color: #1890ff;
+        }
+        
+        .sub-nav {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #222;
+        }
+        
+        .sub-nav.open {
+            max-height: 500px;
+        }
+        
+        .sub-nav .nav-link {
+            padding-left: 40px;
+        }
+        
+        .user-area {
+            padding: 16px 20px;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #1890ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            color: #e6e6e6;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .history-section {
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+        
+        /* 右侧内容区 - 与左侧完全分隔 */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        
+        .page-header {
+            padding: 16px 24px;
+            background-color: #fff;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-right: 10px;
+        }
+        
+        .page-url {
+            font-size: 12px;
+            color: #999;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .page-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            margin: 16px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 4px;
+        }
+        
+        /* 模态框 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            width: 500px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-20px);
+            transition: transform 0.3s;
+        }
+        
+        .modal.open .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .modal-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .modal-close {
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: #1890ff;
+            outline: none;
+        }
+        
+        .password-field {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-footer {
+            padding: 12px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #1890ff;
+            color: #fff;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background-color: #40a9ff;
+        }
+        
+        .btn-default {
+            background-color: #fff;
+            color: #666;
+            border: 1px solid #d9d9d9;
+            margin-right: 10px;
+        }
+        
+        .btn-default:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(10px); }
+            to { transform: translateY(0); }
+        }
+        
+        .nav-link {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .sub-nav .nav-link {
+            animation: slideIn 0.2s ease-out;
+        }
+        
+        /* 图标字体 */
+        /* 图标字体 - 使用系统默认字体替代缺失的iconfont */
+        .icon { font-family: 'Arial', sans-serif; font-style: normal; }
+        
+        /* 新标签页图标 */
+        .new-tab-icon {
+            margin-left: 8px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
 </head>
-<body scroll="no" class="hashover" style="overflow: hidden;">
-    <div id="topPanel">
-        <div id="interfaceControlFrame">
-            <div id="interfaceControlFrameLeft">
-                <div id="interfaceControlFrameMinimizeContainer">
-                    <a title="Collapse" id="interfaceControlFrameMinimizeButton">
-                        <div id="minimizeArrow" class="minimizeButtonHover minimizeIcon"></div>
-                        <div id="minimizeX" class="minimizeButton minimizeIcon"></div>
-                    </a>
-                </div>
-                <div id="interfaceControlFrameCloseContainer">
-                    <a title="Close" id="interfaceControlFrameCloseButton">CLOSE</a>
-                </div>
-
-                <div id="sitemapControlFrameContainer" title="Project Pages">
-                    <div id="projectControlFrameHeaderContainer">
-                        <ul id="projectControlFrameHeader"></ul>
-                    </div>
-                    
-                    <div id="interfacePageNameContainer">
-                        <div id="interfacePageNameButton" class='pageNameHeader'>
-                            &nbsp;
-                        </div>
-                        <div id="interfacePageCount" class='pageCountHeader'>
+<body>
+    <!-- 左侧导航栏 - 深色风格 -->
+    <div class="sidebar">
+        <div class="logo-area">
+            <div class="logo">马上豹AI中心</div>
+        </div>
+        
+        <div class="nav-container">
+            <div class="nav-section">
+                <div class="section-title">工具导航</div>
+             
+ <!-- 一级导航项 - 选品工具 -->
+                <div class="nav-item">
+                    <div class="nav-link" onclick="toggleSubNav(this)">
+                        <i class="icon"></i>
+                        <span class="nav-text">选品工具</span>
+                        <div class="nav-actions">
+                            <i class="icon" onclick="event.stopPropagation(); showModal('add', this)"></i>
                         </div>
                     </div>
-                </div>
-
-
-                <div id="interfaceAdaptiveViewsContainer" title="Adaptive Views">
-                    <div id="interfaceAdaptiveViewsIconButton">&nbsp;</div>
-                    <div id="interfaceAdaptiveViewsButton" class='adaptiveViewHeader'>
-                        &nbsp;
+                    <div class="sub-nav">
+                        <a class="nav-link" data-title="快手推荐" data-url="https://www.kuaishou.com/new-reco" onclick="loadPage(this, event)">
+                            <span class="nav-text">快手推荐</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                        <a class="nav-link" data-title="卖家精灵" data-url="https://www.sellersprite.com/" onclick="loadPage(this, event)">
+                            <span class="nav-text">卖家精灵</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                        <a class="nav-link" data-title="热门资讯" data-url="news.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">热门资讯</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
                     </div>
-                    <div id="adaptiveViewsDropdown" class="caret"></div>
+                </div>
+                
+                <!-- 一级导航项 - 找品工具 -->
+                <div class="nav-item">
+                    <div class="nav-link" onclick="toggleSubNav(this)">
+                        <i class="icon"></i>
+                        <span class="nav-text">找品工具</span>
+                        <div class="nav-actions">
+                            <i class="icon" onclick="event.stopPropagation(); showModal('add', this)"></i>
+                        </div>
+                    </div>
+                    <div class="sub-nav">
+                        <a class="nav-link" data-title="1688" data-url="https://www.1688.com/" onclick="loadPage(this, event)">
+                            <span class="nav-text">1688</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 一级导航项 - 测品工具 -->
+                <div class="nav-item">
+                    <div class="nav-link" onclick="toggleSubNav(this)">
+                        <i class="icon"></i>
+                        <span class="nav-text">测品工具</span>
+                        <div class="nav-actions">
+                            <i class="icon" onclick="event.stopPropagation(); showModal('add', this)"></i>
+                        </div>
+                    </div>
+                    <div class="sub-nav">
+                        <a class="nav-link" data-title="考古加" data-url="https://ad.kaogujia.com/" onclick="loadPage(this, event)">
+                            <span class="nav-text">考古加</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 一级导航项 - 素材处理 -->
+                <div class="nav-item">
+                    <div class="nav-link" onclick="toggleSubNav(this)">
+                        <i class="icon"></i>
+                        <span class="nav-text">素材投放</span>
+                        <div class="nav-actions">
+                            <i class="icon" onclick="event.stopPropagation(); showModal('add', this)"></i>
+                        </div>
+                    </div>
+                    <div class="sub-nav">
+                        <a class="nav-link" data-title="预处理" data-url="素材_预处理.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">预处理</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                      <a class="nav-link" data-title="上传任务管理" data-title="上传任务管理" data-url="素材_视频处理任务.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">上传任务管理</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                            <a class="nav-link" data-title="视频管理" data-url="素材_投放视频管理.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">视频管理</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                        <a class="nav-link" data-title="批量视频解析" data-title="批量视频解析" data-url="素材_批量视频解析.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">批量视频解析</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                       
+                           <a class="nav-link" data-title="单个视频解析" data-title="单个视频解析" data-url="素材_单个视频解析.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">单个视频解析</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+
+                       
+                       <a class="nav-link" data-title="视频投后诊断" data-title="视频投后诊断" data-url="素材_视频投后诊断.html" onclick="loadPage(this, event)">
+                            <span class="nav-text">视频投后诊断</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                      
+                    </div>
+                </div>
+                
+                <!-- 一级导航项 - 投放数据 -->
+                <div class="nav-item">
+                    <div class="nav-link" onclick="toggleSubNav(this)">
+                        <i class="icon"></i>
+                        <span class="nav-text">投放工具</span>
+                        <div class="nav-actions">
+                            <i class="icon" onclick="event.stopPropagation(); showModal('add', this)"></i>
+                        </div>
+                    </div>
+                    <div class="sub-nav">
+                        <a class="nav-link" data-title="磁力金牛" data-url="https://niu.e.kuaishou.com" onclick="loadPage(this, event)">
+                            <span class="nav-text">磁力金牛</span>
+                            <div class="nav-actions">
+                                <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                                <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
             
-            <div id="interfaceControlFrameContainer">
-                <div id="handoffControlFrameHeaderContainer">
-                    <ul id="handoffControlFrameHeader"></ul>
+            <!-- 历史记录部分 - 作为二级导航 -->
+            <div class="nav-section history-section">
+                <div class="section-title">历史记录</div>
+                <div id="history-container">
+                    <!-- 历史记录将通过JS动态添加 -->
                 </div>
-                <div id="interfaceControlFrameLogoContainer">
-                    <div id="previewNotice">
-                        Local Preview
+            </div>
+        </div>
+        
+        <!-- 用户信息区域 -->
+        <div class="user-area">
+            <div class="user-avatar">U</div>
+            <div class="user-info">
+                <div class="user-name">当前用户</div>
+                <div class="user-role">管理员</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 右侧内容区 -->
+    <div class="content-area">
+        <div class="page-header">
+            <div class="page-title" id="page-title">欢迎使用马上豹AI中心</div>
+            <div class="page-url" id="page-url">请从左侧选择工具</div>
+        </div>
+        <div class="page-content">
+            <iframe id="content-frame" class="iframe-container" frameborder="0"></iframe>
+        </div>
+    </div>
+    
+    <!-- 编辑/添加模态框 -->
+    <div class="modal" id="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title">编辑导航项</div>
+                <i class="icon modal-close" onclick="closeModal()"></i>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">导航名称</label>
+                    <input type="text" class="form-control" id="nav-name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">访问网址</label>
+                    <input type="text" class="form-control" id="nav-url">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">登录用户名</label>
+                    <input type="text" class="form-control" id="nav-username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">登录密码</label>
+                    <div class="password-field">
+                        <input type="password" class="form-control" id="nav-password">
+                        <i class="icon toggle-password" onclick="togglePassword()"></i>
                     </div>
                 </div>
             </div>
-
-            <div id="interfaceControlFrameRight">
-                <div id="publishContainer">
-                    <a id="publishButton">Share Prototype</a>
-                </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveNavItem()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 当前打开的一级导航
+        let currentOpenNav = null;
+        // 当前编辑的导航项
+        let currentEditItem = null;
+        // 当前操作类型 (add/edit)
+        let currentAction = '';
+        // 导航数据
+        const navData = {
+            "选品工具": [
+                { title: "抖音商城", url: "https://shop.douyin.com/" },
+                { title: "卖家精灵", url: "https://www.sellersprite.com/" },
+                { title: "热门资讯", url: "news.html" }
+            ],
+            "找品工具": [
+                { title: "1688", url: "https://www.1688.com/" }
+            ],
+            "测品工具": [
+                { title: "考古加", url: "https://ad.kaogujia.com/" }
+            ],
+            "素材处理": [
+                { title: "预处理下载", url: "preprocess.html" },
+                { title: "AI分镜解析", url: "video-analysis.html" },
+                { title: "素材库", url: "media-management.html" }
+            ],
+            "投放数据": [
+                { title: "磁力金牛", url: "https://niu.e.kuaishou.com" }
+            ]
+        };
+        
+        // 用户数据
+        const userData = {
+            username: "admin",
+            password: "123456"
+        };
+        
+        // 历史记录 - 按网站分组
+        let historyData = JSON.parse(localStorage.getItem('navHistory')) || {};
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载历史记录
+            renderHistory();
+            
+            // 绑定事件
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    this.classList.add('active');
+                });
+            });
+        });
+        
+        // 切换子导航显示/隐藏
+        function toggleSubNav(element) {
+            const parentItem = element.closest('.nav-item');
+            const subNav = parentItem.querySelector('.sub-nav');
+            
+            // 关闭其他打开的一级导航
+            if (currentOpenNav && currentOpenNav !== parentItem) {
+                currentOpenNav.querySelector('.sub-nav').classList.remove('open');
+                currentOpenNav.querySelector('.nav-link').classList.remove('active');
+            }
+            
+            // 切换当前导航
+            subNav.classList.toggle('open');
+            element.classList.toggle('active');
+            
+            // 更新当前打开的导航
+            if (subNav.classList.contains('open')) {
+                currentOpenNav = parentItem;
+            } else {
+                currentOpenNav = null;
+            }
+        }
+        
+        // 加载页面内容
+        function loadPage(element, event) {
+            // 阻止默认行为，因为我们可能在新标签页打开
+            if (event && (event.ctrlKey || event.metaKey || event.shiftKey)) {
+                return;
+            }
+            
+            event.preventDefault();
+            
+            const title = element.getAttribute('data-title');
+            const url = element.getAttribute('data-url');
+            
+            // 更新页面标题和URL
+            document.getElementById('page-title').textContent = title;
+            document.getElementById('page-url').textContent = url;
+            
+            // 加载内容
+            const frame = document.getElementById('content-frame');
+            frame.src = url;
+            
+            // 添加到历史记录
+            addToHistory(title, url);
+            
+            // 设置活动状态
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+        
+        // 在新标签页打开
+        function openInNewTab(element) {
+            const navItem = element.closest('.nav-link');
+            const title = navItem.getAttribute('data-title');
+            const url = navItem.getAttribute('data-url');
+            
+            window.open(url, '_blank');
+            
+            // 添加到历史记录
+            addToHistory(title, url);
+        }
+        
+        // 显示模态框
+        function showModal(action, element) {
+            currentAction = action;
+            const modal = document.getElementById('edit-modal');
+            
+            if (action === 'add') {
+                // 添加新项
+                document.getElementById('modal-title').textContent = '添加导航项';
+                document.getElementById('nav-name').value = '';
+                document.getElementById('nav-url').value = '';
+                document.getElementById('nav-username').value = '';
+                document.getElementById('nav-password').value = '';
                 
-                <div id="inspectControlFrameHeaderContainer">
-                    <ul id="inspectControlFrameHeader">
-                        <li id="overflowBtn">
-                            <a id="overflowMenuButton" title="View Options"></a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div id="separatorContainer">
-                    <div class="separator"></div>
-                </div>
-
-                <div id="overflowMadeWith"><a href="https://www.axure.com" id="axureLogo" target="_blank"></a></div>
-
-            </div>
-
-        </div>
-    </div>
-    <div id="popupContainer">
-        <div id='interfaceAdaptiveViewsListContainer'>
-        </div>
-
-        <div id='interfaceScaleListContainer'>
-        </div>
-
-        <div id='accountLoginContainer'>
-        </div>
-
-        <div id='overflowMenuContainer'>
-        </div>
-    </div>
-    <div id="outerContainer">
-        <div id="clippingBounds">
-            <div id="clippingBoundsScrollContainer"></div>
-        </div>
-
-        <div id="mHideSidebar"></div>
-        <div id="lsplitbar" class="splitbar"></div>
-
-        <div id="mainPanel">
-            <div id="mainPanelContainer" style="position: relative; width:100%; height: 100%;">
-                <div id="clipFrameScroll" style="position: relative; width:100%; height: 100%; background-color: #ffffff;">
-                    <iframe id="mainFrame" name="mainFrame" width="100%" height="100%" src="about:blank" frameborder="0" style="display: block;position:absolute;" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-                </div>
-            </div>
-        </div>
-
-        <div id="rsplitbar" class="splitbar"></div>
-
-    </div>
-
-    <div id="maximizePanelContainer" class="maximizePanelContainer">
-        <div id="maximizePanelOver">
-            <div id="maximizePanel" title="Expand" class="maximizePanelOver">
-                <div id="maximizeButton" class="maximizeButton maximizeIcon"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="mobileControlFrameContainer"></div>
-
-<!-- 9.0.0.3727 -->
-<script src="resources/scripts/jquery-3.2.1.min.js"></script>
-<script src="resources/scripts/axure/jquery.nicescroll.min.js"></script>
-<script src="resources/scripts/axutils.js"></script>
-<script src="resources/scripts/messagecenter.js"></script>
-<script src="resources/scripts/player/axplayer.js"></script>
-<script src="resources/scripts/player/init.js"></script>
-
-
+                // 保存父级导航名称
+                const parentNav = element.closest('.nav-item').querySelector('.nav-text').textContent;
+                currentEditItem = { parentNav };
+            } else {
+                // 编辑现有项
+                document.getElementById('modal-title').textContent = '编辑导航项';
+                const navItem = element.closest('.nav-link');
+                document.getElementById('nav-name').value = navItem.querySelector('.nav-text').textContent;
+                document.getElementById('nav-url').value = navItem.getAttribute('data-url');
+                document.getElementById('nav-username').value = userData.username;
+                document.getElementById('nav-password').value = userData.password;
+                
+                // 保存当前编辑的项
+                currentEditItem = { element, navItem };
+            }
+            
+            modal.classList.add('open');
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('edit-modal').classList.remove('open');
+            currentEditItem = null;
+        }
+        
+        // 切换密码显示
+        function togglePassword() {
+            const passwordField = document.getElementById('nav-password');
+            const icon = document.querySelector('.toggle-password');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.textContent = '';
+            } else {
+                passwordField.type = 'password';
+                icon.textContent = '';
+            }
+        }
+        
+        // 保存导航项
+        function saveNavItem() {
+            const name = document.getElementById('nav-name').value;
+            const url = document.getElementById('nav-url').value;
+            const username = document.getElementById('nav-username').value;
+            const password = document.getElementById('nav-password').value;
+            
+            if (!name || !url) {
+                alert('导航名称和网址不能为空');
+                return;
+            }
+            
+            if (currentAction === 'add') {
+                // 添加新项
+                const parentNav = currentEditItem.parentNav;
+                const parentItem = document.querySelector(`.nav-text:contains(${parentNav})`).closest('.nav-item');
+                const subNav = parentItem.querySelector('.sub-nav');
+                
+                // 创建新导航项
+                const newItem = document.createElement('a');
+                newItem.className = 'nav-link';
+                newItem.setAttribute('data-title', name);
+                newItem.setAttribute('data-url', url);
+                newItem.onclick = function(e) { loadPage(this, e); };
+                
+                newItem.innerHTML = `
+                    <span class="nav-text">${name}</span>
+                    <div class="nav-actions">
+                        <i class="icon" onclick="event.stopPropagation(); showModal('edit', this)"></i>
+                        <i class="icon new-tab-icon" onclick="event.stopPropagation(); openInNewTab(this)"></i>
+                    </div>
+                `;
+                
+                subNav.appendChild(newItem);
+                
+                // 更新数据
+                navData[parentNav].push({ title: name, url });
+            } else {
+                // 编辑现有项
+                const navItem = currentEditItem.navItem;
+                const element = currentEditItem.element;
+                
+                // 更新显示
+                navItem.querySelector('.nav-text').textContent = name;
+                navItem.setAttribute('data-title', name);
+                navItem.setAttribute('data-url', url);
+                
+                // 更新数据
+                const parentNav = element.closest('.nav-item').querySelector('.nav-text').textContent;
+                const itemIndex = Array.from(element.parentNode.children).indexOf(navItem) - 1; // 减去第一个是父级
+                
+                navData[parentNav][itemIndex] = { title: name, url };
+            }
+            
+            // 更新用户数据
+            userData.username = username;
+            userData.password = password;
+            
+            closeModal();
+        }
+        
+        // 添加到历史记录
+        function addToHistory(title, url) {
+            // 提取域名作为分组键
+            let domain = '其他';
+            try {
+                const urlObj = new URL(url);
+                domain = urlObj.hostname.replace('www.', '');
+            } catch (e) {
+                // 不是有效的URL，可能是本地页面
+                if (url.endsWith('.html')) {
+                    domain = '本地页面';
+                }
+            }
+            
+            // 初始化分组
+            if (!historyData[domain]) {
+                historyData[domain] = [];
+            }
+            
+            // 检查是否已存在
+            const existingIndex = historyData[domain].findIndex(item => item.url === url);
+            
+            if (existingIndex >= 0) {
+                // 已存在，移到最前面
+                historyData[domain].splice(existingIndex, 1);
+            }
+            
+            // 添加到开头
+            historyData[domain].unshift({ title, url });
+            
+            // 限制每个分组的历史记录数量
+            if (historyData[domain].length > 5) {
+                historyData[domain] = historyData[domain].slice(0, 5);
+            }
+            
+            // 保存到本地存储
+            localStorage.setItem('navHistory', JSON.stringify(historyData));
+            
+            // 重新渲染历史记录
+            renderHistory();
+        }
+        
+        // 渲染历史记录
+        function renderHistory() {
+            const historyContainer = document.getElementById('history-container');
+            historyContainer.innerHTML = '';
+            
+            // 按域名分组渲染
+            for (const domain in historyData) {
+                if (historyData[domain].length === 0) continue;
+                
+                // 创建一级导航项
+                const domainItem = document.createElement('div');
+                domainItem.className = 'nav-item';
+                
+                const domainLink = document.createElement('div');
+                domainLink.className = 'nav-link';
+                domainLink.innerHTML = `
+                    <i class="icon"></i>
+                    <span class="nav-text">${domain}</span>
+                `;
+                domainLink.onclick = function() {
+                    toggleSubNav(this);
+                };
+                
+                // 创建子导航
+                const subNav = document.createElement('div');
+                subNav.className = 'sub-nav';
+                
+                // 添加历史记录项
+                historyData[domain].forEach(item => {
+                    const historyLink = document.createElement('a');
+                    historyLink.className = 'nav-link';
+                    historyLink.setAttribute('data-title', item.title);
+                    historyLink.setAttribute('data-url', item.url);
+                    historyLink.innerHTML = `
+                        <span class="nav-text">${item.title}</span>
+                        <div class="nav-actions">
+                            <i class="icon new-tab-icon" onclick="event.stopPropagation(); window.open('${item.url}', '_blank')"></i>
+                        </div>
+                    `;
+                    historyLink.onclick = function(e) {
+                        loadPage(this, e);
+                    };
+                    
+                    subNav.appendChild(historyLink);
+                });
+                
+                domainItem.appendChild(domainLink);
+                domainItem.appendChild(subNav);
+                historyContainer.appendChild(domainItem);
+            }
+            
+            // 如果没有历史记录，显示提示
+            if (Object.keys(historyData).length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'nav-link';
+                emptyMsg.style.color = '#999';
+                emptyMsg.style.justifyContent = 'center';
+                emptyMsg.textContent = '暂无历史记录';
+                historyContainer.appendChild(emptyMsg);
+            }
+        }
+    </script>
 </body>
 </html>
