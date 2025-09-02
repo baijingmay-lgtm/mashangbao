@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+  <style>
+  /* 自定义样式 */
+  .upload-area {
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    padding: 40px 20px;
+    transition: all 0.3s;
+  }
+  .upload-area.dragover {
+    border-color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.05);
+  }
+  .file-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    transition: all 0.3s;
+  }
+  .file-item:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  .progress-bar {
+    height: 4px;
+    background-color: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-value {
+    height: 100%;
+    background-color: #3b82f6;
+    transition: width 0.3s;
+  }
+  .input-focus:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  .btn-primary {
+    background-color: #3b82f6;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+  .btn-primary:hover {
+    background-color: #2563eb;
+  }
+  .btn-secondary {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+  .btn-secondary:hover {
+    background-color: #e5e7eb;
+  }
+  .tag {
+    display: inline-block;
+    background-color: #e5e7eb;
+    color: #4b5563;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  .tag-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    min-height: 38px;
+  }
+  .tag-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    min-width: 100px;
+  }
+  .duration-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  /* 动画效果 */
+  @keyframes pulse {
+    0% {
+      transform: scale(0.8);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+  .pulse-animation::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #3b82f6;
+    opacity: 0.4;
+    animation: pulse 2s infinite;
+  }
+  /* 主题色定义 */
+  :root {
+    --primary: #3b82f6;
+    --primary-90: #2563eb;
+    --neutral-100: #f3f4f6;
+    --neutral-200: #e5e7eb;
+    --neutral-400: #9ca3af;
+    --neutral-500: #6b7280;
+    --neutral-700: #374151;
+    --red-500: #ef4444;
+    --red-700: #b91c1c;
+    --green-500: #10b981;
+    --blue-500: #3b82f6;
+  }
+  .bg-primary {
+    background-color: var(--primary);
+  }
+  .bg-primary-90 {
+    background-color: var(--primary-90);
+  }
+  .bg-neutral-100 {
+    background-color: var(--neutral-100);
+  }
+  .bg-neutral-200 {
+    background-color: var(--neutral-200);
+  }
+  .text-primary {
+    color: var(--primary);
+  }
+  .text-neutral-400 {
+    color: var(--neutral-400);
+  }
+  .text-neutral-500 {
+    color: var(--neutral-500);
+  }
+  .text-neutral-700 {
+    color: var(--neutral-700);
+  }
+  .text-red-500 {
+    color: var(--red-500);
+  }
+  .text-red-700 {
+    color: var(--red-700);
+  }
+  .text-green-500 {
+    color: var(--green-500);
+  }
+  .text-blue-500 {
+    color: var(--blue-500);
+  }
+  .border-primary {
+    border-color: var(--primary);
+  }
+  .border-neutral-200 {
+    border-color: var(--neutral-200);
+  }
+  .bg-primary\/5 {
+    background-color: rgba(59, 130, 246, 0.05);
+  }
+  .bg-primary\/10 {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+  .opacity-0 {
+    opacity: 0;
+  }
+  .opacity-100 {
+    opacity: 1;
+  }
+  .opacity-50 {
+    opacity: 0.5;
+  }
+  .scale-0 {
+    transform: scale(0);
+  }
+  .scale-150 {
+    transform: scale(1.5);
+  }
+  .cursor-not-allowed {
+    cursor: not-allowed;
+  }
+  .font-medium {
+    font-weight: 500;
+  }
+  .font-semibold {
+    font-weight: 600;
+  }
+  .text-sm {
+    font-size: 0.875rem;
+  }
+  .text-xs {
+    font-size: 0.75rem;
+  }
+  .text-lg {
+    font-size: 1.125rem;
+  }
+  .p-1 {
+    padding: 0.25rem;
+  }
+  .p-2 {
+    padding: 0.5rem;
+  }
+  .p-3 {
+    padding: 0.75rem;
+  }
+  .p-4 {
+    padding: 1rem;
+  }
+  .px-1 {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+  .px-2 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .px-3 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .py-1 {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+  .py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  .py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .pb-4 {
+    padding-bottom: 1rem;
+  }
+  .m-1 {
+    margin: 0.25rem;
+  }
+  .m-2 {
+    margin: 0.5rem;
+  }
+  .m-3 {
+    margin: 0.75rem;
+  }
+  .m-4 {
+    margin: 1rem;
+  }
+  .mb-1 {
+    margin-bottom: 0.25rem;
+  }
+  .mb-2 {
+    margin-bottom: 0.5rem;
+  }
+  .mb-3 {
+    margin-bottom: 0.75rem;
+  }
+  .mb-4 {
+    margin-bottom: 1rem;
+  }
+  .mb-6 {
+    margin-bottom: 1.5rem;
+  }
+  .mt-6 {
+    margin-top: 1.5rem;
+  }
+  .flex {
+    display: flex;
+  }
+  .flex-col {
+    flex-direction: column;
+  }
+  .flex-row {
+    flex-direction: row;
+  }
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
+  .justify-center {
+    justify-content: center;
+  }
+  .justify-between {
+    justify-content: space-between;
+  }
+  .items-center {
+    align-items: center;
+  }
+  .flex-shrink-0 {
+    flex-shrink: 0;
+  }
+  .flex-1 {
+    flex: 1;
+  }
+  .gap-1 {
+    gap: 0.25rem;
+  }
+  .gap-2 {
+    gap: 0.5rem;
+  }
+  .gap-3 {
+    gap: 0.75rem;
+  }
+  .gap-4 {
+    gap: 1rem;
+  }
+  .grid {
+    display: grid;
+  }
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  .sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sm\:w-24 {
+    width: 6rem;
+  }
+  .h-24 {
+    height: 6rem;
+  }
+  .h-16 {
+    height: 4rem;
+  }
+  .w-full {
+    width: 100%;
+  }
+  .max-w-xs {
+    max-width: 20rem;
+  }
+  .rounded {
+    border-radius: 0.25rem;
+  }
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  .rounded-full {
+    border-radius: 9999px;
+  }
+  .overflow-hidden {
+    overflow: hidden;
+  }
+  .relative {
+    position: relative;
+  }
+  .absolute {
+    position: absolute;
+  }
+  .inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+  .bg-white {
+    background-color: white;
+  }
+  .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  .shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  .hidden {
+    display: none;
+  }
+  .block {
+    display: block;
+  }
+  .inline-block {
+    display: inline-block;
+  }
+  .text-center {
+    text-align: center;
+  }
+  .object-cover {
+    object-fit: cover;
+  }
+  /* 自定义动画类 */
+  .transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  .transition-opacity {
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  .transition-transform {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  .transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  .transition-width {
+    transition-property: width;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  .duration-200 {
+    transition-duration: 200ms;
+  }
+  .duration-300 {
+    transition-duration: 300ms;
+  }
+  .duration-500 {
+    transition-duration: 500ms;
+  }
+  /* 响应式工具类 */
+  .sm\:flex-row {
+    flex-direction: row;
+  }
+  .sm\:flex-col {
+    flex-direction: column;
+  }
+</style>
+<!-- Font Awesome 图标内联样式 -->
+<style>
+  /* 这里简化处理，仅包含必要的图标样式 */
+  .fa {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .fa-cloud-upload:before { content: "\f0ee"; }
+  .fa-folder-open:before { content: "\f07c"; }
+  .fa-times:before { content: "\f00d"; }
+  .fa-upload:before { content: "\f093"; }
+  .fa-film:before { content: "\f008"; }
+  .fa-exclamation-circle:before { content: "\f06a"; }
+  .fa-trash-o:before { content: "\f014"; }
+  .fa-spinner:before { content: "\f110"; }
+  .fa-spin:before { animation: fa-spin 2s infinite linear; }
+  .fa-check:before { content: "\f00c"; }
+  @keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+</head>
+<body class="p-4">
+  <h2 class="text-lg font-semibold mb-4">本地文件上传</h2>
+  
+  <!-- 上传区域 -->
+  <div id="uploadArea" class="upload-area mb-6 transition-all duration-300 relative overflow-hidden flex flex-col items-center justify-center">
+    <input type="file" id="fileInput" class="hidden" accept="video/*" multiple>
+    <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-500" id="gradientOverlay"></div>
+    <!-- 上传图标已移除 -->
+    <p class="text-neutral-700 font-medium mb-2 text-center">点击或拖拽文件到此处上传</p>
+    <p class="text-xs text-neutral-500 mb-4 text-center max-w-xs">支持多种视频格式，可一次上传多个文件</p>
+    <button id="browseBtn" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-90 transition-colors text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300">
+      <i class="fa fa-folder-open mr-2"></i>浏览文件
+    </button>
+  </div>
+  
+  <!-- 上传文件列表 -->
+  <div id="fileList" class="mb-6 hidden">
+    <h3 class="font-medium mb-3">待上传文件</h3>
+    <div id="filesContainer"></div>
+  </div>
+  
+  <!-- 操作按钮 -->
+  <div class="mt-6 flex gap-3">
+    <button id="localCancelBtn" class="flex-1 btn-secondary transition-all duration-300">
+      <i class="fa fa-times mr-1"></i>取消
+    </button>
+    <button id="startUploadBtn" class="flex-1 btn-primary transition-all duration-300" disabled>
+      <i class="fa fa-upload mr-1"></i>开始上传
+    </button>
+  </div>
+
+  <script>
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取DOM元素
+       const uploadArea = document.getElementById('uploadArea');
+       let fileInput = document.getElementById('fileInput');
+       const fileList = document.getElementById('fileList');
+       const filesContainer = document.getElementById('filesContainer');
+       const startUploadBtn = document.getElementById('startUploadBtn');
+       const localCancelBtn = document.getElementById('localCancelBtn');
+       const browseBtn = document.getElementById('browseBtn');
+       const testFileSelect = document.getElementById('testFileSelect');
+
+      // 调试信息：检查DOM元素是否成功获取
+      console.log('DOM元素获取情况:');
+      console.log('uploadArea:', uploadArea);
+      console.log('fileInput:', fileInput);
+      console.log('browseBtn:', browseBtn);
+      console.log('testFileSelect:', testFileSelect);
+
+      // 创建新的文件输入元素替换现有的
+        if (fileInput) {
+          // 保存旧元素的ID
+          const oldId = fileInput.id;
+
+          // 创建新元素
+          const newFileInput = document.createElement('input');
+          newFileInput.type = 'file';
+          newFileInput.id = oldId;
+          newFileInput.accept = 'video/*';
+          newFileInput.multiple = true;
+
+          // 保持文件输入框隐藏
+          newFileInput.style.display = 'none';
+
+          // 替换旧元素
+          fileInput.parentNode.replaceChild(newFileInput, fileInput);
+
+          // 更新引用
+          fileInput = newFileInput;
+
+          console.log('文件输入元素已重置:', fileInput);
+
+          // 浏览按钮点击触发文件选择
+          browseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('浏览按钮被点击，尝试触发文件选择');
+            fileInput.click();
+          });
+
+          // 已删除测试按钮相关代码
+
+          // 为上传区域添加点击事件，也触发文件选择
+          uploadArea.addEventListener('click', (e) => {
+            // 确保点击不是来自按钮
+            if (!e.target.closest('#browseBtn') && !e.target.closest('#testFileSelect')) {
+              console.log('上传区域被点击，尝试触发文件选择');
+              fileInput.click();
+            }
+          });
+
+          // 文件选择处理
+          fileInput.addEventListener('change', (e) => {
+            console.log('文件选择变化，文件数量:', e.target.files.length);
+            if (e.target.files.length) {
+              processFiles(e.target.files);
+            }
+          });
+
+          // 添加测试函数
+          window.testFileSelection = function() {
+            if (fileInput) {
+              console.log('手动触发文件选择');
+              fileInput.click();
+            } else {
+              console.error('文件输入元素不存在');
+            }
+          };
+
+          console.log('页面加载完成，可以尝试以下操作:');
+          console.log('1. 点击页面上的"浏览文件"按钮');
+          console.log('2. 点击上传区域');
+        }
+    });
+    
+    // 拖拽功能
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('border-primary', 'bg-primary/5', 'dragover');
+      // 显示渐变覆盖层
+      document.getElementById('gradientOverlay').classList.remove('opacity-0');
+      document.getElementById('gradientOverlay').classList.add('opacity-100');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('border-primary', 'bg-primary/5', 'dragover');
+      // 隐藏渐变覆盖层
+      document.getElementById('gradientOverlay').classList.remove('opacity-100');
+      document.getElementById('gradientOverlay').classList.add('opacity-0');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('border-primary', 'bg-primary/5');
+      
+      if (e.dataTransfer.files.length) {
+        processFiles(e.dataTransfer.files);
+      }
+    });
+    
+    // 已在DOMContentLoaded中处理文件选择事件
+    // 文件选择处理代码已移除，避免重复
+    
+    // 处理选择的文件
+    function processFiles(files) {
+      // 显示文件列表区域
+      fileList.classList.remove('hidden');
+      
+      // 启用上传按钮
+      startUploadBtn.disabled = false;
+      
+      // 处理每个文件
+      Array.from(files).forEach((file, index) => {
+        // 只处理视频文件
+        if (!file.type.startsWith('video/')) {
+          alert('请选择视频文件');
+          return;
+        }
+        
+        // 创建文件项目
+        const fileId = `file-${Date.now()}-${index}`;
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.dataset.id = fileId;
+        
+        // 自动识别文件信息（模拟）
+        const fileName = file.name.replace(/\.[^/.]+$/, "");
+        const autoCategory = guessAutoCategory(fileName);
+        const autoTags = guessAutoTags(fileName);
+        const autoDescription = generateAutoDescription(fileName);
+        
+        // 设置文件项目内容
+        fileItem.innerHTML = `
+          <div class="p-4">
+            <div class="flex flex-col sm:flex-row gap-4">
+              <!-- 缩略图预览 -->
+              <div class="sm:w-24 h-24 bg-neutral-100 rounded overflow-hidden flex-shrink-0 relative">
+                <video id="preview-${fileId}" class="w-full h-full object-cover" controls>
+                  <source src="" type="${file.type}">
+                </video>
+                <div id="thumbnail-placeholder-${fileId}" class="w-full h-full flex items-center justify-center bg-neutral-100">
+                  <i class="fa fa-film text-2xl text-neutral-400"></i>
+                </div>
+              </div>
+              
+              <!-- 文件信息 -->
+              <div class="flex-1 space-y-3">
+                <div>
+                  <label class="block text-xs text-neutral-500 mb-1">文件名称</label>
+                  <input type="text" class="file-name w-full px-3 py-2 rounded-lg border border-neutral-200 input-focus text-sm" 
+                         value="${fileName}">
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs text-neutral-500 mb-1">分类</label>
+                    <select class="file-category w-full px-3 py-2 rounded-lg border border-neutral-200 input-focus text-sm">
+                      <option value="shot" ${autoCategory === 'shot' ? 'selected' : ''}>分镜</option>
+                      <option value="finished" ${autoCategory === 'finished' ? 'selected' : ''}>成片</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-xs text-neutral-500 mb-1">标签</label>
+                    <input type="text" class="file-tags w-full px-3 py-2 rounded-lg border border-neutral-200 input-focus text-sm" 
+                           placeholder="多个标签用逗号分隔" value="${autoTags}">
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-xs text-neutral-500 mb-1">描述</label>
+                  <textarea class="file-description w-full px-3 py-2 rounded-lg border border-neutral-200 input-focus text-sm h-16"
+                            placeholder="添加素材描述">${autoDescription}</textarea>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs text-neutral-500">${formatFileSize(file.size)}</span>
+                  <span class="text-xs text-neutral-500 file-duration"></span>
+                  <span class="upload-status text-xs text-neutral-500"></span>
+                </div>
+                <button class="remove-file text-red-500 hover:text-red-700 text-sm transition-colors duration-200 flex items-center gap-1" data-id="${fileId}">
+                  <i class="fa fa-trash-o"></i>
+                  <span>移除</span>
+                </button>
+              </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 进度条 -->
+          <div class="progress-bar px-4 pb-4">
+            <div class="progress-value" id="progress-${fileId}"></div>
+          </div>
+        `;
+        
+        // 添加到容器
+        filesContainer.appendChild(fileItem);
+        
+        // 生成视频缩略图
+        generateVideoThumbnail(file, fileId);
+        
+        // 绑定移除文件事件
+        fileItem.querySelector('.remove-file').addEventListener('click', function() {
+          const id = this.dataset.id;
+          document.querySelector(`.file-item[data-id="${id}"]`).remove();
+          
+          // 检查是否还有文件
+          if (filesContainer.children.length === 0) {
+            fileList.classList.add('hidden');
+            startUploadBtn.disabled = true;
+          }
+        });
+      });
+    }
+    
+    // 格式化视频时长
+    function formatDuration(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+      return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    }
+
+    // 生成视频缩略图和获取时长
+    function generateVideoThumbnail(file, fileId) {
+      const video = document.getElementById(`preview-${fileId}`);
+      const placeholder = document.getElementById(`thumbnail-placeholder-${fileId}`);
+      
+      // 确保元素存在
+      if (!video || !placeholder) return;
+      
+      // 创建视频URL
+      const videoURL = URL.createObjectURL(file);
+      video.src = videoURL;
+      video.style.display = 'none'; // 初始隐藏视频
+      
+      // 视频加载完成后截取第一帧作为缩略图
+      video.addEventListener('loadeddata', () => {
+        // 隐藏占位符，显示视频
+        placeholder.style.display = 'none';
+        video.style.display = 'block';
+        
+        // 不需要播放，只需要第一帧
+        video.currentTime = 0.1; // 稍微移动一点时间轴，确保有画面
+        video.pause();
+      });
+
+      // 视频元数据加载完成后获取时长
+      video.addEventListener('loadedmetadata', () => {
+        // 获取视频时长并显示
+        const duration = video.duration;
+        const formattedDuration = formatDuration(duration);
+
+        // 在缩略图上显示时长徽章
+        const thumbnailContainer = video.parentElement;
+        const durationBadge = document.createElement('div');
+        durationBadge.className = 'duration-badge';
+        durationBadge.textContent = formattedDuration;
+        thumbnailContainer.appendChild(durationBadge);
+
+        // 在文件信息中显示时长
+        const fileItem = document.querySelector(`.file-item[data-id="${fileId}"]`);
+        if (fileItem) {
+          const durationEl = fileItem.querySelector('.file-duration');
+          if (durationEl) {
+            durationEl.textContent = `时长: ${formattedDuration}`;
+          }
+        }
+      });
+      
+      // 处理视频加载错误
+      video.addEventListener('error', () => {
+        console.error('视频加载错误:', file.name);
+        placeholder.innerHTML = '<i class="fa fa-exclamation-circle text-2xl text-red-400"></i>';
+      });
+    }
+    
+    // 自动识别分类
+    function guessAutoCategory(fileName) {
+      // 清理文件名，移除扩展名
+      const cleanFileName = fileName.replace(/\.[^/.]+$/, "").toLowerCase();
+      
+      const shotKeywords = ['分镜', '镜头', '片段', 'shot', 'clip', 'scene'];
+      const finishedKeywords = ['成片', '完整', 'final', 'complete', 'full'];
+      
+      // 检查是否包含分镜关键词
+      for (const keyword of shotKeywords) {
+        if (cleanFileName.includes(keyword)) {
+          return 'shot';
+        }
+      }
+      
+      // 检查是否包含成片关键词
+      for (const keyword of finishedKeywords) {
+        if (cleanFileName.includes(keyword)) {
+          return 'finished';
+        }
+      }
+      
+      // 默认分类为分镜
+      return 'shot';
+    }
+    
+    // 自动识别标签
+    function guessAutoTags(fileName) {
+      // 清理文件名，移除扩展名
+      const cleanFileName = fileName.replace(/\.[^/.]+$/, "").toLowerCase();
+      
+      const tagMap = {
+        '产品': ['产品', '展示'],
+        '人物': ['人物', '肖像', '人像'],
+        '场景': ['场景', '环境', '背景'],
+        '广告': ['广告', '宣传', '推广'],
+        '教程': ['教程', '教学', '指南'],
+        '运动': ['运动', '动态', '动作'],
+        '静止': ['静止', '静态'],
+        '室内': ['室内', '房间', '室内场景'],
+        '户外': ['户外', '自然', '外景'],
+        '风景': ['风景', '景观'],
+        '城市': ['城市', '都市'],
+        '乡村': ['乡村', '农村'],
+        '动物': ['动物', '宠物'],
+        '植物': ['植物', '自然'],
+        '科技': ['科技', '技术'],
+        '美食': ['美食', '餐饮'],
+        '音乐': ['音乐', '音频']
+      };
+      
+      const tags = new Set();
+      
+      // 从文件名中提取可能的标签
+      for (const [keyword, associatedTags] of Object.entries(tagMap)) {
+        if (cleanFileName.includes(keyword)) {
+          associatedTags.forEach(tag => tags.add(tag));
+        }
+      }
+      
+      // 添加基础标签
+      tags.add('视频');
+      tags.add('素材');
+      
+      return Array.from(tags).join(', ');
+    }
+    
+    // 自动生成描述
+    function generateAutoDescription(fileName) {
+      // 清理文件名，移除扩展名
+      const cleanFileName = fileName.replace(/\.[^/.]+$/, "");
+      const category = guessAutoCategory(fileName) === 'shot' ? '分镜' : '成片';
+      return `${cleanFileName} - 自动识别为${category}视频素材。可根据实际内容修改描述信息。`;
+    }
+    
+    // 格式化文件大小
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // 开始上传
+    startUploadBtn.addEventListener('click', () => {
+      const fileItems = document.querySelectorAll('.file-item');
+      
+      if (fileItems.length === 0) {
+        alert('请选择要上传的文件');
+        return;
+      }
+      
+      // 禁用上传按钮和移除按钮
+      startUploadBtn.disabled = true;
+      startUploadBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> 上传中...';
+      document.querySelectorAll('.remove-file').forEach(btn => {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+      });
+      
+      // 禁用所有输入框
+      document.querySelectorAll('input, select, textarea').forEach(el => {
+        el.disabled = true;
+      });
+      
+      // 显示上传状态
+      document.querySelectorAll('.upload-status').forEach(status => {
+        status.textContent = '上传中...';
+        status.classList.remove('text-neutral-500', 'text-green-500', 'text-red-500');
+        status.classList.add('text-blue-500');
+      });
+      
+      // 模拟上传进度
+      fileItems.forEach((item, index) => {
+        const progressBar = document.getElementById(`progress-${item.dataset.id}`);
+        let progress = 0;
+        
+        const interval = setInterval(() => {
+          // 随机增加进度，模拟真实上传
+          progress += Math.random() * 10;
+          if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+          }
+          
+          progressBar.style.width = `${progress}%`;
+          
+          // 单个文件上传完成
+          if (progress === 100) {
+            clearInterval(interval);
+            const statusEl = document.querySelector(`.file-item[data-id="${item.dataset.id}"] .upload-status`);
+            if (statusEl) {
+              statusEl.textContent = '上传完成';
+              statusEl.classList.remove('text-blue-500', 'text-neutral-500', 'text-red-500');
+              statusEl.classList.add('text-green-500');
+            }
+          }
+          
+          // 所有文件上传完成
+          if (index === fileItems.length - 1 && progress === 100) {
+            setTimeout(() => {
+              startUploadBtn.innerHTML = '<i class="fa fa-check mr-1"></i> 上传完成';
+              
+              // 2秒后关闭弹窗
+              setTimeout(() => {
+                if (window.parent && window.parent.ModalManager) {
+                  window.parent.ModalManager.close();
+                  // 通知父窗口刷新素材列表
+                  if (window.parent.refreshMaterialList) {
+                    window.parent.refreshMaterialList();
+                  }
+                } else {
+                  window.close();
+                }
+              }, 2000);
+            }, 500);
+          }
+        }, 300 + index * 200); // 错开每个文件的上传进度更新
+      });
+    });
+    
+    // 取消按钮
+    localCancelBtn.addEventListener('click', () => {
+      if (document.querySelectorAll('.progress-value:not([style*="width: 100%"])').length > 0 && 
+          confirm('正在上传文件，确定要取消吗？')) {
+        closeModal();
+      } else {
+        closeModal();
+      }
+    });
+    
+    // 关闭弹窗
+    function closeModal() {
+      if (window.parent && window.parent.ModalManager) {
+        window.parent.ModalManager.close();
+      } else {
+        window.close();
+      }
+    }
+  </script>
+</body>
+</html>

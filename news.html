@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马上豹AI中心 - 资讯中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 模态框样式 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background-color: white; padding: 20px; border-radius: 8px; width: 400px; max-width: 90%; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .modal-title { font-size: 18px; font-weight: bold; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+        .modal-footer { display: flex; justify-content: flex-end; margin-top: 20px; gap: 10px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background-color: #1a1a1a; color: white; }
+        .btn-secondary { background-color: #eee; color: #333; }
+        /* 移除分散的控制元素 */
+        .settings-btn, .website-title-wrapper input { display: none; }
+        .website-controls { margin-bottom: 15px; }
+    </style>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部导航已移除 */
+        header {
+            display: none;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav-logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-logo i {
+            margin-right: 10px;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-left: 30px;
+            position: relative;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: #333;
+        }
+
+        .section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            color: #1a1a1a;
+        }
+
+        .section-title i {
+            color: #1a1a1a;
+            margin-right: 10px;
+        }
+
+        .website-container {
+            margin-bottom: 30px;
+        }
+
+        .website-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #444;
+            display: flex;
+            align-items: center;
+        }
+
+        .website-title i {
+            margin-right: 10px;
+            color: #666;
+        }
+
+        .news-list {
+            list-style: none;
+        }
+
+        .news-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-link {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .news-link:hover {
+            color: #0066cc;
+        }
+
+        .news-link i {
+            margin-right: 8px;
+            color: #999;
+        }
+
+        .news-date {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #1a1a1a;
+            border-bottom: 2px solid #1a1a1a;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        footer {
+            background-color: #1a1a1a;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 已移除头部导航 -->
+
+    <div class="container">
+        <!-- 新品速递 -->
+        <section class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2 class="section-title"><i class="fas fa-rocket"></i> 新品速递</h2>
+    <button id="unified-settings-btn" class="btn btn-primary"><i class="fas fa-cog"></i> 网站显示设置</button>
+</div>
+            <div class="tab-container">
+                <div class="tab active" data-tab="domestic">国内新品</div>
+                <div class="tab" data-tab="international">国外新品</div>
+            </div>
+
+            <!-- 国内新品 -->
+            <div class="tab-content active" id="domestic">
+                <!-- 国妆网 -->
+                <div class="website-container" data-website="guozhuang">
+                    <div class="website-controls" data-website="guozhuang">
+                        <h3 class="website-title"><i class="fas fa-globe-asia"></i> 国妆网</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 2023夏季护肤新品发布会：天然成分成主流</a>
+                            <span class="news-date">2025-08-11</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国妆网评选：2023年度最具创新力化妆品品牌</a>
+                            <span class="news-date">2025-08-14</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国产美妆品牌推出AI定制化护肤方案</a>
+                            <span class="news-date">2025-08-16</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 植物干细胞技术引领新一波护肤品创新</a>
+                            <span class="news-date">2025-08-11</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 敏感肌肤专用产品线成市场新宠</a>
+                            <span class="news-date">2025-08-14</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 京东新品 -->
+                <div class="website-container" data-website="jdnew">
+                    <div class="website-controls" data-website="jdnew">
+                        <h3 class="website-title"><i class="fas fa-shopping-cart"></i> 京东新品</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 京东618新品首发：智能家电销量同比增长200%</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 京东与知名手机品牌合作推出独家定制版</a>
+                            <span class="news-date">2025-08-13</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 京东新品周：智能家居产品成消费者首选</a>
+                            <span class="news-date">2023-06-10</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 京东健康发布智能健康监测新品</a>
+                            <span class="news-date">2025-08-12</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 京东新品数码节：折叠屏手机关注度创新高</a>
+                            <span class="news-date">2023-06-05</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 造点新货 -->
+                <div class="website-container" data-website="zaodian">
+                    <div class="website-controls" data-website="zaodian">
+                        <h3 class="website-title"><i class="fas fa-lightbulb"></i> 造点新货</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 智能穿戴设备创新设计获百万众筹</a>
+                            <span class="news-date">2025-08-12</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 环保材料家居新品受热捧</a>
+                            <span class="news-date">2023-06-12</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 创意厨房用品成造点新货新宠</a>
+                            <span class="news-date">2025-08-17</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 个性化定制产品引领消费新趋势</a>
+                            <span class="news-date">2023-06-07</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 智能家居控制系统完成众筹目标</a>
+                            <span class="news-date">2025-08-15</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 小米有品 -->
+                <div class="website-container" data-website="youpin">
+                    <div class="website-controls" data-website="youpin">
+                        <h3 class="website-title"><i class="fas fa-store"></i> 小米有品</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 小米有品推出智能空气净化器新品</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 小米有品首发折叠电动车</a>
+                            <span class="news-date">2023-06-12</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 智能厨房秤成家庭健康管理新助手</a>
+                            <span class="news-date">2023-06-10</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 小米有品发布智能睡眠监测设备</a>
+                            <span class="news-date">2023-06-07</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 便携投影仪新品获用户好评</a>
+                            <span class="news-date">2023-06-05</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 什么值得买 -->
+                <div class="website-container" data-website="smzdm">
+                    <div class="website-controls" data-website="smzdm">
+                        <h3 class="website-title"><i class="fas fa-star"></i> 什么值得买</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 2023年度最值得购买的十大电子产品</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 性价比超高的智能家居产品推荐</a>
+                            <span class="news-date">2023-06-12</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 618值得购买的十大新品汇总</a>
+                            <span class="news-date">2023-06-10</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 高品质生活家电推荐</a>
+                            <span class="news-date">2023-06-08</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 2023年度最值得期待的数码新品</a>
+                            <span class="news-date">2023-06-05</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 国外新品 -->
+            <div class="tab-content" id="international">
+                <!-- Amazon New Releases -->
+                <div class="website-container" data-website="amazon">
+                    <div class="website-controls" data-website="amazon">
+                        <h3 class="website-title"><i class="fas fa-amazon"></i> Amazon New Releases</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> Amazon Echo Show 15 智能家居控制中心发布</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 最新Kindle Paperwhite签名版上架</a>
+                            <span class="news-date">2023-06-12</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 亚马逊推出全新Fire TV Cube</a>
+                            <span class="news-date">2023-06-10</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 亚马逊Basics系列新增环保产品线</a>
+                            <span class="news-date">2023-06-08</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 亚马逊智能门锁新品发布</a>
+                            <span class="news-date">2023-06-05</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- New Product Express -->
+                <div class="website-container" data-website="newproduct">
+                    <div class="website-controls" data-website="newproduct">
+                        <h3 class="website-title"><i class="fas fa-box-open"></i> New Product Express</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 可折叠智能手机新品曝光</a>
+                            <span class="news-date">2023-06-14</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 无线充电技术新突破</a>
+                            <span class="news-date">2023-06-12</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 新一代智能手表支持体温监测</a>
+                            <span class="news-date">2023-06-09</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 环保材料笔记本电脑发布</a>
+                            <span class="news-date">2023-06-07</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 迷你投影仪新品支持4K分辨率</a>
+                            <span class="news-date">2023-06-05</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Etsy New Items -->
+                <div class="website-container" data-website="etsy">
+                    <div class="website-controls" data-website="etsy">
+                        <h3 class="website-title"><i class="fas fa-hand-holding-heart"></i> Etsy New Items</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 手工制作可持续家居装饰品成新宠</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 个性化定制珠宝销量激增</a>
+                            <span class="news-date">2023-06-13</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 手工皂和天然护肤品人气上升</a>
+                            <span class="news-date">2023-06-10</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 独特手工陶瓷制品受追捧</a>
+                            <span class="news-date">2023-06-08</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 复古风格家居装饰走红</a>
+                            <span class="news-date">2023-06-05</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Product Hunt -->
+                <div class="website-container" data-website="producthunt">
+                    <div class="website-controls" data-website="producthunt">
+                        <h3 class="website-title"><i class="fas fa-rocket"></i> Product Hunt</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> AI驱动的个人 productivity 工具获高度关注</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 新一代设计协作平台发布</a>
+                            <span class="news-date">2023-06-13</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 创新密码管理工具成焦点</a>
+                            <span class="news-date">2025-08-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> AI写作助手新功能引热议</a>
+                            <span class="news-date">2023-06-08</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 去中心化文件存储解决方案推出</a>
+                            <span class="news-date">2025-08-13</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- BetaList -->
+                <div class="website-container" data-website="betalist">
+                    <div class="website-controls" data-website="betalist">
+                        <h3 class="website-title"><i class="fas fa-flask"></i> BetaList</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 新一代社交媒体平台开始内测</a>
+                            <span class="news-date">2023-06-14</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> AI驱动的音乐创作工具开放测试</a>
+                            <span class="news-date">2023-06-12</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 创新远程协作平台上线</a>
+                            <span class="news-date">2023-06-10</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 智能健康追踪应用开始beta测试</a>
+                            <span class="news-date">2023-06-08</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 环保主题社交应用推出</a>
+                            <span class="news-date">2023-06-06</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 商品消息 -->
+        <section class="section">
+            <h2 class="section-title"><i class="fas fa-tags"></i> 商品消息</h2>
+
+            <!-- Best Products -->
+            <div class="website-container" data-website="bestproducts">
+                    <div class="website-controls" data-website="bestproducts">
+                        <h3 class="website-title"><i class="fas fa-award"></i> Best Products</h3>
+                    </div>
+                <ul class="news-list">
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 2023年最佳笔记本电脑评选结果公布</a>
+                        <span class="news-date">2023-06-15</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 十大最受欢迎智能家居设备推荐</a>
+                        <span class="news-date">2023-06-13</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 2023年度最佳厨房电器排行榜</a>
+                        <span class="news-date">2023-06-10</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 最佳无线耳机对比评测</a>
+                        <span class="news-date">2023-06-08</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 2023年最值得购买的相机推荐</a>
+                        <span class="news-date">2023-06-06</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Consumer Reports -->
+            <div class="website-container" data-website="consumerreports">
+                    <div class="website-controls" data-website="consumerreports">
+                        <h3 class="website-title"><i class="fas fa-file-alt"></i> Consumer Reports</h3>
+                    </div>
+                <ul class="news-list">
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 最新汽车可靠性报告发布</a>
+                        <span class="news-date">2023-06-14</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 家电产品耐用性测试结果</a>
+                        <span class="news-date">2023-06-12</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 智能手机电池寿命测试</a>
+                        <span class="news-date">2023-06-10</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 婴儿产品安全评估报告</a>
+                        <span class="news-date">2023-06-08</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 食品营养成分测试结果</a>
+                        <span class="news-date">2023-06-06</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- DXOMARK -->
+            <div class="website-container" data-website="dxomark">
+                    <div class="website-controls" data-website="dxomark">
+                        <h3 class="website-title"><i class="fas fa-camera"></i> DXOMARK</h3>
+                    </div>
+                <ul class="news-list">
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 最新旗舰手机相机评分公布</a>
+                        <span class="news-date">2023-06-15</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 智能手机音频性能测试</a>
+                        <span class="news-date">2023-06-13</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 平板电脑屏幕质量评测</a>
+                        <span class="news-date">2023-06-11</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 智能手表显示屏测试</a>
+                        <span class="news-date">2023-06-09</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 笔记本电脑屏幕素质排名</a>
+                        <span class="news-date">2023-06-07</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 中关村在线 -->
+            <div class="website-container" data-website="zol">
+                    <div class="website-controls" data-website="zol">
+                        <h3 class="website-title"><i class="fas fa-microchip"></i> 中关村在线</h3>
+                    </div>
+                <ul class="news-list">
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 新一代处理器性能评测</a>
+                        <span class="news-date">2023-06-15</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 显卡性能横评：谁是游戏之王</a>
+                        <span class="news-date">2023-06-13</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 笔记本电脑散热性能测试</a>
+                        <span class="news-date">2023-06-11</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 固态硬盘速度对比</a>
+                        <span class="news-date">2023-06-09</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 显示器色彩准确度测试</a>
+                        <span class="news-date">2023-06-07</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- IT 之家 -->
+            <div class="website-container" data-website="ithome">
+                    <div class="website-controls" data-website="ithome">
+                        <h3 class="website-title"><i class="fas fa-laptop-code"></i> IT 之家</h3>
+                    </div>
+                <ul class="news-list">
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 苹果新品发布会时间确定</a>
+                        <span class="news-date">2023-06-15</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 微软Windows 11重大更新曝光</a>
+                        <span class="news-date">2023-06-13</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 华为新品手机参数泄露</a>
+                        <span class="news-date">2023-06-11</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 小米新系统发布日期确认</a>
+                        <span class="news-date">2023-06-09</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 英特尔新一代处理器发布</a>
+                        <span class="news-date">2023-06-07</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 良品笔记 -->
+            <div class="website-container" data-website="liangpin">
+                    <div class="website-controls" data-website="liangpin">
+                        <h3 class="website-title"><i class="fas fa-pen-fancy"></i> 良品笔记</h3>
+                    </div>
+                <ul class="news-list">
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 小众但实用的生活好物推荐</a>
+                        <span class="news-date">2023-06-14</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 高品质文具推荐</a>
+                        <span class="news-date">2023-06-12</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 家居收纳神器盘点</a>
+                        <span class="news-date">2023-06-10</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 旅行必备好物推荐</a>
+                        <span class="news-date">2023-06-08</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 高效工作装备分享</a>
+                        <span class="news-date">2023-06-06</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 必看评测网 -->
+            <div class="website-container" data-website="bikan">
+                    <div class="website-controls" data-website="bikan">
+                        <h3 class="website-title"><i class="fas fa-thumbs-up"></i> 必看评测网</h3>
+                    </div>
+                <ul class="news-list">
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 扫地机器人横评：哪款最值得买</a>
+                        <span class="news-date">2023-06-15</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 蓝牙耳机音质对比评测</a>
+                        <span class="news-date">2023-06-13</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 咖啡机深度评测</a>
+                        <span class="news-date">2023-06-11</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 智能手表功能对比</a>
+                        <span class="news-date">2023-06-09</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 投影仪画质测试</a>
+                        <span class="news-date">2023-06-07</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Wirecutter -->
+            <div class="website-container" data-website="wirecutter">
+                    <div class="website-controls" data-website="wirecutter">
+                        <h3 class="website-title"><i class="fas fa-cut"></i> Wirecutter</h3>
+                    </div>
+                <ul class="news-list">
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 2023年最佳厨房刀具推荐</a>
+                        <span class="news-date">2023-06-15</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 最佳旅行行李箱评测</a>
+                        <span class="news-date">2023-06-13</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 2023年最佳床垫推荐</a>
+                        <span class="news-date">2023-06-11</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 最佳办公椅评测</a>
+                        <span class="news-date">2023-06-09</span>
+                    </li>
+                    <li class="news-item">
+                        <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 2023年最佳耳机推荐</a>
+                        <span class="news-date">2023-06-07</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 热门资讯 -->
+        <section class="section">
+            <h2 class="section-title"><i class="fas fa-fire"></i> 热门资讯</h2>
+            <div class="tab-container">
+                <div class="tab active" data-tab="domestic-news">国内资讯</div>
+                <div class="tab" data-tab="international-news">国际资讯</div>
+            </div>
+
+            <!-- 国内资讯 -->
+            <div class="tab-content active" id="domestic-news">
+                <!-- 央视网 -->
+                <div class="website-container" data-website="cctv">
+                    <div class="website-controls" data-website="cctv">
+                        <h3 class="website-title"><i class="fas fa-television"></i> 央视网</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 我国数字经济规模突破45万亿</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 新能源汽车产销量连续8年全球第一</a>
+                            <span class="news-date">2023-06-13</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 我国5G基站数量超过150万个</a>
+                            <span class="news-date">2023-06-11</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全国夏粮丰收在望</a>
+                            <span class="news-date">2023-06-09</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 我国科研团队取得重大突破</a>
+                            <span class="news-date">2023-06-07</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 新华网 -->
+                <div class="website-container" data-website="xinhua">
+                    <div class="website-controls" data-website="xinhua">
+                        <h3 class="website-title"><i class="fas fa-globe"></i> 新华网</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国家航天局发布最新探月计划</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 我国新能源发电装机容量突破8亿千瓦</a>
+                            <span class="news-date">2023-06-13</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全国统一医保信息平台全面建成</a>
+                            <span class="news-date">2023-06-11</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 我国数字人民币试点范围进一步扩大</a>
+                            <span class="news-date">2023-06-09</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国家医保药品目录新增60种药品</a>
+                            <span class="news-date">2023-06-07</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 新浪新闻 -->
+                <div class="website-container" data-website="sina">
+                    <div class="website-controls" data-website="sina">
+                        <h3 class="website-title"><i class="fab fa-weibo"></i> 新浪新闻</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 央行降准0.5个百分点</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 教育部发布最新高校学科评估结果</a>
+                            <span class="news-date">2023-06-13</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国内旅游市场持续回暖</a>
+                            <span class="news-date">2023-06-11</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 新能源汽车购置税减免政策延长</a>
+                            <span class="news-date">2023-06-09</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全国多地出台稳楼市新政</a>
+                            <span class="news-date">2023-06-07</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 腾讯新闻 -->
+                <div class="website-container" data-website="tencent">
+                    <div class="website-controls" data-website="tencent">
+                        <h3 class="website-title"><i class="fab fa-weixin"></i> 腾讯新闻</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 我国数字经济核心产业增加值占GDP比重超10%</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 我国5G用户超过6亿</a>
+                            <span class="news-date">2023-06-13</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国内首部数据要素基础性法规出台</a>
+                            <span class="news-date">2023-06-11</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 我国人工智能核心产业规模突破5000亿元</a>
+                            <span class="news-date">2023-06-09</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国内首个元宇宙产业园开园</a>
+                            <span class="news-date">2023-06-07</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 国际资讯 -->
+            <div class="tab-content" id="international-news">
+                <!-- CNN -->
+                <div class="website-container" data-website="cnn">
+                    <div class="website-controls" data-website="cnn">
+                        <h3 class="website-title"><i class="fab fa-cnn"></i> CNN</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全球气候变化会议达成新共识</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 美联储宣布加息25个基点</a>
+                            <span class="news-date">2023-06-14</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国际能源署发布最新能源展望报告</a>
+                            <span class="news-date">2023-06-12</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全球芯片供应链持续紧张</a>
+                            <span class="news-date">2023-06-10</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国际奥委会宣布下届奥运会新增项目</a>
+                            <span class="news-date">2023-06-08</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- BBC News -->
+                <div class="website-container" data-website="bbc">
+                    <div class="website-controls" data-website="bbc">
+                        <h3 class="website-title"><i class="fab fa-bbc"></i> BBC News</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 英国宣布新的科技投资计划</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 欧洲央行维持利率不变</a>
+                            <span class="news-date">2023-06-14</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全球粮食安全面临新挑战</a>
+                            <span class="news-date">2023-06-12</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 联合国发布最新全球人口报告</a>
+                            <span class="news-date">2023-06-10</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国际科研团队发现新的抗生素</a>
+                            <span class="news-date">2023-06-08</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 《纽约时报》官网 -->
+                <div class="website-container" data-website="nytimes">
+                    <div class="website-controls" data-website="nytimes">
+                        <h3 class="website-title"><i class="fas fa-newspaper"></i> 《纽约时报》官网</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 美国通胀率继续回落</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全球人工智能监管框架初步形成</a>
+                            <span class="news-date">2023-06-13</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国际太空站将延长使用至2030年</a>
+                            <span class="news-date">2023-06-11</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全球供应链重构加速</a>
+                            <span class="news-date">2023-06-09</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 电动汽车市场份额持续扩大</a>
+                            <span class="news-date">2023-06-07</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 《卫报》官网 -->
+                <div class="website-container" data-website="guardian">
+                    <div class="website-controls" data-website="guardian">
+                        <h3 class="website-title"><i class="fas fa-shield-alt"></i> 《卫报》官网</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 欧盟通过数字市场法案</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全球可再生能源投资创新高</a>
+                            <span class="news-date">2023-06-13</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国际海洋保护协议达成</a>
+                            <span class="news-date">2023-06-11</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全球塑料污染治理取得新进展</a>
+                            <span class="news-date">2023-06-09</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国际刑事法院对战争罪展开调查</a>
+                            <span class="news-date">2023-06-07</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 雅虎新闻 -->
+                <div class="website-container" data-website="yahoo">
+                    <div class="website-controls" data-website="yahoo">
+                        <h3 class="website-title"><i class="fab fa-yahoo"></i> 雅虎新闻</h3>
+                    </div>
+                    <ul class="news-list">
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全球科技巨头财报超预期</a>
+                            <span class="news-date">2023-06-15</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国际原油价格波动加剧</a>
+                            <span class="news-date">2023-06-13</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全球电子商务市场持续增长</a>
+                            <span class="news-date">2023-06-11</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 国际体育赛事版权争夺加剧</a>
+                            <span class="news-date">2023-06-09</span>
+                        </li>
+                        <li class="news-item">
+                            <a href="#" class="news-link"><i class="fas fa-angle-right"></i> 全球旅游业复苏步伐加快</a>
+                            <span class="news-date">2023-06-07</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2023 马上豹AI中心. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <!-- 统一设置模态框 -->
+<div class="modal" id="website-settings-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">网站显示设置</h4>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+            <div class="website-group">
+                <h5>新品速递 - 国内新品</h5>
+                <div class="website-setting-item"><input type="checkbox" id="guozhuang-checkbox" checked> <label for="guozhuang-checkbox">国妆网</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="jdnew-checkbox" checked> <label for="jdnew-checkbox">京东新品</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="zaodian-checkbox" checked> <label for="zaodian-checkbox">造点新货</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="youpin-checkbox" checked> <label for="youpin-checkbox">小米有品</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="smzdm-checkbox" checked> <label for="smzdm-checkbox">什么值得买</label></div>
+            </div>
+            <div class="website-group">
+                <h5>新品速递 - 国外新品</h5>
+                <div class="website-setting-item"><input type="checkbox" id="amazon-checkbox" checked> <label for="amazon-checkbox">Amazon New Releases</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="newproduct-checkbox" checked> <label for="newproduct-checkbox">New Product Express</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="etsy-checkbox" checked> <label for="etsy-checkbox">Etsy New Items</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="producthunt-checkbox" checked> <label for="producthunt-checkbox">Product Hunt</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="betalist-checkbox" checked> <label for="betalist-checkbox">BetaList</label></div>
+            </div>
+            <div class="website-group">
+                <h5>商品消息</h5>
+                <div class="website-setting-item"><input type="checkbox" id="bestproducts-checkbox" checked> <label for="bestproducts-checkbox">Best Products</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="consumerreports-checkbox" checked> <label for="consumerreports-checkbox">Consumer Reports</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="dxomark-checkbox" checked> <label for="dxomark-checkbox">DXOMARK</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="zol-checkbox" checked> <label for="zol-checkbox">中关村在线</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="ithome-checkbox" checked> <label for="ithome-checkbox">IT 之家</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="liangpin-checkbox" checked> <label for="liangpin-checkbox">良品笔记</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="bikan-checkbox" checked> <label for="bikan-checkbox">必看评测网</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="wirecutter-checkbox" checked> <label for="wirecutter-checkbox">Wirecutter</label></div>
+            </div>
+            <div class="website-group">
+                <h5>热门资讯 - 国内资讯</h5>
+                <div class="website-setting-item"><input type="checkbox" id="cctv-checkbox" checked> <label for="cctv-checkbox">央视网</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="xinhua-checkbox" checked> <label for="xinhua-checkbox">新华网</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="sina-checkbox" checked> <label for="sina-checkbox">新浪新闻</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="tencent-checkbox" checked> <label for="tencent-checkbox">腾讯新闻</label></div>
+            </div>
+            <div class="website-group">
+                <h5>热门资讯 - 国际资讯</h5>
+                <div class="website-setting-item"><input type="checkbox" id="cnn-checkbox" checked> <label for="cnn-checkbox">CNN</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="bbc-checkbox" checked> <label for="bbc-checkbox">BBC News</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="nytimes-checkbox" checked> <label for="nytimes-checkbox">《纽约时报》官网</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="guardian-checkbox" checked> <label for="guardian-checkbox">《卫报》官网</label></div>
+                <div class="website-setting-item"><input type="checkbox" id="yahoo-checkbox" checked> <label for="yahoo-checkbox">雅虎新闻</label></div>
+            </div>
+        </div>
+        <style>
+            .website-group { margin-bottom: 20px; }
+            .website-group h5 { margin-bottom: 10px; color: #444; }
+            .website-setting-item { margin-bottom: 10px; }
+        </style>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="modal-cancel">取消</button>
+            <button class="btn btn-primary" id="modal-save">保存设置</button>
+        </div>
+    </div>
+</div>
+
+<script>
+        // 选项卡切换
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                // 添加active类到当前选项卡
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // 网站显示控制
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const websiteId = this.id.replace('-checkbox', '');
+                const websiteContainer = document.querySelector(`.website-container[data-website="${websiteId}"]`);
+                const newsList = websiteContainer.querySelector('.news-list');
+
+                if (this.checked) {
+                    newsList.style.display = 'block';
+                } else {
+                    newsList.style.display = 'none';
+                }
+            });
+        });
+
+        // 模态框控制
+        const modal = document.getElementById('website-settings-modal');
+        const modalClose = document.querySelector('.modal-close');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalSave = document.getElementById('modal-save');
+
+        // 打开模态框
+        const unifiedSettingsBtn = document.getElementById('unified-settings-btn');
+        unifiedSettingsBtn.addEventListener('click', function() {
+            // 更新模态框中的复选框状态，与页面保持一致
+            checkboxes.forEach(checkbox => {
+                const modalCheckbox = document.getElementById(checkbox.id);
+                if (modalCheckbox) {
+                    modalCheckbox.checked = checkbox.checked;
+                }
+            });
+            modal.style.display = 'flex';
+        });
+
+        // 关闭模态框
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        modalClose.addEventListener('click', closeModal);
+        modalCancel.addEventListener('click', closeModal);
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // 保存模态框设置
+        modalSave.addEventListener('click', function() {
+            // 获取模态框中的所有复选框
+            const modalCheckboxes = modal.querySelectorAll('input[type="checkbox"]');
+            modalCheckboxes.forEach(modalCheckbox => {
+                const websiteCheckbox = document.getElementById(modalCheckbox.id);
+                if (websiteCheckbox && websiteCheckbox.checked !== modalCheckbox.checked) {
+                    websiteCheckbox.checked = modalCheckbox.checked;
+                    // 触发change事件以更新显示
+                    const event = new Event('change');
+                    websiteCheckbox.dispatchEvent(event);
+                }
+            });
+            closeModal();
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文件选择测试</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .test-container { max-width: 500px; margin: 0 auto; text-align: center; }
+    button { padding: 10px 20px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background-color: #2563eb; }
+    #fileInput { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>文件选择测试</h1>
+    <button id="testBtn">测试文件选择</button>
+    <input type="file" id="fileInput" class="hidden" accept="video/*" multiple>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const testBtn = document.getElementById('testBtn');
+      const fileInput = document.getElementById('fileInput');
+      const result = document.getElementById('result');
+
+      console.log('DOM元素获取情况:');
+      console.log('testBtn:', testBtn);
+      console.log('fileInput:', fileInput);
+
+      // 显示文件输入框以便调试
+      fileInput.style.display = 'block';
+
+      testBtn.addEventListener('click', function() {
+        console.log('测试按钮被点击，尝试触发文件选择');
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', function(e) {
+        console.log('文件选择变化，文件数量:', e.target.files.length);
+        result.innerHTML = `已选择 ${e.target.files.length} 个文件`;
+      });
+    });
+  </script>
+</body>
+</html>

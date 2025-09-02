@@ -1,0 +1,1207 @@
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>素材搜索筛选平台</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义颜色和字体 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#FF7D00',
+            neutral: {
+              100: '#F5F7FA',
+              200: '#E5E6EB',
+              300: '#C9CDD4',
+              400: '#86909C',
+              500: '#4E5969',
+              600: '#272E3B',
+              700: '#1D2129',
+            }
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .filter-active {
+        @apply bg-primary text-white;
+      }
+      .card-hover {
+        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+      }
+      .btn-primary {
+        @apply bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-all duration-200;
+      }
+      .btn-secondary {
+        @apply bg-white border border-neutral-200 hover:border-primary text-neutral-700 px-4 py-2 rounded-lg transition-all duration-200;
+      }
+      .filter-chip {
+        @apply px-3 py-2 rounded-lg transition-colors cursor-pointer whitespace-nowrap;
+      }
+      .filter-label {
+        @apply font-medium text-neutral-700 mr-3 whitespace-nowrap;
+      }
+      .tag-select-wrapper {
+        @apply relative mr-4 mb-2 sm:mb-0;
+      }
+      .tag-select {
+        @apply pr-8 py-2 rounded-lg border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm bg-white;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen flex flex-col">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3">
+      <div class="flex items-center space-x-2 mb-3">
+        <i class="fa fa-film text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-neutral-700">素材资源库</h1>
+      </div>
+      <nav class="flex border-b border-neutral-200">
+        <a href="#" class="px-4 py-2 text-primary font-medium border-b-2 border-primary">素材库</a>
+        <a href="recently-use.html" class="px-4 py-2 text-neutral-500 hover:text-primary transition-colors">最近使用</a>
+        <a href="recently-add.html" class="px-4 py-2 text-neutral-500 hover:text-primary transition-colors">最近添加</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex-grow container mx-auto px-4 py-6">
+    <!-- 搜索区域 -->
+    <section class="mb-6">
+      <div class="relative">
+        <input type="text" placeholder="输入关键词搜索素材..." class="w-full pl-12 pr-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+        <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+        <button class="absolute right-2 top-1/2 -translate-y-1/2 btn-primary">
+          搜索
+        </button>
+      </div>
+    </section>
+
+    <!-- 筛选区域 -->
+    <section class="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <!-- 素材分类 -->
+      <div class="mb-4">
+        <div class="flex flex-wrap items-center">
+          <span class="filter-label">素材分类:</span>
+          <button class="filter-chip filter-active mr-2 mb-2 sm:mb-0">
+            全部
+          </button>
+          <button class="filter-chip hover:bg-neutral-100 mr-2 mb-2 sm:mb-0">
+            分镜视频
+          </button>
+          <button class="filter-chip hover:bg-neutral-100 mb-2 sm:mb-0">
+            成片视频
+          </button>
+        </div>
+      </div>
+      
+      <!-- 素材标签 -->
+      <div class="space-y-4">
+        <div class="flex flex-wrap items-center">
+          <span class="filter-label">素材标签:</span>
+          
+          <!-- 筛选标签组 -->
+          <div class="flex flex-wrap flex-1">
+            <!-- 是否收藏筛选 -->
+            <div class="tag-select-wrapper">
+              <select class="tag-select" id="favoriteFilter">
+                <option value="">是否收藏</option>
+                <option value="favorite">仅显示收藏</option>
+                <option value="notfavorite">仅显示未收藏</option>
+              </select>
+            </div>
+            
+            <!-- 商品分类 -->
+            <div class="tag-select-wrapper">
+              <select class="tag-select">
+                <option value="">商品分类</option>
+                <option value="electronics">电子产品</option>
+                <option value="clothing">服装鞋帽</option>
+                <option value="food">食品饮料</option>
+                <option value="home">家居用品</option>
+              </select>
+            </div>
+            
+            <!-- 人物分类 -->
+            <div class="tag-select-wrapper">
+              <select class="tag-select">
+                <option value="">人物分类</option>
+                <option value="male">男性</option>
+                <option value="female">女性</option>
+                <option value="children">儿童</option>
+                <option value="group">群体</option>
+              </select>
+            </div>
+            
+            <!-- 运镜方式 -->
+            <div class="tag-select-wrapper">
+              <select class="tag-select">
+                <option value="">运镜方式</option>
+                <option value="pan">平移</option>
+                <option value="tilt">倾斜</option>
+                <option value="zoom">缩放</option>
+                <option value="tracking">跟踪</option>
+              </select>
+            </div>
+            
+            <!-- 背景音效 -->
+            <div class="tag-select-wrapper">
+              <select class="tag-select">
+                <option value="">背景音效</option>
+                <option value="music">背景音乐</option>
+                <option value="natural">自然声音</option>
+                <option value="voice">人声</option>
+                <option value="none">无音效</option>
+              </select>
+            </div>
+            
+            <!-- 水印字幕 -->
+            <div class="tag-select-wrapper">
+              <select class="tag-select">
+                <option value="">水印字幕</option>
+                <option value="watermark">有水印</option>
+                <option value="subtitle">有字幕</option>
+                <option value="both">两者都有</option>
+                <option value="none">无</option>
+              </select>
+            </div>
+            
+            <!-- 镜头类型 -->
+            <div class="tag-select-wrapper  py-2">
+              <select class="tag-select">
+                <option value="">镜头类型</option>
+                <option value="close-up">特写</option>
+                <option value="medium">中景</option>
+                <option value="long">远景</option>
+                <option value="wide">广角</option>
+              </select>
+            </div>
+            
+            <!-- 素材来源 -->
+            <div class="tag-select-wrapper  py-2">
+              <select class="tag-select">
+                <option value="">素材来源</option>
+                <option value="official">官方拍摄</option>
+                <option value="third-party">第三方授权</option>
+                <option value="self-made">自制素材</option>
+              </select>
+            </div>
+            
+            <!-- 视频时长 -->
+            <div class="tag-select-wrapper py-2 ">
+              <select class="tag-select">
+                <option value="">视频时长</option>
+                <option value="short">短 (&lt; 1分钟)</option>
+                <option value="medium">中 (1-3分钟)</option>
+                <option value="long">长 (&gt; 3分钟)</option>
+              </select>
+            </div>
+            
+            <!-- 自定义标签按钮 -->
+            <button id="customTagBtn" class="flex items-center gap-2 text-primary border border-dashed border-primary/50 hover:bg-primary/5 px-2 py-1 m-2 rounded-lg transition-colors text-sm mb-2 sm:mb-0">
+              <i class="fa fa-plus"></i>
+              <span>添加自定义标签</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- 已选标签 - 移至素材标签下方，左对齐 -->
+        <div class="flex flex-wrap items-center gap-4 pl-[72px] sm:pl-[84px]">
+          <span class="inline-flex items-center px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+            商品分类: 电子产品
+            <button class="ml-1 text-primary/70 hover:text-primary"><i class="fa fa-times-circle"></i></button>
+          </span>
+          <span class="inline-flex items-center px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+            运镜方式: 平移
+            <button class="ml-1 text-primary/70 hover:text-primary"><i class="fa fa-times-circle"></i></button>
+          </span>
+          <!-- 新增标签 -->
+          <span class="inline-flex items-center px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+            镜头类型: 特写
+            <button class="ml-1 text-primary/70 hover:text-primary"><i class="fa fa-times-circle"></i></button>
+          </span>
+        </div>
+        
+        <!-- 筛选操作按钮 -->
+        <div class="mt-4 flex gap-3">
+          <button class="btn-secondary">
+            重置筛选
+          </button>
+          <button class="btn-primary">
+            应用筛选
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 结果展示区域 -->
+    <section>
+      <!-- 结果统计和排序 -->
+      <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <span class="font-medium">找到约 <span class="text-primary">1,256</span> 个结果</span>
+        </div>
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <label class="text-sm text-neutral-500">排序方式:</label>
+          <select class="px-3 py-2 rounded-lg border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm">
+            <option value="relevance">相关度优先</option>
+            <option value="usage">使用频次高到低</option>
+            <option value="time">入库时间新到旧</option>
+            <option value="duration">时长从短到长</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- 素材列表 - 每页12个 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <!-- 素材项 1 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=1" data-src="https://picsum.photos/400/225?random=1" alt="智能手机4K产品展示视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">00:45</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="1">
+              <i class="fa fa-heart-o"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">智能手机4K产品展示视频</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-05-12</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>128次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>官方拍摄</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">电子产品</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">特写</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">平移</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 2 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=2" data-src="https://picsum.photos/400/225?random=2" alt="服装模特展示视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">01:22</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="2">
+              <i class="fa fa-heart"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">夏季服装模特走秀视频</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-06-23</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>95次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>第三方授权</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">服装鞋帽</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">女性</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">跟踪</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 3 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=3" data-src="https://picsum.photos/400/225?random=3" alt="食品制作过程视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">02:15</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="3">
+              <i class="fa fa-heart-o"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">烘焙蛋糕制作全过程</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-04-05</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>210次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>自制素材</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">食品饮料</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">中景</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">背景音乐</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 4 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=4" data-src="https://picsum.photos/400/225?random=4" alt="家居用品展示视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">00:58</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="4">
+              <i class="fa fa-heart-o"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">现代家居客厅布置展示</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-07-18</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>76次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>官方拍摄</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">家居用品</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">广角</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">缩放</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 5 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=5" data-src="https://picsum.photos/400/225?random=5" alt="户外电子产品测试视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">01:35</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="5">
+              <i class="fa fa-heart"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">运动相机户外防水测试</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-05-30</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>156次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>第三方授权</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">电子产品</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">男性</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">自然声音</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 6 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=6" data-src="https://picsum.photos/400/225?random=6" alt="童装展示视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">01:10</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="6">
+              <i class="fa fa-heart-o"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">儿童服装新品展示</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-06-15</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>89次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>自制素材</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">服装鞋帽</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">儿童</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">有字幕</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 7 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=7" data-src="https://picsum.photos/400/225?random=7" alt="饮品制作视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">00:42</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="7">
+              <i class="fa fa-heart-o"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">夏日特饮制作教程</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-07-02</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>203次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>官方拍摄</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">食品饮料</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">特写</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">人声</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 8 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=8" data-src="https://picsum.photos/400/225?random=8" alt="家具组装视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">03:20</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="8">
+              <i class="fa fa-heart-o"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">宜家风格书架组装教程</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-04-28</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>112次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>第三方授权</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">家居用品</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">中景</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">倾斜</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 9 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=9" data-src="https://picsum.photos/400/225?random=9" alt="智能手表展示视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">00:55</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="9">
+              <i class="fa fa-heart"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">智能手表功能展示</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-07-10</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>178次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>官方拍摄</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">电子产品</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">特写</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">无音效</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 10 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=10" data-src="https://picsum.photos/400/225?random=10" alt="运动服装展示视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">01:18</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="10">
+              <i class="fa fa-heart-o"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">专业运动服装展示</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-06-05</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>64次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>自制素材</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">服装鞋帽</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">群体</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">远景</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 11 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=11" data-src="https://picsum.photos/400/225?random=11" alt="厨房电器展示视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">01:05</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="11">
+              <i class="fa fa-heart-o"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">多功能料理机使用演示</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-07-22</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>45次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>官方拍摄</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">电子产品</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">中景</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">人声</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 素材项 12 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover material-card">
+          <div class="relative">
+            <img src="https://picsum.photos/400/225?random=12" data-src="https://picsum.photos/400/225?random=12" alt="户外帐篷展示视频缩略图" class="w-full aspect-video object-cover cache-image" onerror="this.src='./icons/default-thumbnail.png'">
+            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">02:45</span>
+            <button class="favorite-btn absolute top-2 right-2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition-colors" data-id="12">
+              <i class="fa fa-heart"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-neutral-700 mb-2 line-clamp-1">户外露营帐篷搭建教程</h3>
+            <div class="text-xs text-neutral-500 space-y-1">
+              <div class="flex justify-between">
+                <span>入库时间</span>
+                <span>2023-05-18</span>
+              </div>
+              <div class="flex justify-between">
+                <span>使用频次</span>
+                <span>87次</span>
+              </div>
+              <div class="flex justify-between">
+                <span>素材来源</span>
+                <span>第三方授权</span>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">户外用品</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">群体</span>
+              <span class="bg-neutral-100 text-neutral-600 text-xs px-2 py-0.5 rounded">自然声音</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 分页 - 左对齐 -->
+      <div class="mt-10 flex justify-start">
+        <nav class="inline-flex rounded-lg shadow-sm overflow-hidden">
+          <a href="#" class="px-4 py-2 bg-white border border-neutral-200 text-neutral-500 hover:bg-neutral-50 transition-colors">
+            <i class="fa fa-angle-left"></i>
+          </a>
+          <a href="#" class="px-4 py-2 bg-primary text-white border border-primary">
+            1
+          </a>
+          <a href="#" class="px-4 py-2 bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50 transition-colors">
+            2
+          </a>
+          <a href="#" class="px-4 py-2 bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50 transition-colors">
+            3
+          </a>
+          <a href="#" class="px-4 py-2 bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50 transition-colors">
+            4
+          </a>
+          <a href="#" class="px-4 py-2 bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50 transition-colors">
+            5
+          </a>
+          <a href="#" class="px-4 py-2 bg-white border border-neutral-200 text-neutral-500 hover:bg-neutral-50 transition-colors">
+            <i class="fa fa-angle-right"></i>
+          </a>
+        </nav>
+      </div>
+      
+      <!-- 添加素材提示和按钮 -->
+      <div class="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <p class="text-neutral-600">没有找到理想的素材？点击添加</p>
+        <div class="flex gap-3 w-full sm:w-auto">
+          <button class="flex-1 sm:flex-none btn-secondary flex items-center justify-center gap-2">
+            <i class="fa fa-upload"></i>
+            <span>从本地添加</span>
+          </button>
+          <button class="flex-1 sm:flex-none btn-primary flex items-center justify-center gap-2">
+            <i class="fa fa-cloud-download"></i>
+            <span>从网络添加</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-white border-t border-neutral-200 py-6 mt-10">
+    <div class="container mx-auto px-4 text-center text-neutral-500 text-sm">
+      <p>© 2023 素材资源库 版权所有</p>
+      <div class="flex justify-center space-x-4 mt-2">
+        <a href="#" class="hover:text-primary transition-colors">使用条款</a>
+        <a href="#" class="hover:text-primary transition-colors">隐私政策</a>
+        <a href="#" class="hover:text-primary transition-colors">帮助中心</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 自定义标签弹窗 -->
+  <div id="customTagModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-neutral-700">添加自定义标签</h3>
+        <button id="closeModalBtn" class="text-neutral-400 hover:text-neutral-700 transition-colors">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-neutral-600 mb-1">标签名称</label>
+          <input type="text" placeholder="例如：季节、场景..." class="w-full px-3 py-2 rounded-lg border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+        </div>
+        
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="block text-sm font-medium text-neutral-600">标签值</label>
+            <button id="addTagValueBtn" class="text-xs text-primary hover:text-primary/80 transition-colors">
+              <i class="fa fa-plus-circle mr-1"></i>添加值
+            </button>
+          </div>
+          
+          <div id="tagValuesContainer" class="space-y-2">
+            <div class="flex gap-2">
+              <input type="text" placeholder="标签值1" class="flex-1 px-3 py-2 rounded-lg border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+              <button class="removeTagValueBtn text-neutral-400 hover:text-red-500 transition-colors self-center">
+                <i class="fa fa-minus-circle"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-6 flex gap-3">
+        <button id="cancelTagBtn" class="flex-1 btn-secondary">
+          取消
+        </button>
+        <button id="confirmTagBtn" class="flex-1 btn-primary">
+          确认添加
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // 图片缓存管理器
+    const ImageCacheManager = {
+      // 检查浏览器是否支持IndexedDB
+      isSupported() {
+        return 'indexedDB' in window;
+      },
+      
+      // 打开数据库连接
+      openDB() {
+        return new Promise((resolve, reject) => {
+          if (!this.isSupported()) {
+            reject('浏览器不支持IndexedDB，无法缓存图片');
+            return;
+          }
+          
+          const request = indexedDB.open('MaterialImageCache', 1);
+          
+          request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            // 创建存储对象，用于保存图片
+            if (!db.objectStoreNames.contains('images')) {
+              db.createObjectStore('images', { keyPath: 'url' });
+            }
+          };
+          
+          request.onsuccess = (event) => {
+            this.db = event.target.result;
+            resolve(this.db);
+          };
+          
+          request.onerror = (event) => {
+            reject(`打开数据库失败: ${event.target.error}`);
+          };
+        });
+      },
+      
+      // 缓存图片
+      cacheImage(url) {
+        return new Promise(async (resolve, reject) => {
+          try {
+            // 先检查是否已缓存
+            const cached = await this.getCachedImage(url);
+            if (cached) {
+              resolve(true);
+              return;
+            }
+            
+            // 下载图片
+            const response = await fetch(url);
+            if (!response.ok) {
+              throw new Error(`下载图片失败: ${response.statusText}`);
+            }
+            
+            const blob = await response.blob();
+            
+            // 存入IndexedDB
+            const transaction = this.db.transaction('images', 'readwrite');
+            const store = transaction.objectStore('images');
+            
+            const request = store.add({
+              url: url,
+              blob: blob,
+              timestamp: new Date().getTime()
+            });
+            
+            request.onsuccess = () => {
+              resolve(true);
+            };
+            
+            request.onerror = () => {
+              // 如果是重复添加则忽略错误
+              if (request.error.name === 'ConstraintError') {
+                resolve(true);
+              } else {
+                reject(request.error);
+              }
+            };
+          } catch (error) {
+            console.error('缓存图片失败:', error);
+            resolve(false); // 缓存失败不影响页面显示
+          }
+        });
+      },
+      
+      // 获取缓存的图片
+      getCachedImage(url) {
+        return new Promise((resolve, reject) => {
+          if (!this.db) {
+            resolve(null);
+            return;
+          }
+          
+          const transaction = this.db.transaction('images', 'readonly');
+          const store = transaction.objectStore('images');
+          const request = store.get(url);
+          
+          request.onsuccess = () => {
+            resolve(request.result ? request.result.blob : null);
+          };
+          
+          request.onerror = () => {
+            reject(request.error);
+          };
+        });
+      },
+      
+      // 从缓存加载图片到img元素
+      async loadImageFromCache(imgElement) {
+        const url = imgElement.dataset.src;
+        if (!url) return false;
+        
+        try {
+          const blob = await this.getCachedImage(url);
+          if (blob) {
+            // 从缓存加载
+            imgElement.src = URL.createObjectURL(blob);
+            return true;
+          } else {
+            // 从网络加载并缓存
+            imgElement.src = url;
+            this.cacheImage(url);
+            return false;
+          }
+        } catch (error) {
+          console.error('加载图片失败:', error);
+          imgElement.src = './icons/default-thumbnail.png';
+          return false;
+        }
+      }
+    };
+
+    // 初始化图片缓存
+    async function initImageCache() {
+      try {
+        await ImageCacheManager.openDB();
+        console.log('图片缓存数据库初始化成功');
+        
+        // 加载所有需要缓存的图片
+        const cacheImages = document.querySelectorAll('.cache-image');
+        cacheImages.forEach(img => {
+          ImageCacheManager.loadImageFromCache(img);
+        });
+      } catch (error) {
+        console.error('图片缓存初始化失败:', error);
+        // 初始化失败时直接从网络加载图片
+        document.querySelectorAll('.cache-image').forEach(img => {
+          img.src = img.dataset.src;
+        });
+      }
+    }
+
+    // 收藏功能管理
+    const FavoriteManager = {
+      // 初始化收藏状态
+      init() {
+        // 从本地存储加载收藏状态
+        const favorites = this.getFavorites();
+        
+        // 更新UI显示
+        document.querySelectorAll('.favorite-btn').forEach(btn => {
+          const id = btn.dataset.id;
+          if (favorites.includes(id)) {
+            btn.innerHTML = '<i class="fa fa-heart"></i>';
+          } else {
+            btn.innerHTML = '<i class="fa fa-heart-o"></i>';
+          }
+        });
+        
+        // 绑定收藏按钮事件
+        this.bindEvents();
+        
+        // 绑定收藏筛选事件
+        this.bindFilterEvent();
+      },
+      
+      // 获取所有收藏的素材ID
+      getFavorites() {
+        const favorites = localStorage.getItem('materialFavorites');
+        return favorites ? JSON.parse(favorites) : [];
+      },
+      
+      // 切换素材收藏状态
+      toggleFavorite(id) {
+        let favorites = this.getFavorites();
+        const index = favorites.indexOf(id);
+        
+        if (index > -1) {
+          // 取消收藏
+          favorites.splice(index, 1);
+          return false;
+        } else {
+          // 添加收藏
+          favorites.push(id);
+          return true;
+        }
+      },
+      
+      // 保存收藏状态到本地存储
+      saveFavorites(favorites) {
+        localStorage.setItem('materialFavorites', JSON.stringify(favorites));
+      },
+      
+      // 绑定收藏按钮事件
+      bindEvents() {
+        document.querySelectorAll('.favorite-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const isFavorite = this.toggleFavorite(id);
+            
+            // 更新UI
+            if (isFavorite) {
+              btn.innerHTML = '<i class="fa fa-heart"></i>';
+            } else {
+              btn.innerHTML = '<i class="fa fa-heart-o"></i>';
+            }
+            
+            // 保存到本地存储
+            this.saveFavorites(this.getFavorites());
+            
+            // 应用当前筛选条件
+            this.applyFilter();
+          });
+        });
+      },
+      
+      // 绑定收藏筛选事件
+      bindFilterEvent() {
+        const filter = document.getElementById('favoriteFilter');
+        filter.addEventListener('change', () => {
+          this.applyFilter();
+        });
+      },
+      
+      // 应用收藏筛选
+      applyFilter() {
+        const filterValue = document.getElementById('favoriteFilter').value;
+        const favorites = this.getFavorites();
+        
+        document.querySelectorAll('.material-card').forEach(card => {
+          const id = card.querySelector('.favorite-btn').dataset.id;
+          const isFavorite = favorites.includes(id);
+          
+          // 根据筛选条件显示或隐藏卡片
+          if (filterValue === 'favorite') {
+            card.style.display = isFavorite ? 'block' : 'none';
+          } else if (filterValue === 'notfavorite') {
+            card.style.display = !isFavorite ? 'block' : 'none';
+          } else {
+            card.style.display = 'block';
+          }
+        });
+      }
+    };
+
+    // 自定义标签弹窗逻辑
+    const customTagBtn = document.getElementById('customTagBtn');
+    const customTagModal = document.getElementById('customTagModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelTagBtn = document.getElementById('cancelTagBtn');
+    const confirmTagBtn = document.getElementById('confirmTagBtn');
+    const addTagValueBtn = document.getElementById('addTagValueBtn');
+    const tagValuesContainer = document.getElementById('tagValuesContainer');
+    
+    // 打开弹窗
+    customTagBtn.addEventListener('click', () => {
+      customTagModal.classList.remove('hidden');
+      // 添加动画效果
+      setTimeout(() => {
+        customTagModal.querySelector('div').classList.add('scale-100');
+        customTagModal.querySelector('div').classList.remove('scale-95');
+      }, 10);
+    });
+    
+    // 关闭弹窗
+    const closeModal = () => {
+      customTagModal.querySelector('div').classList.remove('scale-100');
+      customTagModal.querySelector('div').classList.add('scale-95');
+      setTimeout(() => {
+        customTagModal.classList.add('hidden');
+      }, 200);
+    };
+    
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelTagBtn.addEventListener('click', closeModal);
+    
+    // 点击弹窗外部关闭
+    customTagModal.addEventListener('click', (e) => {
+      if (e.target === customTagModal) {
+        closeModal();
+      }
+    });
+    
+    // 添加标签值输入框
+    addTagValueBtn.addEventListener('click', () => {
+      const inputCount = tagValuesContainer.querySelectorAll('input').length + 1;
+      const newInputGroup = document.createElement('div');
+      newInputGroup.className = 'flex gap-2';
+      newInputGroup.innerHTML = `
+        <input type="text" placeholder="标签值${inputCount}" class="flex-1 px-3 py-2 rounded-lg border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+        <button class="removeTagValueBtn text-neutral-400 hover:text-red-500 transition-colors self-center">
+          <i class="fa fa-minus-circle"></i>
+        </button>
+      `;
+      tagValuesContainer.appendChild(newInputGroup);
+      
+      // 为新添加的删除按钮绑定事件
+      newInputGroup.querySelector('.removeTagValueBtn').addEventListener('click', function() {
+        tagValuesContainer.removeChild(newInputGroup);
+        // 更新占位符序号
+        updateTagValuePlaceholders();
+      });
+    });
+    
+    // 删除标签值输入框
+    document.querySelectorAll('.removeTagValueBtn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const inputGroup = this.parentElement;
+        if (tagValuesContainer.children.length > 1) {
+          tagValuesContainer.removeChild(inputGroup);
+          // 更新占位符序号
+          updateTagValuePlaceholders();
+        } else {
+          // 至少保留一个输入框
+          this.parentElement.querySelector('input').value = '';
+        }
+      });
+    });
+    
+    // 更新标签值输入框的占位符序号
+    function updateTagValuePlaceholders() {
+      const inputs = tagValuesContainer.querySelectorAll('input');
+      inputs.forEach((input, index) => {
+        input.placeholder = `标签值${index + 1}`;
+      });
+    }
+    
+    // 确认添加自定义标签
+    confirmTagBtn.addEventListener('click', () => {
+      const tagName = customTagModal.querySelector('input[type="text"]').value.trim();
+      const tagValues = Array.from(tagValuesContainer.querySelectorAll('input'))
+        .map(input => input.value.trim())
+        .filter(value => value);
+      
+      if (tagName && tagValues.length > 0) {
+        // 添加标签到已选标签区域
+        console.log('添加自定义标签:', { name: tagName, values: tagValues });
+        
+        // 模拟添加到已选标签
+        const selectedTagsContainer = document.querySelector('.flex.flex-wrap.items-center.gap-2');
+        const newTag = document.createElement('span');
+        newTag.className = 'inline-flex items-center px-2 py-1 bg-primary/10 text-primary text-xs rounded-full';
+        newTag.innerHTML = `${tagName}: ${tagValues.join(', ')}
+          <button class="ml-1 text-primary/70 hover:text-primary"><i class="fa fa-times-circle"></i></button>`;
+        
+        // 添加删除事件
+        newTag.querySelector('button').addEventListener('click', () => {
+          selectedTagsContainer.removeChild(newTag);
+        });
+        
+        selectedTagsContainer.appendChild(newTag);
+        
+        // 关闭弹窗
+        closeModal();
+        
+        // 清空输入
+        customTagModal.querySelector('input[type="text"]').value = '';
+        tagValuesContainer.innerHTML = `
+          <div class="flex gap-2">
+            <input type="text" placeholder="标签值1" class="flex-1 px-3 py-2 rounded-lg border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+            <button class="removeTagValueBtn text-neutral-400 hover:text-red-500 transition-colors self-center">
+              <i class="fa fa-minus-circle"></i>
+            </button>
+          </div>
+        `;
+        
+        // 重新绑定删除按钮事件
+        tagValuesContainer.querySelector('.removeTagValueBtn').addEventListener('click', function() {
+          const inputGroup = this.parentElement;
+          if (tagValuesContainer.children.length > 1) {
+            tagValuesContainer.removeChild(inputGroup);
+            updateTagValuePlaceholders();
+          } else {
+            this.parentElement.querySelector('input').value = '';
+          }
+        });
+      } else {
+        alert('请输入标签名称和至少一个标签值');
+      }
+    });
+    
+    // 初始化动画效果
+    document.addEventListener('DOMContentLoaded', () => {
+      // 初始化图片缓存
+      initImageCache();
+      
+      // 初始化收藏功能
+      FavoriteManager.init();
+      
+      const cards = document.querySelectorAll('.card-hover');
+      cards.forEach((card, index) => {
+        setTimeout(() => {
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, 100 * index);
+      });
+    });
+    
+    // 添加素材按钮功能
+    document.querySelector('button:contains("从本地添加")').addEventListener('click', () => {
+      // 这里可以添加本地文件上传逻辑
+      console.log('从本地添加素材');
+      // 实际应用中可以创建一个隐藏的file input并触发点击
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.multiple = true;
+      fileInput.accept = 'video/*,image/*';
+      fileInput.addEventListener('change', (e) => {
+        console.log('选中的文件:', e.target.files);
+        // 处理选中的文件
+      });
+      fileInput.click();
+    });
+    
+    document.querySelector('button:contains("从网络添加")').addEventListener('click', () => {
+      // 这里可以添加从网络获取素材的逻辑
+      console.log('从网络添加素材');
+      alert('将打开网络素材库选择器');
+    });
+  </script>
+</body>
+</html>

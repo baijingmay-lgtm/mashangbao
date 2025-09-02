@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作台 - 数据分析与任务管理</title>
+    <style>
+        /* 技能示例样式 */
+        .skill-example {
+            font-size: 12px;
+            color: #666;
+            font-weight: normal;
+            margin-left: 10px;
+            display: block;
+            padding-left: 15px;
+            position: relative;
+        }
+        .skill-example::before {
+            content: '示例: ';
+            color: #999;
+            font-style: italic;
+        }
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* 顶部标题栏样式 */
+        .page-header {
+            padding: 20px 30px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .page-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        /* 内容区样式 */
+        .page-content {
+            padding: 0 30px 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-card {
+            margin-bottom: 25px;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .dashboard-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .add-shop-btn, .new-task-btn {
+            padding: 6px 12px;
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .add-shop-btn:hover, .new-task-btn:hover {
+            background-color: #40a9ff;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: modalFade 0.3s;
+        }
+
+        @keyframes modalFade {
+            from {opacity: 0; transform: translateY(-20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 10px 0;
+        }
+
+        .platform-selection {
+            margin-bottom: 15px;
+        }
+
+        .platform-selection label {
+            margin-right: 15px;
+            cursor: pointer;
+        }
+
+        .shop-inputs {
+            margin-bottom: 15px;
+        }
+
+        .shop-input-group {
+            margin-bottom: 10px;
+        }
+
+        .shop-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .shop-input:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        .add-input-btn {
+            padding: 6px 12px;
+            background-color: #f0f0f0;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .cancel-btn, .confirm-btn {
+            padding: 8px 16px;
+            margin-left: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background-color: #f0f0f0;
+            border: 1px solid #d9d9d9;
+            color: #333;
+        }
+
+        .confirm-btn {
+            background-color: #1890ff;
+            border: none;
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            background-color: #40a9ff;
+        }
+        
+        .dashboard-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background-color: #3b82f6;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+        
+        /* 核心数据模块样式 */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 1200px) {
+            .stat-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .stat-card {
+            padding: 20px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #3b82f6;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        /* 工作流进度模块样式 */
+        .task-list {
+            margin-top: 20px;
+        }
+        
+        .task-item {
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .task-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .task-category {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .category-data-analysis {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .category-info-screening {
+            background-color: #fff1f0;
+            color: #ff4d4f;
+        }
+        
+        .category-communication-screening {
+            background-color: #f0f9ff;
+            color: #0091ff;
+        }
+        
+        .category-competitive-analysis {
+            background-color: #fff7e6;
+            color: #faad14;
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .task-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #2c3e50;
+            max-width: 70%;
+            word-break: break-word;
+        }
+        
+        .task-status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .task-status::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        
+        .status-completed {
+            background-color: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .status-completed::before {
+            background-color: #52c41a;
+        }
+        
+        .status-in-progress {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .status-in-progress::before {
+            background-color: #1890ff;
+        }
+        
+        .status-pending {
+            background-color: #f5f5f5;
+            color: #999;
+        }
+        
+        .status-pending::before {
+            background-color: #999;
+        }
+        
+        .task-meta {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .task-requirements {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 4px;
+        }
+        
+        .task-result {
+            font-size: 14px;
+            color: #333;
+            background-color: #f5f7fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+        
+        .result-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .view-details-btn {
+            padding: 6px 12px;
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .view-details-btn:hover {
+            background-color: #bae7ff;
+            color: #096dd9;
+        }
+        
+        .task-details {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #e0e0e0;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .task-details h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        
+        .execution-steps,
+        .preparation-steps {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .execution-steps li,
+        .preparation-steps li {
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .execution-steps li::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 8px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+        }
+        
+        .execution-steps li strong,
+        .preparation-steps li strong {
+            color: #2c3e50;
+        }
+        
+        .task-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            gap: 12px;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .settings-btn {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .settings-btn:hover {
+            background-color: #bae7ff;
+            color: #096dd9;
+        }
+        
+        .schedule-btn {
+            background-color: #fff0f6;
+            color: #eb2f96;
+        }
+        
+        .schedule-btn:hover {
+            background-color: #ffd6e7;
+            color: #c41d7f;
+        }
+        
+        /* 弹窗样式 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+            animation: fadeIn 0.2s ease;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            width: 500px;
+            max-width: 90%;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .modal-header {
+            padding: 18px 25px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        
+        .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s ease;
+            line-height: 1;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            padding: 25px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 25px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .modal-footer button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-footer button:first-child {
+            background-color: #fff;
+            border: 1px solid #d9d9d9;
+            color: #666;
+        }
+        
+        .modal-footer button:first-child:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .modal-footer button:last-child {
+            background-color: #1890ff;
+            color: #fff;
+            border: none;
+        }
+        
+        .modal-footer button:last-child:hover {
+            background-color: #096dd9;
+        }
+        
+        .skill-types {
+            margin-bottom: 25px;
+        }
+        
+        .skill-types h4 {
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        
+        #skill-list-settings-1,
+        #skill-list-settings-2,
+        #skill-list-settings-3,
+        #skill-list-settings-4 {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+        
+        #skill-list-settings-1 li,
+        #skill-list-settings-2 li,
+        #skill-list-settings-3 li,
+        #skill-list-settings-4 li {
+            padding: 10px 15px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        #skill-list-settings-1 li:hover,
+        #skill-list-settings-2 li:hover,
+        #skill-list-settings-3 li:hover,
+        #skill-list-settings-4 li:hover {
+            background-color: #f0f5ff;
+        }
+        
+        .add-skill {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .add-skill input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .add-skill input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+        
+        .add-skill button {
+            padding: 10px 18px;
+            background-color: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .add-skill button:hover {
+            background-color: #096dd9;
+        }
+        
+        .schedule-list {
+            margin-bottom: 25px;
+        }
+        
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .schedule-item:hover {
+            background-color: #f0f5ff;
+        }
+        
+        .schedule-frequency {
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
+        .schedule-action button {
+            padding: 6px 12px;
+            margin-left: 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .schedule-action button:first-child {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .schedule-action button:first-child:hover {
+            background-color: #bae7ff;
+            color: #096dd9;
+        }
+        
+        .schedule-action button:last-child {
+            background-color: #fff1f0;
+            color: #ff4d4f;
+        }
+        
+        .schedule-action button:last-child:hover {
+            background-color: #ffccc7;
+            color: #d9363e;
+        }
+        
+        .no-schedule {
+            text-align: center;
+            padding: 25px;
+            color: #999;
+            background-color: #f9fafb;
+            border-radius: 6px;
+        }
+        
+        .add-schedule {
+            text-align: center;
+            margin-top: 25px;
+        }
+        
+        .add-schedule button {
+            padding: 10px 20px;
+            background-color: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-schedule button:hover {
+            background-color: #096dd9;
+        }
+        
+        .schedule-type,
+        .schedule-time,
+        .schedule-options {
+            margin-bottom: 20px;
+        }
+        
+        .schedule-type label,
+        .schedule-time label,
+        .schedule-options label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .schedule-type select,
+        .schedule-time input,
+        .schedule-options select,
+        .schedule-options input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .schedule-type select:focus,
+        .schedule-time input:focus,
+        .schedule-options select:focus,
+        .schedule-options input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+    </style>
+    </style>
+    </style>
+</head>
+<body>
+    <!-- 遮罩层和弹窗会通过JavaScript动态添加 -->
+    <div id="modals-container"></div>
+
+<!-- 添加店铺弹窗 -->
+<div id="add-shop-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>添加店铺</h3>
+            <span class="close-btn" onclick="closeAddShopModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="platform-selection">
+                <label><input type="radio" name="platform" value="kuaishou" checked> 快手</label>
+                <label><input type="radio" name="platform" value="douyin"> 抖音</label>
+            </div>
+            <div class="shop-inputs">
+                <div class="shop-input-group">
+                    <input type="text" placeholder="店铺ID或名称" class="shop-input">
+                </div>
+            </div>
+            <button id="add-input-btn" class="add-input-btn">+ 添加更多</button>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel-btn" onclick="closeAddShopModal()">取消</button>
+            <button class="confirm-btn" onclick="confirmAddShops()">确认添加</button>
+        </div>
+    </div>
+</div>
+    <!-- 顶部标题栏 -->
+    <!-- 已移除页面标题和副标题 -->
+    
+    <!-- 内容区 -->
+    <div class="page-content">
+        <!-- 核心数据模块 -->
+        <div class="dashboard-card">
+            <div class="dashboard-title">核心数据概览 <button class="add-shop-btn" onclick="openAddShopModal()">添加店铺</button></div>
+            <div class="stat-grid">
+                <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-value">1,258</div>
+                            <div class="stat-label">总选品数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📈</div>
+                            <div class="stat-value">128</div>
+                            <div class="stat-label">昨日选品数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-value">87%</div>
+                            <div class="stat-label">成功率</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-value">¥126,500</div>
+                            <div class="stat-label">昨日销售额</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💹</div>
+                            <div class="stat-value">¥3,842,600</div>
+                            <div class="stat-label">总销售额</div>
+                        </div>
+            </div>
+        </div>
+        
+        <!-- 工作流进度模块 -->
+        <div class="dashboard-card">
+            <div class="dashboard-title">任务执行进度 <button class="new-task-btn" onclick="window.location.href='douyin-search.html'">新建任务</button></div>
+            <div class="task-list">
+                <div class="task-item">
+                    <div class="task-header">
+                        <div class="task-title">20250816投放素材效果及原因分析</div>
+                        <div class="task-status status-completed">已完成</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="task-category category-data-analysis">数据分析</div>
+                        开始时间: 2025-08-16 09:00 | 结束时间: 2025-08-16 14:30
+                    </div>
+                    <div class="task-requirements">任务要求: 分析昨日投放的3组素材效果差异及原因，提出优化建议。</div>
+                    <div class="task-result">
+                        <div class="result-summary">
+                            结果: 素材A点击率较素材B高23%，主要原因为使用了产品实拍图而非场景图。建议后续投放增加产品细节展示，减少过多的场景元素干扰。
+                            <button class="view-details-btn" onclick="showTaskDetails('details-1')">查看详情</button>
+                        </div>
+                        <div id="details-1" class="task-details">
+                            <h4>执行过程:</h4>
+                            <ol class="execution-steps">
+                                <li><strong>步骤1:</strong> 数据收集 - 提取昨日3组投放素材的曝光量、点击量、转化率数据</li>
+                                <li><strong>步骤2:</strong> 效果对比 - 计算各组素材的点击率，发现素材A点击率为8.7%，素材B为7.1%，素材C为6.5%</li>
+                                <li><strong>步骤3:</strong> 原因分析 - 对比素材内容，发现素材A使用产品实拍图，突出产品细节；素材B和C使用场景图，产品不够突出</li>
+                                <li><strong>步骤4:</strong> 提出建议 - 建议后续投放增加产品细节展示，减少场景元素干扰</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="action-btn settings-btn" onclick="openSettingsModal('settings-1')">设置</button>
+                        <button class="action-btn schedule-btn" onclick="openScheduleModal('schedule-1')">执行安排</button>
+                    </div>
+                </div>
+                
+                <div class="task-item">
+                    <div class="task-header">
+                        <div class="task-title">抖音全站T恤销量top榜严选20250816</div>
+                        <div class="task-status status-in-progress">进行中</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="task-category category-info-screening">信息筛选</div>
+                        开始时间: 2025-08-16 08:00
+                    </div>
+                    <div class="task-requirements">任务要求: 筛选昨日抖音全站T恤销量top100商品，按照风格、价格带、销量增长率进行分类整理。</div>
+                    <div class="task-result">
+                        <div class="result-summary">
+                            进度: 已完成数据抓取和初步筛选，正在进行分类整理，预计今日17:00前完成。
+                            <button class="view-details-btn" onclick="showTaskDetails('details-2')">查看详情</button>
+                        </div>
+                        <div id="details-2" class="task-details">
+                            <h4>执行过程:</h4>
+                            <ol class="execution-steps">
+                                <li><strong>步骤1:</strong> 数据抓取 - 从抖音API获取昨日全站T恤销量数据</li>
+                                <li><strong>步骤2:</strong> 数据清洗 - 去除异常数据和重复项，得到有效商品数据876条</li>
+                                <li><strong>步骤3:</strong> 初步筛选 - 按销量排序，选取top100商品</li>
+                                <li><strong>步骤4:</strong> 分类整理 - 正在按照风格、价格带、销量增长率进行分类</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="action-btn settings-btn" onclick="openSettingsModal('settings-2')">设置</button>
+                        <button class="action-btn schedule-btn" onclick="openScheduleModal('schedule-2')">执行安排</button>
+                    </div>
+                </div>
+                
+                <div class="task-item">
+                    <div class="task-header">
+                        <div class="task-title">1688老钱风供应商筛选</div>
+                        <div class="task-status status-in-progress">进行中</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="task-category category-communication-screening">沟通筛选</div>
+                        开始时间: 2025-08-15 16:00
+                    </div>
+                    <div class="task-requirements">任务要求: 在1688平台筛选符合"老钱风"风格的男装供应商，要求工厂资质、供货能力和质量评分达到A级别以上。</div>
+                    <div class="task-result">
+                        <div class="result-summary">
+                            进度: 已筛选出23家符合条件的供应商，正在进行样品评估和价格谈判，预计明日完成最终名单确认。
+                            <button class="view-details-btn" onclick="showTaskDetails('details-3')">查看详情</button>
+                        </div>
+                        <div id="details-3" class="task-details">
+                            <h4>执行过程:</h4>
+                            <ol class="execution-steps">
+                                <li><strong>步骤1:</strong> 关键词筛选 - 在1688平台使用"老钱风"、"商务休闲"等关键词搜索男装供应商</li>
+                                <li><strong>步骤2:</strong> 资质审核 - 筛选工厂资质、供货能力和质量评分达到A级别以上的供应商，共56家</li>
+                                <li><strong>步骤3:</strong> 样品评估 - 联系供应商获取样品，已收到18家样品，正在进行质量评估</li>
+                                <li><strong>步骤4:</strong> 价格谈判 - 与通过样品评估的12家供应商进行价格谈判</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="action-btn settings-btn" onclick="openSettingsModal('settings-3')">设置</button>
+                        <button class="action-btn schedule-btn" onclick="openScheduleModal('schedule-3')">执行安排</button>
+                    </div>
+                </div>
+                
+                <div class="task-item">
+                    <div class="task-header">
+                        <div class="task-title">快手男装竞品分析报告</div>
+                        <div class="task-status status-pending">待开始</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="task-category category-competitive-analysis">竞品分析</div>
+                        计划开始时间: 2025-08-17 09:00
+                    </div>
+                    <div class="task-requirements">任务要求: 分析快手平台男装类目前10名竞品的销售策略、价格体系和用户评价，形成详细分析报告。</div>
+                    <div class="task-result">
+                        <div class="result-summary">
+                            准备情况: 已收集竞品基本信息，待完成抖音相关任务后开始深入分析。
+                            <button class="view-details-btn" onclick="showTaskDetails('details-4')">查看详情</button>
+                        </div>
+                        <div id="details-4" class="task-details">
+                            <h4>准备情况:</h4>
+                            <ul class="preparation-steps">
+                                <li>已收集快手平台男装类目前10名竞品的基本信息，包括店铺名称、主营产品、粉丝数量</li>
+                                <li>已准备数据收集模板，涵盖销售策略、价格体系、用户评价等维度</li>
+                                <li>已制定分析计划，预计耗时2个工作日完成</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="action-btn settings-btn" onclick="openSettingsModal('settings-4')">设置</button>
+                        <button class="action-btn schedule-btn" onclick="openScheduleModal('schedule-4')">执行安排</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// 添加店铺弹窗功能
+function openAddShopModal() {
+    document.getElementById('add-shop-modal').style.display = 'block';
+}
+
+function closeAddShopModal() {
+    document.getElementById('add-shop-modal').style.display = 'none';
+}
+
+// 添加更多店铺输入框
+document.getElementById('add-input-btn').addEventListener('click', function() {
+    const container = document.querySelector('.shop-inputs');
+    const newGroup = document.createElement('div');
+    newGroup.className = 'shop-input-group';
+    newGroup.innerHTML = '<input type="text" placeholder="店铺ID或名称" class="shop-input">';
+    container.appendChild(newGroup);
+});
+
+// 确认添加店铺
+function confirmAddShops() {
+    const platform = document.querySelector('input[name="platform"]:checked').value;
+    const inputs = document.querySelectorAll('.shop-input');
+    const shops = Array.from(inputs).map(input => input.value.trim()).filter(Boolean);
+
+    if (shops.length === 0) {
+        alert('请输入至少一个店铺ID或名称');
+        return;
+    }
+
+    // 这里可以添加保存店铺的逻辑
+    console.log(`添加${platform}店铺:`, shops);
+    alert(`成功添加${shops.length}个${platform}店铺`);
+    closeAddShopModal();
+}
+
+// 点击弹窗外部关闭弹窗
+window.addEventListener('click', function(event) {
+    const modal = document.getElementById('add-shop-modal');
+    if (event.target === modal) {
+        closeAddShopModal();
+    }
+});
+        // 显示任务详情
+        function showTaskDetails(detailId) {
+            const details = document.getElementById(detailId);
+            if (details.style.display === 'block') {
+                details.style.display = 'none';
+            } else {
+                details.style.display = 'block';
+            }
+        }
+        
+        // 打开设置弹窗
+        function openSettingsModal(modalId) {
+            // 创建弹窗
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = modalId + '-modal';
+            
+            // 弹窗内容
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>任务设置</h3>
+                        <span class="close-btn" onclick="closeModal('${modalId}-modal')">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="skill-types">
+                            <h4>支持的技能类型及示例</h4>
+                            <ul id="skill-list-${modalId}">
+                                <li><strong>数据分析</strong>: <span class="skill-example">帮我统计8月15日全天投放的素材的数据情况并分析其结果产生的原因</span></li>
+                                <li><strong>信息筛选</strong>: <span class="skill-example">查询淘宝新品top，筛选销量近3小时超过1000的产品</span></li>
+                                <li><strong>沟通筛选</strong>: <span class="skill-example">帮我筛选1688上面能提供老钱风男装t恤的商家，并进行询价，把询价结果和名单给我</span></li>
+                                <li><strong>报告生成</strong>: <span class="skill-example">生成上周抖音平台男装类目前10名竞品的销售策略分析报告</span></li>
+                            </ul>
+                            <div class="add-skill">
+                                <input type="text" id="new-skill-${modalId}" placeholder="输入新技能类型">
+                                <button onclick="addSkill('${modalId}')">添加</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="closeModal('${modalId}-modal')">关闭</button>
+                    </div>
+                </div>
+            `;
+            
+            // 添加遮罩层
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            overlay.onclick = function() { closeModal(modalId + '-modal'); };
+            
+            // 添加到文档
+            document.body.appendChild(overlay);
+            document.body.appendChild(modal);
+        }
+        
+        // 关闭弹窗
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const overlay = document.querySelector('.overlay');
+            if (modal && overlay) {
+                document.body.removeChild(modal);
+                document.body.removeChild(overlay);
+            }
+        }
+        
+        // 添加新技能类型
+        function addSkill(modalId) {
+            const input = document.getElementById('new-skill-' + modalId);
+            const skillList = document.getElementById('skill-list-' + modalId);
+            
+            if (input.value.trim() !== '') {
+                const li = document.createElement('li');
+                li.textContent = input.value.trim();
+                skillList.appendChild(li);
+                input.value = '';
+            }
+        }
+        
+        // 打开执行安排弹窗
+        function openScheduleModal(modalId) {
+            // 创建弹窗
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = modalId + '-modal';
+            
+            // 弹窗内容
+            let scheduleContent = '';
+            if (modalId === 'schedule-1') {
+                scheduleContent = `
+                    <div class="schedule-item">
+                        <div class="schedule-frequency">每周一上午8点</div>
+                        <div class="schedule-action">
+                            <button onclick="editSchedule('${modalId}', 'weekly')">编辑</button>
+                            <button onclick="deleteSchedule('${modalId}', 'weekly')">删除</button>
+                        </div>
+                    </div>`;
+            } else if (modalId === 'schedule-2') {
+                scheduleContent = `
+                    <div class="schedule-item">
+                        <div class="schedule-frequency">每天凌晨12点</div>
+                        <div class="schedule-action">
+                            <button onclick="editSchedule('${modalId}', 'daily')">编辑</button>
+                            <button onclick="deleteSchedule('${modalId}', 'daily')">删除</button>
+                        </div>
+                    </div>`;
+            } else if (modalId === 'schedule-3') {
+                scheduleContent = `
+                    <div class="schedule-item">
+                        <div class="schedule-frequency">每月1日上午8点</div>
+                        <div class="schedule-action">
+                            <button onclick="editSchedule('${modalId}', 'monthly')">编辑</button>
+                            <button onclick="deleteSchedule('${modalId}', 'monthly')">删除</button>
+                        </div>
+                    </div>`;
+            } else {
+                scheduleContent = `<div class="no-schedule">暂无执行安排</div>`;
+            }
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>执行安排</h3>
+                        <span class="close-btn" onclick="closeModal('${modalId}-modal')">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="schedule-list">
+                            ${scheduleContent}
+                        </div>
+                        <div class="add-schedule">
+                            <button onclick="addNewSchedule('${modalId}')">新增执行安排</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="closeModal('${modalId}-modal')">关闭</button>
+                    </div>
+                </div>
+            `;
+            
+            // 添加遮罩层
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            overlay.onclick = function() { closeModal(modalId + '-modal'); };
+            
+            // 添加到文档
+            document.body.appendChild(overlay);
+            document.body.appendChild(modal);
+        }
+        
+        // 编辑执行安排 (示例函数，实际实现需要更多逻辑)
+        function editSchedule(modalId, type) {
+            alert('编辑' + type + '执行安排');
+            // 这里可以实现编辑逻辑
+        }
+        
+        // 删除执行安排
+        function deleteSchedule(modalId, type) {
+            if (confirm('确定要删除' + type + '执行安排吗？')) {
+                // 这里可以实现删除逻辑
+                closeModal(modalId + '-modal');
+                // 重新打开弹窗以更新显示
+                setTimeout(() => openScheduleModal(modalId), 100);
+            }
+        }
+        
+        // 新增执行安排
+        function addNewSchedule(modalId) {
+            // 创建新增安排弹窗
+            const addModal = document.createElement('div');
+            addModal.className = 'modal';
+            addModal.id = modalId + '-add-modal';
+            
+            addModal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>新增执行安排</h3>
+                        <span class="close-btn" onclick="closeModal('${modalId}-add-modal')">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="schedule-type">
+                            <label>执行频率:</label>
+                            <select id="schedule-type-${modalId}">
+                                <option value="daily">每天</option>
+                                <option value="weekly">每周</option>
+                                <option value="monthly">每月</option>
+                            </select>
+                        </div>
+                        <div class="schedule-time">
+                            <label>执行时间:</label>
+                            <input type="time" id="schedule-time-${modalId}">
+                        </div>
+                        <div id="weekly-options-${modalId}" class="schedule-options" style="display:none;">
+                            <label>选择星期:</label>
+                            <select id="schedule-day-${modalId}">
+                                <option value="1">周一</option>
+                                <option value="2">周二</option>
+                                <option value="3">周三</option>
+                                <option value="4">周四</option>
+                                <option value="5">周五</option>
+                                <option value="6">周六</option>
+                                <option value="0">周日</option>
+                            </select>
+                        </div>
+                        <div id="monthly-options-${modalId}" class="schedule-options" style="display:none;">
+                            <label>选择日期:</label>
+                            <input type="number" id="schedule-date-${modalId}" min="1" max="31" value="1">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="saveNewSchedule('${modalId}')">保存</button>
+                        <button onclick="closeModal('${modalId}-add-modal')">取消</button>
+                    </div>
+                </div>
+            `;
+            
+            // 添加遮罩层
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            overlay.onclick = function() { closeModal(modalId + '-add-modal'); };
+            
+            // 添加到文档
+            document.body.appendChild(overlay);
+            document.body.appendChild(addModal);
+            
+            // 添加频率选择事件
+            const scheduleType = document.getElementById('schedule-type-' + modalId);
+            scheduleType.onchange = function() {
+                const weeklyOptions = document.getElementById('weekly-options-' + modalId);
+                const monthlyOptions = document.getElementById('monthly-options-' + modalId);
+                
+                if (this.value === 'weekly') {
+                    weeklyOptions.style.display = 'block';
+                    monthlyOptions.style.display = 'none';
+                } else if (this.value === 'monthly') {
+                    weeklyOptions.style.display = 'none';
+                    monthlyOptions.style.display = 'block';
+                } else {
+                    weeklyOptions.style.display = 'none';
+                    monthlyOptions.style.display = 'none';
+                }
+            };
+        }
+        
+        // 保存新增执行安排
+        function saveNewSchedule(modalId) {
+            // 获取表单数据
+            const scheduleType = document.getElementById('schedule-type-' + modalId).value;
+            const scheduleTime = document.getElementById('schedule-time-' + modalId).value;
+            
+            let scheduleDetails = '';
+            if (scheduleType === 'daily') {
+                scheduleDetails = '每天 ' + scheduleTime;
+            } else if (scheduleType === 'weekly') {
+                const dayIndex = document.getElementById('schedule-day-' + modalId).value;
+                const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+                scheduleDetails = '每周' + days[dayIndex] + ' ' + scheduleTime;
+            } else if (scheduleType === 'monthly') {
+                const date = document.getElementById('schedule-date-' + modalId).value;
+                scheduleDetails = '每月' + date + '日 ' + scheduleTime;
+            }
+            
+            alert('已添加执行安排: ' + scheduleDetails);
+            
+            // 关闭弹窗
+            closeModal(modalId + '-add-modal');
+            closeModal(modalId + '-modal');
+            
+            // 重新打开执行安排弹窗以更新显示<script>
+            setTimeout(() => openScheduleModal(modalId), 100);
+        }
+
+        // 确保Font Awesome图标库已加载
+        function loadFontAwesome() {
+          if (!document.querySelector('link[href*="font-awesome"]')) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
+            document.head.appendChild(link);
+          }
+        }
+        loadFontAwesome();
+    </script>
+
+
+    <!-- 新增任务按钮 -->
+    <div class="mt-10 flex justify-center">
+      <button onclick="window.location.href='douyin-search.html'" class="btn-primary px-8 py-3 text-lg font-medium">
+        <i class="fa fa-plus-circle mr-2"></i>新增任务
+      </button>
+    </div>
+
+    <style>
+      .btn-primary {
+        background-color: #1890ff;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      .btn-primary:hover {
+        background-color: #096dd9;
+      }
+    </style>
+
+</body>
+</html>

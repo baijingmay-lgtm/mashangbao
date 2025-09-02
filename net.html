@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>获取素材</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .btn-primary {
+        @apply bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-all duration-200;
+      }
+      .btn-secondary {
+        @apply bg-white border border-neutral-200 hover:border-primary text-neutral-700 px-4 py-2 rounded-lg transition-all duration-200;
+      }
+      .resource-item {
+        @apply border border-neutral-200 rounded-lg overflow-hidden hover:border-primary transition-all cursor-pointer;
+      }
+      .search-tab-active {
+        @apply text-primary border-b-2 border-primary font-medium;
+      }
+      .search-tab-inactive {
+        @apply text-neutral-500 hover:text-primary transition-colors;
+      }
+    }
+  </style>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="p-4">
+  <h2 class="text-lg font-semibold mb-4">获取素材</h2>
+  
+  <!-- 获取素材区域 -->
+  <div class="mb-6">
+    <div class="relative">
+      <input type="text" id="materialKeywordInput" placeholder="输入关键词获取素材..." class="flex-1 pl-10 pr-4 py-2 rounded-lg border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all w-full">
+      <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"></i>
+    </div>
+    <div class="mt-2">
+      <button id="getMaterialsBtn" class="btn-primary whitespace-nowrap">
+        <i class="fa fa-download mr-1"></i> 获取素材
+      </button>
+    </div>
+  </div>
+  
+  <!-- 素材获取清单 -->
+  <div class="mb-6 bg-white rounded-lg border border-neutral-200 overflow-hidden">
+    <div id="materialsListHeader" class="hidden bg-neutral-50 border-b border-neutral-200 p-3 grid grid-cols-12 gap-2 text-sm font-medium">
+      <div class="col-span-1"></div>
+      <div class="col-span-3">素材标题</div>
+      <div class="col-span-2">关联商品</div>
+      <div class="col-span-2 text-right">浏览量</div>
+      <div class="col-span-2 text-right">转化量</div>
+      <div class="col-span-2 text-right">操作</div>
+    </div>
+    <div id="materialsList" class="p-2"></div>
+    <div id="noMaterialsMessage" class="py-10 text-center text-neutral-500">
+      点击上方"获取素材"按钮开始获取素材
+    </div>
+  </div>
+  
+  <!-- 底部操作按钮 -->
+  <div class="mt-6 flex gap-3 sticky bottom-4 bg-white pt-4 border-t border-neutral-200">
+    <button id="cancelBtn" class="flex-1 btn-secondary">
+      取消
+    </button>
+    <button id="downloadBtn" class="flex-1 btn-primary" disabled>
+      <i class="fa fa-download mr-1"></i> 下载并处理选中素材
+    </button>
+  </div>
+
+  <script>
+    // 获取DOM元素
+    const materialKeywordInput = document.getElementById('materialKeywordInput');
+    const getMaterialsBtn = document.getElementById('getMaterialsBtn');
+    const materialsList = document.getElementById('materialsList');
+    const materialsListHeader = document.getElementById('materialsListHeader');
+    const noMaterialsMessage = document.getElementById('noMaterialsMessage');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    
+    // 存储选中的素材ID
+    const selectedMaterialIds = new Set();
+    
+    // 生成模拟素材数据
+    function generateMockMaterials(keyword) {
+      // 模拟不同类型的素材标题
+      const titleTemplates = [
+        '{keyword}产品宣传视频',
+        '{keyword}商品展示图片',
+        '{keyword}详情页设计素材',
+        '{keyword}主图设计模板',
+        '{keyword}短视频素材',
+        '{keyword}直播背景素材',
+        '{keyword}产品说明书',
+        '{keyword}使用教程视频'
+      ];
+    
+      // 模拟关联商品
+      const products = [
+        '智能手表', '无线耳机', '运动手环', '蓝牙耳机',
+        '智能音箱', '便携充电宝', '手机支架', '自拍杆',
+        '行车记录仪', '蓝牙耳机', '智能门锁', '扫地机器人'
+      ];
+    
+      const materials = [];
+      for (let i = 1; i <= 10; i++) {
+        const template = titleTemplates[Math.floor(Math.random() * titleTemplates.length)];
+        const title = template.replace('{keyword}', keyword || '通用');
+        const product = products[Math.floor(Math.random() * products.length)];
+        const views = Math.floor(Math.random() * 10000) + 100;
+        const conversions = Math.floor(views * (Math.random() * 0.1 + 0.01));
+        const type = Math.random() > 0.5 ? 'video' : 'image';
+        const duration = type === 'video' ? `0${Math.floor(Math.random() * 3) + 1}:${Math.floor(Math.random() * 50) + 10}` : '';
+    
+        materials.push({
+          id: `material_${i}`,
+          title: title,
+          product: product,
+          views: views,
+          conversions: conversions,
+          type: type,
+          duration: duration,
+          imgSrc: `https://picsum.photos/100/80?random=${i + 1000}`
+        });
+      }
+    
+      return materials;
+    }
+    
+    // 渲染素材列表
+    function renderMaterialsList(materials) {
+      // 清空列表
+      materialsList.innerHTML = '';
+    
+      // 显示表头，隐藏无数据提示
+      materialsListHeader.classList.remove('hidden');
+      noMaterialsMessage.classList.add('hidden');
+    
+      // 渲染每个素材项
+      materials.forEach(material => {
+        const item = document.createElement('div');
+        item.className = 'p-3 grid grid-cols-12 gap-2 items-center border-b border-neutral-100 hover:bg-neutral-50 transition-colors';
+        item.dataset.id = material.id;
+    
+        // 复选框
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'form-checkbox h-4 w-4 text-primary rounded border-neutral-300 focus:ring-primary';
+        checkbox.checked = selectedMaterialIds.has(material.id);
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            selectedMaterialIds.add(material.id);
+          } else {
+            selectedMaterialIds.delete(material.id);
+          }
+    
+          // 更新下载按钮状态
+          downloadBtn.disabled = selectedMaterialIds.size === 0;
+        });
+    
+        // 缩略图
+        const thumbnail = document.createElement('img');
+        thumbnail.src = material.imgSrc;
+        thumbnail.alt = material.title;
+        thumbnail.className = 'w-12 h-12 object-cover rounded';
+    
+        // 素材标题
+        const title = document.createElement('div');
+        title.className = 'col-span-3 font-medium text-sm line-clamp-1';
+        title.textContent = material.title;
+    
+        // 关联商品
+        const product = document.createElement('div');
+        product.className = 'col-span-2 text-sm text-neutral-600';
+        product.textContent = material.product;
+    
+        // 浏览量
+        const views = document.createElement('div');
+        views.className = 'col-span-2 text-sm text-right';
+        views.textContent = material.views.toLocaleString();
+    
+        // 转化量
+        const conversions = document.createElement('div');
+        conversions.className = 'col-span-2 text-sm text-right';
+        conversions.textContent = material.conversions.toLocaleString();
+    
+        // 操作按钮
+        const actions = document.createElement('div');
+        actions.className = 'col-span-2 text-right';
+        const viewBtn = document.createElement('button');
+        viewBtn.className = 'text-xs text-primary hover:underline mr-2';
+        viewBtn.textContent = '预览';
+        viewBtn.addEventListener('click', () => {
+          alert(`预览素材: ${material.title}`);
+        });
+    
+        actions.appendChild(viewBtn);
+    
+        // 组装元素
+        item.appendChild(checkbox);
+        item.appendChild(thumbnail);
+        item.appendChild(title);
+        item.appendChild(product);
+        item.appendChild(views);
+        item.appendChild(conversions);
+        item.appendChild(actions);
+    
+        materialsList.appendChild(item);
+      });
+    }
+    
+    // 获取素材按钮点击事件
+    getMaterialsBtn.addEventListener('click', () => {
+      const keyword = materialKeywordInput.value.trim();
+    
+      // 模拟加载
+      getMaterialsBtn.disabled = true;
+      getMaterialsBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> 获取中...';
+    
+      setTimeout(() => {
+        // 生成模拟素材数据
+        const materials = generateMockMaterials(keyword);
+    
+        // 渲染素材列表
+        renderMaterialsList(materials);
+    
+        // 重置按钮
+        getMaterialsBtn.disabled = false;
+        getMaterialsBtn.innerHTML = '<i class="fa fa-download mr-1"></i> 获取素材';
+    
+        // 重置选中状态
+        selectedMaterialIds.clear();
+        downloadBtn.disabled = true;
+    
+        // 显示提示
+        if (keyword) {
+          alert(`已获取包含关键词 "${keyword}" 的素材`);
+        } else {
+          alert('已获取通用素材');
+        }
+      }, 1000);
+    });
+    
+    // 下载处理按钮点击事件
+    downloadBtn.addEventListener('click', () => {
+      if (selectedMaterialIds.size === 0) {
+        alert('请先选择要下载的素材');
+        return;
+      }
+    
+      // 模拟下载处理
+      downloadBtn.disabled = true;
+      downloadBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> 处理中...';
+    
+      setTimeout(() => {
+        // 模拟下载完成
+        downloadBtn.innerHTML = '<i class="fa fa-check mr-1"></i> 处理完成';
+        alert(`已成功下载并处理 ${selectedMaterialIds.size} 个素材`);
+    
+        // 1秒后重置按钮
+        setTimeout(() => {
+          downloadBtn.disabled = selectedMaterialIds.size === 0;
+          downloadBtn.innerHTML = '<i class="fa fa-download mr-1"></i> 下载并处理选中素材';
+        }, 1000);
+      }, 2000);
+    });
+    
+    // 取消按钮点击事件
+    cancelBtn.addEventListener('click', () => {
+      // 关闭窗口或重置页面
+      if (window.parent && window.parent.ModalManager) {
+        window.parent.ModalManager.close();
+      } else {
+        // 重置页面
+        selectedMaterialIds.clear();
+        materialsList.innerHTML = '';
+        materialsListHeader.classList.add('hidden');
+        noMaterialsMessage.classList.remove('hidden');
+        downloadBtn.disabled = true;
+        materialKeywordInput.value = '';
+      }
+    });
+    
+    // 回车搜索
+    materialKeywordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        getMaterialsBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>

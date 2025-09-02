@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工作流自定义平台</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 引入Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            neutral: '#86909C',
+            light: '#F2F3F5',
+            dark: '#1D2129',
+            success: '#52C41A',
+            warning: '#FAAD14',
+            danger: '#FF4D4F',
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类和响应式样式 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .step-active {
+        @apply bg-primary text-white border-primary;
+      }
+      .step-completed {
+        @apply bg-primary/10 text-primary border-primary/30;
+      }
+      .step-future {
+        @apply bg-light text-neutral border-neutral/20;
+      }
+      .card-hover {
+        @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
+      }
+      .btn-primary {
+        @apply bg-primary hover:bg-primary/90 text-white text-xs py-1 px-2 rounded transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-primary/50;
+      }
+      .btn-primary-disabled {
+        @apply bg-gray-300 text-white text-xs py-1 px-2 rounded cursor-not-allowed;
+      }
+      .btn-secondary {
+        @apply bg-white hover:bg-light text-dark border border-neutral/20 text-xs py-1 px-2 rounded transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-primary/30;
+      }
+      .input-compact {
+        @apply text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary;
+      }
+      .filter-tag {
+        @apply bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded-full inline-flex items-center mr-1 mb-1 cursor-pointer hover:bg-primary/20 transition-colors;
+      }
+      .dropdown-select {
+        @apply text-xs px-2 py-1 border border-gray-300 rounded bg-white appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary;
+      }
+      .data-highlight {
+        @apply text-primary font-medium;
+      }
+      .data-warning {
+        @apply text-warning font-medium;
+      }
+      .data-success {
+        @apply text-success font-medium;
+      }
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 640px) {
+      .filter-row {
+        flex-direction: column;
+        gap: 2px !important;
+      }
+      .filter-item {
+        width: 100% !important;
+      }
+      .keyword-container {
+        flex-direction: column;
+      }
+      .keyword-input, .keyword-tags {
+        width: 100% !important;
+      }
+      .result-grid {
+        display: none;
+      }
+      .result-list {
+        display: block !important;
+      }
+    }
+    
+    /* 骨架屏样式 */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+    }
+    
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col text-xs">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300">
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-cubes text-primary text-xl"></i>
+        <h1 class="text-base font-bold text-dark">工作流自定义平台</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <button class="text-neutral hover:text-primary transition-colors text-xs">
+          <i class="fa fa-question-circle mr-1"></i>帮助
+        </button>
+        <button class="text-neutral hover:text-primary transition-colors text-xs relative">
+          <i class="fa fa-bell mr-1"></i>通知
+          <span class="absolute -top-1 -right-1 w-2 h-2 bg-danger rounded-full"></span>
+        </button>
+        <div class="flex items-center space-x-2">
+          <img src="https://picsum.photos/id/1005/32/32" alt="用户头像" class="w-6 h-6 rounded-full object-cover border border-gray-200">
+          <span class="font-medium text-xs">操作员01</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex-grow container mx-auto px-4 py-4">
+    <!-- 当前步骤标题 -->
+    <div class="mb-3">
+      <h2 id="step-title" class="text-base font-bold text-dark mb-1">第一步：选品-信息获取</h2>
+      <p id="step-description" class="text-neutral text-[10px]">设置数据源网站，筛选关键词和字段，获取商品信息</p>
+    </div>
+    
+    <!-- 操作台 - 添加阴影增强区块感 -->
+    <div class="bg-white rounded-lg shadow-sm p-3 mb-3 transition-all duration-300" id="workspace">
+      <!-- 第一步：选品-信息获取 -->
+      <div id="step-1" class="workstep">
+        <!-- 设置区域 - 增加区块间距和阴影 -->
+        <div class="space-y-3 mb-3">
+          <!-- 网站选择 - 强化区块分隔 -->
+          <div class="bg-light/50 rounded-lg p-2 shadow-sm card-hover">
+            <h3 class="font-semibold flex-shrink-0 w-20 flex items-center text-xs mr-2">
+              <i class="fa fa-globe text-primary mr-1.5"></i>信息源网站
+            </h3>
+            <div class="flex-grow flex flex-wrap gap-1.5">
+              <label class="flex items-center text-xs p-1 bg-white rounded border border-gray-200 hover:border-primary/50 transition-colors cursor-pointer">
+                <input type="checkbox" checked class="w-3 h-3 text-primary focus:ring-primary">
+                <span class="ml-1.5">抖音</span>
+              </label>
+              <label class="flex items-center text-xs p-1 bg-white rounded border border-gray-200 hover:border-primary/50 transition-colors cursor-pointer">
+                <input type="checkbox" class="w-3 h-3 text-primary focus:ring-primary">
+                <span class="ml-1.5">淘宝</span>
+              </label>
+              <label class="flex items-center text-xs p-1 bg-white rounded border border-gray-200 hover:border-primary/50 transition-colors cursor-pointer">
+                <input type="checkbox" class="w-3 h-3 text-primary focus:ring-primary">
+                <span class="ml-1.5">拼多多</span>
+              </label>
+              <label class="flex items-center text-xs p-1 bg-white rounded border border-gray-200 hover:border-primary/50 transition-colors cursor-pointer">
+                <input type="checkbox" class="w-3 h-3 text-primary focus:ring-primary">
+                <span class="ml-1.5">京东</span>
+              </label>
+              <label class="flex items-center text-xs p-1 bg-white rounded border border-gray-200 hover:border-primary/50 transition-colors cursor-pointer">
+                <input type="checkbox" class="w-3 h-3 text-primary focus:ring-primary">
+                <span class="ml-1.5">快手</span>
+              </label>
+              <label class="flex items-center text-xs p-1 bg-white rounded border border-gray-200 hover:border-primary/50 transition-colors cursor-pointer">
+                <input type="checkbox" class="w-3 h-3 text-primary focus:ring-primary">
+                <span class="ml-1.5">小红书</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- 关键词筛选 - 突出核心操作区 -->
+          <div class="bg-light/50 rounded-lg p-2 shadow-sm card-hover">
+            <div class="flex flex-wrap">
+              <h3 class="font-semibold flex-shrink-0 w-20 flex items-center text-xs mr-2 mt-0.5">
+                <i class="fa fa-tags text-primary mr-1.5"></i>筛选关键词
+              </h3>
+              
+              <div class="flex-grow space-y-1.5">
+                <!-- 输入框和右侧内容在同一行 - 增加输入框高度突出显示 -->
+                <div class="flex flex-wrap items-center keyword-container">
+                  <!-- 输入框缩小为原来的50% -->
+                  <div class="w-1/2 pr-2 keyword-input">
+                    <div class="flex">
+                      <input type="text" placeholder="输入关键词，如：男装T恤" value="男装T恤" 
+                        class="flex-grow input-compact rounded-l h-8">
+                        <!-- 下拉菜单选择添加方式 -->
+                      <div class="relative">
+                        <button id="add-keyword" class="bg-primary hover:bg-primary/90 text-white px-2 rounded-r h-8 flex items-center transition-colors">
+                          <i class="fa fa-plus mr-1"></i> 添加
+                          <i class="fa fa-chevron-down ml-1 text-[8px]"></i>
+                        </button>
+                        <div id="add-methods" class="hidden absolute right-0 mt-1 w-36 bg-white shadow-md rounded border border-gray-200 z-10">
+                          <div class="py-1">
+                            <a href="#" class="block px-3 py-1.5 text-xs hover:bg-light" onclick="addKeyword(false); return false;">
+                              <i class="fa fa-check text-success mr-1"></i>精确添加
+                            </a>
+                            <a href="#" class="block px-3 py-1.5 text-xs hover:bg-light" onclick="addKeyword(true); return false;">
+                              <i class="fa fa-random text-primary mr-1"></i>泛化添加
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- 操作反馈 -->
+                      <div id="add-feedback" class="hidden text-success text-xs ml-2 flex items-center h-8">
+                        <i class="fa fa-check-circle mr-1"></i> 添加成功
+                      </div>
+                    </div>
+                    
+                    <!-- 历史记录下拉提示 -->
+                    <div id="keyword-history" class="hidden mt-1 bg-white shadow-sm rounded border border-gray-200 max-h-24 overflow-y-auto">
+                      <div class="p-1">
+                        <div class="px-2 py-1.5 text-xs hover:bg-light cursor-pointer flex items-center">
+                          <i class="fa fa-history text-neutral mr-2"></i>男装T恤
+                        </div>
+                        <div class="px-2 py-1.5 text-xs hover:bg-light cursor-pointer flex items-center">
+                          <i class="fa fa-history text-neutral mr-2"></i>女装连衣裙
+                        </div>
+                        <div class="px-2 py-1.5 text-xs hover:bg-light cursor-pointer flex items-center">
+                          <i class="fa fa-history text-neutral mr-2"></i>运动鞋
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- 已选关键词和泛化按钮放在输入框右侧 -->
+                  <div class="w-1/2 flex items-center keyword-tags">
+                    <div class="flex-grow overflow-hidden">
+                      <p class="text-[10px] text-neutral mb-1 inline-block">已选关键词：</p>
+                      <div id="keyword-list" class="inline-flex flex-wrap">
+                        <span class="filter-tag">
+                          男装T恤
+                          <button class="ml-1 text-primary/70 hover:text-primary" onclick="if(!confirm('确定删除此关键词？')) return false;">
+                            <i class="fa fa-times-circle text-[9px]"></i>
+                          </button>
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <button id="generalize-btn" class="ml-2 whitespace-nowrap bg-white border border-primary/30 text-primary hover:bg-primary/5 py-0.5 px-2 rounded transition-colors flex items-center text-xs">
+                      <i class="fa fa-random mr-1"></i> 关键词泛化
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 筛选字段 - 调整布局，下拉框外框自适应大小 -->
+          <div class="bg-light/50 rounded-lg shadow-sm card-hover overflow-hidden">
+            <div id="filter-header" class="p-2 flex justify-between items-center cursor-pointer">
+              <h3 class="font-semibold flex items-center text-xs">
+                <i class="fa fa-filter text-primary mr-1.5"></i>筛选字段
+              </h3>
+              <i id="filter-toggle" class="fa fa-chevron-down text-neutral text-[9px] transition-transform duration-200"></i>
+            </div>
+            
+            <div id="filter-content" class="p-2">
+              <!-- 筛选字段使用弹性布局，让外框自适应内容大小 -->
+              <div class="flex flex-wrap gap-3 filter-row">
+                <!-- 价格区间 -->
+                <div class="bg-white p-1.5 rounded border border-gray-200 filter-item" style="width: auto;">
+                  <label class="block text-[10px] mb-1">价格区间</label>
+                  <select class="dropdown-select w-auto">
+                    <option value="">全部</option>
+                    <option value="0-50">0-50元</option>
+                    <option value="50-100">50-100元</option>
+                    <option value="100-200" selected>100-200元</option>
+                    <option value="200+">200元以上</option>
+                    <option value="custom">自定义...</option>
+                  </select>
+                </div>
+                
+                <!-- 销量 -->
+                <div class="bg-white p-1.5 rounded border border-gray-200 filter-item" style="width: auto;">
+                  <label class="block text-[10px] mb-1">销量</label>
+                  <select class="dropdown-select w-auto">
+                    <option value="">全部</option>
+                    <option value="0-1000">0-1000</option>
+                    <option value="1000-5000">1000-5000</option>
+                    <option value="5000-10000" selected>5000-10000</option>
+                    <option value="10000+">10000以上</option>
+                  </select>
+                </div>
+                
+                <!-- 商品评分 -->
+                <div class="bg-white p-1.5 rounded border border-gray-200 filter-item" style="width: auto;">
+                  <label class="block text-[10px] mb-1">商品评分</label>
+                  <select class="dropdown-select w-auto">
+                    <option value="">全部</option>
+                    <option value="4.0+">4.0分以上</option>
+                    <option value="4.5+" selected>4.5分以上</option>
+                    <option value="4.8+">4.8分以上</option>
+                  </select>
+                </div>
+                
+                <!-- 促销类型 -->
+                <div class="bg-white p-1.5 rounded border border-gray-200 filter-item" style="width: auto;">
+                  <label class="block text-[10px] mb-1">促销类型</label>
+                  <select class="dropdown-select w-auto">
+                    <option value="" selected>全部</option>
+                    <option value="discount">限时折扣</option>
+                    <option value="fullreduce">满减</option>
+                    <option value="coupon">优惠券</option>
+                    <option value="gift">买赠</option>
+                  </select>
+                </div>
+                
+                <!-- Top数量 - 移至第一排最右侧 -->
+                <div class="bg-white p-1.5 rounded border border-gray-200 filter-item ml-auto" style="width: auto;">
+                  <label class="block text-[10px] mb-1">Top数量</label>
+                  <select class="dropdown-select w-auto">
+                    <option value="">全部</option>
+                    <option value="50">top50</option>
+                    <option value="100" selected>top100</option>
+                    <option value="200">top200</option>
+                    <option value="custom">自定义</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 搜索结果 - 优化数据展示 -->
+        <div class="shadow-sm rounded-lg overflow-hidden">
+          <div class="flex justify-between items-center bg-light p-2 border-b border-gray-200">
+            <h3 class="font-semibold flex items-center text-xs">
+              <i class="fa fa-search-results text-primary mr-1.5"></i>搜索结果 <span class="text-neutral ml-1.5 text-[10px]">(50个商品)</span>
+            </h3>
+            <div class="flex space-x-1">
+              <!-- 批量操作按钮 -->
+              <div class="relative">
+                <button class="btn-secondary flex items-center text-[10px]">
+                  <i class="fa fa-cog mr-1"></i> 批量操作
+                </button>
+                <div class="hidden absolute right-0 mt-1 w-36 bg-white shadow-md rounded border border-gray-200 z-10">
+                  <div class="py-1">
+                    <a href="#" class="block px-3 py-1.5 text-xs hover:bg-light">
+                      <i class="fa fa-download text-primary mr-1"></i>导出选中
+                    </a>
+                    <a href="#" class="block px-3 py-1.5 text-xs hover:bg-light">
+                      <i class="fa fa-star-o text-warning mr-1"></i>标记为关注
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <button class="btn-secondary flex items-center text-[10px]">
+                <i class="fa fa-refresh mr-1"></i> 刷新
+              </button>
+              <button class="btn-secondary flex items-center text-[10px]">
+                <i class="fa fa-download mr-1"></i> 导出全部
+              </button>
+              
+              <!-- 视图切换 -->
+              <div class="flex border border-gray-200 rounded overflow-hidden">
+                <button class="bg-white px-2 py-1 text-primary text-xs">
+                  <i class="fa fa-th-large"></i>
+                </button>
+                <button class="bg-light px-2 py-1 text-neutral text-xs">
+                  <i class="fa fa-list"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 列表标题行 - 带排序功能，深色背景增强对比 -->
+          <div class="flex border-x border-gray-200 bg-gray-50 p-1 text-[10px] font-medium">
+            <div class="w-5">
+              <label class="w-3.5 h-3.5 rounded-full border border-gray-300 bg-white flex items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors">
+                <input type="checkbox" id="select-all" class="opacity-0 absolute w-full h-full cursor-pointer">
+              </label>
+            </div>
+            <div class="w-16">商品图片</div>
+            <div class="w-1/4 cursor-pointer hover:bg-white p-1 rounded">
+              <span>商品名称</span>
+            </div>
+            <div class="w-14 cursor-pointer hover:bg-white p-1 rounded flex items-center">
+              <span>价格</span>
+              <i class="fa fa-sort text-[8px] ml-1 text-neutral"></i>
+            </div>
+            <div class="w-14 cursor-pointer hover:bg-white p-1 rounded flex items-center">
+              <span>销量</span>
+              <i class="fa fa-sort-amount-desc text-[8px] ml-1 text-primary"></i>
+            </div>
+            <div class="w-14 cursor-pointer hover:bg-white p-1 rounded flex items-center">
+              <span>销售额</span>
+              <i class="fa fa-sort text-[8px] ml-1 text-neutral"></i>
+            </div>
+            <div class="w-14 cursor-pointer hover:bg-white p-1 rounded flex items-center">
+              <span>素材数</span>
+              <i class="fa fa-sort text-[8px] ml-1 text-neutral"></i>
+            </div>
+            <div class="w-16 cursor-pointer hover:bg-white p-1 rounded flex items-center">
+              <span>近3日销量</span>
+              <i class="fa fa-sort text-[8px] ml-1 text-neutral"></i>
+            </div>
+            <div class="w-12">状态</div>
+          </div>
+          
+          <!-- 商品列表 - 增加数据间距和视觉线索 -->
+          <div class="border-x border-gray-200">
+            <!-- 商品1 - 高销量用绿色强调 -->
+            <div class="flex items-center border-b border-gray-200 p-1 hover:bg-light/50 transition-colors">
+              <div class="w-5">
+                <label class="w-3.5 h-3.5 rounded-full border border-gray-300 bg-white flex items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors">
+                  <input type="checkbox" class="opacity-0 absolute w-full h-full cursor-pointer">
+                </label>
+              </div>
+              <div class="w-16">
+                <!-- 图片加载失败时显示默认图 -->
+                <img src="https://picsum.photos/id/103/40/40" alt="男士纯棉短袖T恤" class="w-10 h-10 object-cover" 
+                  onerror="this.src='https://via.placeholder.com/40?text=无图'">
+              </div>
+              <div class="w-1/4">
+                <div class="text-xs">男士纯棉短袖T恤夏季新款</div>
+                <div class="text-[9px] text-neutral">ID: 8927461</div> <!-- ID显示在标题下方 -->
+              </div>
+              <div class="w-14 text-danger font-medium text-xs">¥59.9</div>
+              <div class="w-14 text-success font-medium text-xs">12,543</div> <!-- 高销量用绿色强调 -->
+              <div class="w-14 text-neutral text-xs">¥752k</div>
+              <div class="w-14 text-neutral text-xs">5</div>
+              <div class="w-16 data-success text-xs">1,245 <i class="fa fa-arrow-up text-[8px]"></i></div> <!-- 增长趋势 -->
+              <div class="w-12"><span class="bg-success/10 text-success text-[9px] px-1 py-0.5 rounded">热销</span></div>
+            </div>
+            
+            <!-- 商品2 - 模拟图片加载失败 -->
+            <div class="flex items-center border-b border-gray-200 p-1 hover:bg-light/50 transition-colors">
+              <div class="w-5">
+                <label class="w-3.5 h-3.5 rounded-full border border-gray-300 bg-white flex items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors">
+                  <input type="checkbox" class="opacity-0 absolute w-full h-full cursor-pointer">
+                </label>
+              </div>
+              <div class="w-16">
+                <!-- 故意使用错误的图片地址，测试默认图显示 -->
+                <img src="https://example.com/invalid-image.jpg" alt="男士宽松短袖T恤" class="w-10 h-10 object-cover" 
+                  onerror="this.src='https://via.placeholder.com/40?text=无图'">
+              </div>
+              <div class="w-1/4">
+                <div class="text-xs">男士宽松短袖T恤夏季潮牌</div>
+                <div class="text-[9px] text-neutral">ID: 7532910</div>
+              </div>
+              <div class="w-14 text-danger font-medium text-xs">¥69.9</div>
+              <div class="w-14 text-neutral text-xs">8,721</div>
+              <div class="w-14 text-neutral text-xs">¥610k</div>
+              <div class="w-14 text-neutral text-xs">3</div>
+              <div class="w-16 text-neutral text-xs">845</div>
+              <div class="w-12"></div>
+            </div>
+            
+            <!-- 商品3 - 新品用黄色强调 -->
+            <div class="flex items-center border-b border-gray-200 p-1 hover:bg-light/50 transition-colors">
+              <div class="w-5">
+                <label class="w-3.5 h-3.5 rounded-full border border-gray-300 bg-white flex items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors">
+                  <input type="checkbox" class="opacity-0 absolute w-full h-full cursor-pointer">
+                </label>
+              </div>
+              <div class="w-16">
+                <img src="https://picsum.photos/id/105/40/40" alt="男士纯色短袖T恤" class="w-10 h-10 object-cover"
+                  onerror="this.src='https://via.placeholder.com/40?text=无图'">
+              </div>
+              <div class="w-1/4">
+                <div class="text-xs">男士纯色短袖T恤夏季基础款</div>
+                <div class="text-[9px] text-neutral">ID: 6328194</div>
+              </div>
+              <div class="w-14 text-danger font-medium text-xs">¥49.9</div>
+              <div class="w-14 text-neutral text-xs">5,329</div>
+              <div class="w-14 text-neutral text-xs">¥266k</div>
+              <div class="w-14 text-neutral text-xs">2</div>
+              <div class="w-16 data-warning text-xs">632 <i class="fa fa-arrow-up text-[8px]"></i></div>
+              <div class="w-12"><span class="bg-warning/10 text-warning text-[9px] px-1 py-0.5 rounded">新品</span></div>
+            </div>
+          </div>
+          
+          <!-- 分页优化 - 固定在底部便于操作 -->
+          <div class="flex justify-between items-center border-t border-gray-200 p-2 bg-white sticky bottom-0 z-10">
+            <div class="text-xs text-neutral">
+              显示 1-3 条，共 50 条
+            </div>
+            <nav class="inline-flex rounded shadow-sm">
+              <a href="#" class="relative inline-flex items-center px-1.5 py-1 border border-gray-300 bg-white text-[10px] font-medium text-neutral hover:bg-light">
+                <i class="fa fa-chevron-left text-[9px]"></i>
+              </a>
+              <a href="#" class="relative inline-flex items-center px-2.5 py-1 border border-gray-300 bg-primary text-[10px] font-medium text-white">
+                1
+              </a>
+              <a href="#" class="relative inline-flex items-center px-2.5 py-1 border border-gray-300 bg-white text-[10px] font-medium text-neutral hover:bg-light">
+                2
+              </a>
+              <a href="#" class="relative inline-flex items-center px-2.5 py-1 border border-gray-300 bg-white text-[10px] font-medium text-neutral hover:bg-light">
+                3
+              </a>
+              <span class="relative inline-flex items-center px-2 py-1 border border-gray-300 bg-white text-[10px] font-medium text-neutral">
+                ...
+              </span>
+              <a href="#" class="relative inline-flex items-center px-2.5 py-1 border border-gray-300 bg-white text-[10px] font-medium text-neutral hover:bg-light">
+                10
+              </a>
+              <a href="#" class="relative inline-flex items-center px-1.5 py-1 border border-gray-300 bg-white text-[10px] font-medium text-neutral hover:bg-light">
+                <i class="fa fa-chevron-right text-[9px]"></i>
+              </a>
+            </nav>
+            <div class="text-xs">
+              跳至 <input type="text" class="w-8 h-5 text-center border border-gray-300 rounded mx-1 text-xs"> 页
+              <button class="btn-secondary text-[10px] px-1.5">确定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 第二步：素材-预处理 -->
+      <div id="step-2" class="workstep hidden">
+        <div class="text-center py-6">
+          <div class="inline-block p-3 rounded-full bg-primary/10 text-primary mb-3">
+            <i class="fa fa-cogs text-xl"></i>
+          </div>
+          <h3 class="text-base font-semibold mb-1">素材处理中</h3>
+          <p class="text-neutral text-xs mb-4 max-w-md mx-auto">正在处理您选择的商品链接素材，这可能需要几分钟时间，请稍候...</p>
+          
+          <!-- 进度条 -->
+          <div class="max-w-md mx-auto mb-4">
+            <div class="h-1.5 bg-light rounded-full overflow-hidden">
+              <div class="h-full bg-primary rounded-full w-0 transition-all duration-1000" id="processing-progress"></div>
+            </div>
+            <p class="text-right text-xs text-neutral mt-0.5" id="progress-text">0%</p>
+          </div>
+          
+          <div class="animate-pulse">
+            <div class="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full mx-auto"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 其他步骤保持不变 -->
+      <div id="step-3" class="workstep hidden">
+        <div class="p-4 text-center">
+          <h3 class="text-base font-semibold mb-2">分镜解析</h3>
+          <p class="text-neutral text-xs">对视频素材进行分镜解析，为每个镜头添加标签和描述</p>
+        </div>
+      </div>
+      
+      <div id="step-4" class="workstep hidden">
+        <div class="p-4 text-center">
+          <h3 class="text-base font-semibold mb-2">素材库</h3>
+          <p class="text-neutral text-xs">管理所有素材，支持筛选、搜索和分类管理</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 步骤导航 - 下一步按钮可点击 -->
+    <div class="flex items-center justify-between bg-white rounded-lg shadow-sm p-2 mb-4 sticky bottom-14 z-10">
+      <div class="flex items-center" id="prev-step-container">
+        <!-- 第一步不显示上一步按钮 -->
+      </div>
+      
+      <div class="flex items-center">
+        <!-- 步骤指示器 -->
+        <div class="flex items-center">
+          <!-- 步骤1 -->
+          <div class="flex flex-col items-center mr-3">
+            <div class="w-5 h-5 rounded-full step-active flex items-center justify-center text-[10px] font-medium mb-0.5">1</div>
+            <span class="text-[9px]">选素材</span>
+          </div>
+          <div class="w-6 h-0.5 bg-primary self-center"></div>
+          
+          <!-- 步骤2 -->
+          <div class="flex flex-col items-center mx-3">
+            <div class="w-5 h-5 rounded-full step-future flex items-center justify-center text-[10px] font-medium border mb-0.5">2</div>
+            <span class="text-[9px] text-neutral">预处理</span>
+          </div>
+          <div class="w-6 h-0.5 bg-light self-center"></div>
+          
+          <!-- 步骤3 -->
+          <div class="flex flex-col items-center mx-3">
+            <div class="w-5 h-5 rounded-full step-future flex items-center justify-center text-[10px] font-medium border mb-0.5">3</div>
+            <span class="text-[9px] text-neutral">分镜解析</span>
+          </div>
+          <div class="w-6 h-0.5 bg-light self-center"></div>
+          
+          <!-- 步骤4 -->
+          <div class="flex flex-col items-center ml-3">
+            <div class="w-5 h-5 rounded-full step-future flex items-center justify-center text-[10px] font-medium border mb-0.5">4</div>
+            <span class="text-[9px] text-neutral">素材库</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex items-center" id="next-step-container">
+        <!-- 下一步按钮设置为可点击状态 -->
+        <button class="btn-primary flex items-center text-[10px]" id="next-step">
+          下一步 <i class="fa fa-arrow-right ml-1"></i>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- 空状态模板（默认隐藏） -->
+  <div id="empty-state" class="hidden py-10 text-center">
+    <div class="inline-block p-3 rounded-full bg-light mb-3">
+      <i class="fa fa-search text-2xl text-neutral"></i>
+    </div>
+    <h3 class="text-base font-semibold mb-1">未找到相关商品</h3>
+    <p class="text-neutral text-xs mb-4 max-w-md mx-auto">尝试调整筛选条件或使用更宽泛的关键词进行搜索</p>
+    <button class="btn-primary" onclick="resetFilters()">
+      重置筛选条件
+    </button>
+  </div>
+
+  <script>
+    // 筛选字段折叠/展开功能
+    document.getElementById('filter-header').addEventListener('click', function() {
+      const content = document.getElementById('filter-content');
+      const toggle = document.getElementById('filter-toggle');
+      
+      content.classList.toggle('hidden');
+      toggle.classList.toggle('rotate-180');
+    });
+    
+    // 关键词添加下拉菜单
+    document.getElementById('add-keyword').addEventListener('click', function(e) {
+      e.stopPropagation();
+      const methods = document.getElementById('add-methods');
+      methods.classList.toggle('hidden');
+    });
+    
+    // 点击其他区域关闭下拉菜单
+    document.addEventListener('click', function() {
+      document.getElementById('add-methods').classList.add('hidden');
+      document.getElementById('keyword-history').classList.add('hidden');
+    });
+    
+    // 关键词输入框聚焦显示历史记录
+    const keywordInput = document.querySelector('input[placeholder="输入关键词，如：男装T恤"]');
+    keywordInput.addEventListener('focus', function() {
+      document.getElementById('keyword-history').classList.remove('hidden');
+    });
+    
+    // 添加关键词功能（支持精确添加和泛化添加）
+    function addKeyword(generalize = false) {
+      const input = keywordInput;
+      const keyword = input.value.trim();
+      
+      if (keyword) {
+        const keywordList = document.getElementById('keyword-list');
+        
+        // 如果需要泛化添加
+        if (generalize) {
+          const generalized = {
+            '男装T恤': ['男士T恤', '男装短袖', '男式体恤', '夏季男装T恤', '纯棉男装T恤'],
+            '女装连衣裙': ['女士连衣裙', '女装长裙', '夏季连衣裙', '碎花连衣裙', '雪纺连衣裙'],
+            '运动鞋': ['跑步鞋', '篮球鞋', '休闲运动鞋', '夏季运动鞋', '男士运动鞋']
+          };
+          
+          const keywordsToAdd = [keyword, ...(generalized[keyword] || [])];
+          
+          keywordsToAdd.forEach(key => {
+            // 检查是否已存在
+            const exists = Array.from(keywordList.children).some(child => 
+              child.textContent.trim().replace('×', '') === key
+            );
+            
+            if (!exists) {
+              addKeywordTag(keywordList, key);
+            }
+          });
+        } else {
+          // 精确添加
+          addKeywordTag(keywordList, keyword);
+        }
+        
+        // 显示添加成功反馈
+        const feedback = document.getElementById('add-feedback');
+        feedback.classList.remove('hidden');
+        input.value = '';
+        
+        // 3秒后隐藏反馈
+        setTimeout(() => {
+          feedback.classList.add('hidden');
+        }, 3000);
+      }
+      
+      // 关闭下拉菜单
+      document.getElementById('add-methods').classList.add('hidden');
+    }
+    
+    // 添加关键词标签
+    function addKeywordTag(container, keyword) {
+      const keywordTag = document.createElement('span');
+      keywordTag.className = 'filter-tag';
+      keywordTag.innerHTML = `${keyword} <button class="ml-1 text-primary/70 hover:text-primary" onclick="if(!confirm('确定删除此关键词？')) return false;">
+        <i class="fa fa-times-circle text-[9px]"></i>
+      </button>`;
+      
+      // 为删除按钮添加事件
+      keywordTag.querySelector('button').addEventListener('click', function() {
+        container.removeChild(keywordTag);
+      });
+      
+      container.appendChild(keywordTag);
+    }
+    
+    // 关键词泛化功能
+    document.getElementById('generalize-btn').addEventListener('click', function() {
+      const keywords = Array.from(document.querySelectorAll('#keyword-list span'))
+        .map(span => span.textContent.trim().replace('×', ''));
+      
+      if (keywords.length === 0) {
+        alert('请先添加关键词');
+        return;
+      }
+      
+      // 模拟关键词泛化
+      const generalized = {
+        '男装T恤': ['男士T恤', '男装短袖', '男式体恤', '夏季男装T恤', '纯棉男装T恤'],
+        '女装连衣裙': ['女士连衣裙', '女装长裙', '夏季连衣裙', '碎花连衣裙', '雪纺连衣裙'],
+        '运动鞋': ['跑步鞋', '篮球鞋', '休闲运动鞋', '夏季运动鞋', '男士运动鞋']
+      };
+      
+      const keywordList = document.getElementById('keyword-list');
+      
+      // 保留现有关键词并添加泛化关键词（去重）
+      const allKeywords = [...new Set([...keywords, ...(generalized[keywords[0]] || [])])];
+      
+      // 清空现有标签
+      keywordList.innerHTML = '';
+      
+      // 添加所有关键词
+      allKeywords.forEach(keyword => {
+        addKeywordTag(keywordList, keyword);
+      });
+    });
+    
+    // 全选功能
+    document.getElementById('select-all').addEventListener('change', function() {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]:not(#select-all)');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+    });
+    
+    // 步骤导航功能 - 下一步按钮可点击并实现跳转逻辑
+    const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
+    const stepTitles = [
+      '第一步：选品-信息获取',
+      '第二步：素材-预处理',
+      '第三步：分镜解析',
+      '第四步：素材库'
+    ];
+    const stepDescriptions = [
+      '设置数据源网站，筛选关键词和字段，获取商品信息',
+      '对选中的商品素材进行预处理，包括去水印、提取关键信息等',
+      '对视频素材进行分镜解析，为每个镜头添加标签和描述',
+      '管理所有素材，支持筛选、搜索和分类管理'
+    ];
+    let currentStep = 0;
+    const prevContainer = document.getElementById('prev-step-container');
+    const nextContainer = document.getElementById('next-step-container');
+    
+    // 初始化步骤显示
+    updateStepUI();
+    
+    // 下一步按钮事件 - 已设置为可点击
+    document.getElementById('next-step').addEventListener('click', function() {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        updateStepUI();
+        
+        // 如果进入第二步，启动进度条动画
+        if (currentStep === 1) {
+          simulateProcessing();
+        }
+      }
+    });
+    
+    // 模拟素材处理进度
+    function simulateProcessing() {
+      let progress = 0;
+      const progressBar = document.getElementById('processing-progress');
+      const progressText = document.getElementById('progress-text');
+      
+      const interval = setInterval(() => {
+        progress += 1;
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${progress}%`;
+        
+        if (progress >= 100) {
+          clearInterval(interval);
+          // 处理完成后2秒自动进入下一步
+          setTimeout(() => {
+            if (currentStep === 1) {
+              currentStep++;
+              updateStepUI();
+            }
+          }, 2000);
+        }
+      }, 50);
+    }
+    
+    // 更新步骤UI
+    function updateStepUI() {
+      // 隐藏所有步骤，显示当前步骤
+      steps.forEach((step, index) => {
+        const element = document.getElementById(step);
+        if (index === currentStep) {
+          element.classList.remove('hidden');
+        } else {
+          element.classList.add('hidden');
+        }
+      });
+      
+      // 更新步骤标题和描述
+      document.getElementById('step-title').textContent = stepTitles[currentStep];
+      document.getElementById('step-description').textContent = stepDescriptions[currentStep];
+      
+      // 更新步骤指示器状态
+      updateStepIndicators();
+      
+      // 控制上一步/下一步按钮显示
+      if (currentStep === 0) {
+        // 第一步不显示上一步按钮
+        prevContainer.innerHTML = '';
+      } else {
+        // 如果没有上一步按钮则创建
+        if (!document.getElementById('prev-step')) {
+          prevContainer.innerHTML = `
+            <button class="btn-secondary flex items-center text-[10px]" id="prev-step">
+              <i class="fa fa-arrow-left mr-1"></i> 上一步
+            </button>
+          `;
+          // 为新创建的按钮添加事件
+          document.getElementById('prev-step').addEventListener('click', function() {
+            if (currentStep > 0) {
+              currentStep--;
+              updateStepUI();
+            }
+          });
+        }
+        prevContainer.classList.remove('hidden');
+      }
+      
+      if (currentStep === steps.length - 1) {
+        // 最后一步不显示下一步按钮
+        nextContainer.classList.add('hidden');
+      } else {
+        nextContainer.classList.remove('hidden');
+      }
+    }
+    
+    // 更新步骤指示器状态
+    function updateStepIndicators() {
+      const indicators = document.querySelectorAll('.rounded-full');
+      const stepLabels = document.querySelectorAll('.flex.flex-col.items-center span');
+      const connectors = document.querySelectorAll('.w-6.h-0.5');
+      
+      indicators.forEach((indicator, index) => {
+        if (index < currentStep) {
+          indicator.className = 'w-5 h-5 rounded-full step-completed flex items-center justify-center text-[10px] font-medium border mb-0.5';
+          indicator.innerHTML = '<i class="fa fa-check"></i>';
+          stepLabels[index].classList.remove('text-neutral');
+          stepLabels[index].classList.add('text-primary');
+        } else if (index === currentStep) {
+          indicator.className = 'w-5 h-5 rounded-full step-active flex items-center justify-center text-[10px] font-medium mb-0.5';
+          indicator.textContent = index + 1;
+          stepLabels[index].classList.remove('text-neutral');
+        } else {
+          indicator.className = 'w-5 h-5 rounded-full step-future flex items-center justify-center text-[10px] font-medium border mb-0.5';
+          indicator.textContent = index + 1;
+          stepLabels[index].classList.add('text-neutral');
+        }
+      });
+      
+      // 更新连接线
+      connectors.forEach((connector, index) => {
+        if (index < currentStep) {
+          connector.className = 'w-6 h-0.5 bg-primary self-center';
+        } else {
+          connector.className = 'w-6 h-0.5 bg-light self-center';
+        }
+      });
+    }
+    
+    // 重置筛选条件（空状态时使用）
+    function resetFilters() {
+      // 这里只是模拟重置，实际应用中需要根据需求实现
+      document.getElementById('empty-state').classList.add('hidden');
+      document.querySelector('.border-x.border-gray-200').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
+    

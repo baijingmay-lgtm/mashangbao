@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI视频分析工具 - 爆款视频解析</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+
+    <!-- 配置Tailwind自定义颜色 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        dark: '#1D2129',
+                        light: '#F2F3F5',
+                        'gray-medium': '#86909C'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .hover-lift {
+                @apply hover:-translate-y-1 transition-all duration-300;
+            }
+            .content-auto {
+                content-visibility: auto;
+            }
+        }
+    </style>
+
+    <style>
+        /* 进度条动画 */
+        @keyframes progress {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+
+        .progress-animation {
+            animation: progress 3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-dark">
+    <!-- 功能介绍区域 -->
+    <section class="py-10 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">爆款视频AI分析</h2>
+                <p class="text-gray-medium">深入解析热门视频的设计思路、文案套路和分镜脚本</p>
+            </div>
+
+            <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <!-- 功能卡片1 -->
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-custom border border-gray-100">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-lightbulb-o text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">设计思路分析</h3>
+                    <p class="text-gray-medium text-sm">AI智能识别视频的整体设计风格、色彩搭配、节奏控制等关键元素，揭秘爆款视频的视觉设计密码。</p>
+                </div>
+
+                <!-- 功能卡片2 -->
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-custom border border-gray-100">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-file-text-o text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">文案套路解析</h3>
+                    <p class="text-gray-medium text-sm">深度分析视频中的文案结构、关键词使用、情感引导技巧，提炼出易于模仿的爆款文案模板。</p>
+                </div>
+
+                <!-- 功能卡片3 -->
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-custom border border-gray-100">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-film text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">分镜脚本拆解</h3>
+                    <p class="text-gray-medium text-sm">精确分解视频的镜头切换、时长分布、场景设置，提供专业的分镜脚本参考，助您快速掌握视频节奏。</p>
+                </div>
+            </div>
+
+            <!-- 示例分析结果展示 -->
+            <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div class="p-5 md:p-6 border-b border-gray-100">
+                    <h3 class="text-xl font-semibold mb-2">示例分析结果</h3>
+                    <p class="text-gray-medium text-sm">热门短视频《如何在30秒内吸引观众》分析</p>
+                </div>
+                <div class="p-5 md:p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-base font-medium mb-3 flex items-center">
+                                <i class="fa fa-bar-chart text-primary mr-2"></i> 观众留存分析
+                            </h4>
+                            <div class="bg-gray-50 rounded-lg p-3 h-48">
+                                <canvas id="retentionChart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-base font-medium mb-3 flex items-center">
+                                <i class="fa fa-tags text-primary mr-2"></i> 关键词分析
+                            </h4>
+                            <div class="bg-gray-50 rounded-lg p-3 h-48 flex flex-wrap gap-2 items-center justify-center">
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">注意力</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">短视频</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">开头3秒</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">黄金5秒</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">观众心理</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">内容创作</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">涨粉技巧</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">完播率</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">互动率</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 视频输入区域 -->
+    <section class="py-10 bg-light">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">开始分析您的视频</h2>
+                <p class="text-gray-medium">输入视频链接或上传视频文件，AI将自动分析视频的爆款元素</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <!-- 选项卡 -->
+                <div class="flex border-b border-gray-100">
+                    <button id="url-tab" class="flex-1 py-3 px-4 font-medium text-primary border-b-2 border-primary">
+                        <i class="fa fa-link mr-2"></i> 视频链接
+                    </button>
+                    <button id="upload-tab" class="flex-1 py-3 px-4 font-medium text-gray-medium hover:text-primary transition-custom">
+                        <i class="fa fa-upload mr-2"></i> 上传视频
+                    </button>
+                </div>
+
+                <!-- 链接输入表单 -->
+                <div id="url-form" class="p-5 md:p-6">
+                    <div class="mb-5">
+                        <label for="video-url" class="block text-sm font-medium text-gray-700 mb-2">视频链接</label>
+                        <input 
+                            type="url" 
+                            id="video-url" 
+                            placeholder="https://example.com/video.mp4" 
+                            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-custom"
+                        >
+                        <p class="text-xs text-gray-medium mt-1">支持YouTube、Vimeo、抖音等主流平台链接</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">分析选项</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <label class="flex items-center p-2 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer transition-custom">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary focus:ring-primary/50">
+                                <span class="ml-2">设计思路分析</span>
+                            </label>
+                            <label class="flex items-center p-2 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer transition-custom">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary focus:ring-primary/50">
+                                <span class="ml-2">文案套路解析</span>
+                            </label>
+                            <label class="flex items-center p-2 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer transition-custom">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary focus:ring-primary/50">
+                                <span class="ml-2">分镜脚本拆解</span>
+                            </label>
+                            <label class="flex items-center p-2 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer transition-custom">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary focus:ring-primary/50">
+                                <span class="ml-2">生成仿写文案</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button id="analyze-url" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg shadow-md shadow-primary/20 transition-custom hover-lift flex items-center justify-center">
+                        <i class="fa fa-play-circle mr-2"></i> 开始分析视频
+                    </button>
+                </div>
+
+                <!-- 上传表单 (默认隐藏) -->
+                <div id="upload-form" class="p-5 md:p-6 hidden">
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-custom cursor-pointer bg-gray-50" id="drop-area">
+                        <div class="max-w-xs mx-auto">
+                            <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fa fa-cloud-upload text-primary text-xl"></i>
+                            </div>
+                            <h3 class="text-base font-medium mb-1">拖放视频文件到此处</h3>
+                            <p class="text-gray-medium text-sm mb-3">或点击选择文件上传</p>
+                            <button class="bg-white hover:bg-gray-50 text-primary border border-primary font-medium py-1.5 px-4 rounded-lg transition-custom">
+                                选择视频文件
+                            </button>
+                            <p class="text-xs text-gray-medium mt-3">支持MP4、MOV、AVI等格式，最大支持200MB</p>
+                        </div>
+                        <input type="file" accept="video/*" class="hidden" id="file-input">
+                    </div>
+
+                    <div class="mt-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">分析选项</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <label class="flex items-center p-2 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer transition-custom">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary focus:ring-primary/50">
+                                <span class="ml-2">设计思路分析</span>
+                            </label>
+                            <label class="flex items-center p-2 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer transition-custom">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary focus:ring-primary/50">
+                                <span class="ml-2">文案套路解析</span>
+                            </label>
+                            <label class="flex items-center p-2 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer transition-custom">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary focus:ring-primary/50">
+                                <span class="ml-2">分镜脚本拆解</span>
+                            </label>
+                            <label class="flex items-center p-2 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer transition-custom">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary focus:ring-primary/50">
+                                <span class="ml-2">生成仿写文案</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button id="analyze-upload" class="w-full mt-5 bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg shadow-md shadow-primary/20 transition-custom hover-lift flex items-center justify-center">
+                        <i class="fa fa-play-circle mr-2"></i> 开始分析视频
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 分析结果区域 (默认隐藏) -->
+    <section id="analysis-results" class="py-10 bg-white hidden">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">视频分析结果</h2>
+                <p class="text-gray-medium">以下是对您的视频的详细分析报告</p>
+            </div>
+
+            <div class="max-w-5xl mx-auto">
+                <!-- 设计思路分析 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 mb-6 border border-gray-100">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fa fa-lightbulb-o text-primary mr-2"></i> 设计思路分析
+                    </h3>
+                    <div id="design-analysis" class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">视觉风格</h4>
+                            <p class="text-gray-medium text-sm">视频采用明亮欢快的色彩搭配，主色调为蓝色和橙色，形成强烈对比，符合目标受众（年轻群体）的审美偏好。</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">节奏控制</h4>
+                            <p class="text-gray-medium text-sm">视频节奏紧凑，前5秒直接切入主题，中间部分信息密度高但不拥挤，最后5秒预留互动引导时间，整体节奏符合短视频平台用户观看习惯。</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">视觉元素</h4>
+                            <p class="text-gray-medium text-sm">视频中使用了动态文字效果、动画转场和分割画面等视觉元素，有效提升了内容的趣味性和信息传递效率。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 文案套路解析 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 mb-6 border border-gray-100">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fa fa-file-text-o text-primary mr-2"></i> 文案套路解析
+                    </h3>
+                    <div id="copywriting-analysis" class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">标题分析</h4>
+                            <p class="text-gray-medium text-sm">标题采用"数字+痛点+解决方案"的结构："3个技巧，让你的视频播放量提升10倍！"，直接戳中创作者的核心需求，同时用具体数字增加可信度。</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">文案结构</h4>
+                            <p class="text-gray-medium text-sm">视频文案遵循"问题引入-解决方案-效果展示-行动号召"的经典结构，逻辑清晰，层层递进，有效引导观众情绪和行为。</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">关键词分析</h4>
+                            <p class="text-gray-medium text-sm">文案中高频使用"播放量"、"涨粉"、"变现"、"技巧"等关键词，精准匹配目标受众的搜索和关注重点，提高视频曝光率。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分镜脚本拆解 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 mb-6 border border-gray-100">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fa fa-film text-primary mr-2"></i> 分镜脚本拆解
+                    </h3>
+                    <div id="storyboard-analysis" class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-700">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 rounded-l-lg">镜头编号</th>
+                                    <th scope="col" class="px-6 py-3">时长</th>
+                                    <th scope="col" class="px-6 py-3">画面内容</th>
+                                    <th scope="col" class="px-6 py-3">音频内容</th>
+                                    <th scope="col" class="px-6 py-3 rounded-r-lg">目的</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium">1</td>
+                                    <td class="px-6 py-4">0-3秒</td>
+                                    <td class="px-6 py-4">震撼的结果画面（如播放量突破100万）</td>
+                                    <td class="px-6 py-4">节奏感强的背景音乐+画外音："你想让你的视频播放量暴涨吗？"</td>
+                                    <td class="px-6 py-4">吸引注意力，引发好奇心</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium">2</td>
+                                    <td class="px-6 py-4">3-8秒</td>
+                                    <td class="px-6 py-4">问题场景展示（如低播放量的视频截图）</td>
+                                    <td class="px-6 py-4">画外音："大多数创作者都面临这样的问题..."</td>
+                                    <td class="px-6 py-4">建立共鸣，点明痛点</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium">3</td>
+                                    <td class="px-6 py-4">8-23秒</td>
+                                    <td class="px-6 py-4">解决方案展示（分步骤讲解3个技巧）</td>
+                                    <td class="px-6 py-4">详细讲解每个技巧的具体操作和原理</td>
+                                    <td class="px-6 py-4">提供价值，解决问题</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium">4</td>
+                                    <td class="px-6 py-4">23-28秒</td>
+                                    <td class="px-6 py-4">前后对比效果展示</td>
+                                    <td class="px-6 py-4">画外音："使用这些技巧后，播放量提升了10倍..."</td>
+                                    <td class="px-6 py-4">强化效果，增强可信度</td>
+                                </tr>
+                                <tr class="bg-white hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium rounded-l-lg">5</td>
+                                    <td class="px-6 py-4">28-30秒</td>
+                                    <td class="px-6 py-4">行动号召（如点赞、关注、收藏）</td>
+                                    <td class="px-6 py-4">画外音："点赞收藏，下期更精彩！"</td>
+                                    <td class="px-6 py-4 rounded-r-lg">引导互动，增加粉丝粘性</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 仿写文案 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fa fa-magic text-primary mr-2"></i> 爆款文案仿写
+                    </h3>
+                    <div id="copywriting-examples" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- 仿写文案1 -->
+                        <div class="bg-gray-50 p-4 rounded-lg hover:shadow-md transition-custom">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium">文案1</h4>
+                                <button class="text-primary text-sm hover:underline">复制</button>
+                            </div>
+                            <p class="text-gray-medium text-sm text-sm leading-relaxed">
+                                标题："5个实用技巧，让你的视频点赞量翻10倍！"
+                                <br><br>
+                                开头："你是不是拍了很多视频，却总是没什么人看？今天我分享5个简单实用的技巧，让你的视频点赞量直接翻10倍！"
+                                <br><br>
+                                结尾："按照这些技巧去做，你的视频数据一定会有显著提升！觉得有用的话，点赞收藏，关注我获取更多短视频创作干货！"
+                            </p>
+                        </div>
+
+                        <!-- 仿写文案2 -->
+                        <div class="bg-gray-50 p-4 rounded-lg hover:shadow-md transition-custom">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium">文案2</h4>
+                                <button class="text-primary text-sm hover:underline">复制</button>
+                            </div>
+                            <p class="text-gray-medium text-sm text-sm leading-relaxed">
+                                标题："揭秘！30秒短视频涨粉10万的核心秘诀"
+                                <br><br>
+                                开头："你知道吗？这条30秒的短视频，一周内涨粉10万！今天我就来揭秘它背后的核心秘诀，学会了你也能快速涨粉！"
+                                <br><br>
+                                结尾："以上就是这条爆款视频的核心秘诀，是不是很简单？赶紧点赞收藏，去试试这些方法吧！"
+                            </p>
+                        </div>
+
+                        <!-- 仿写文案3 -->
+                        <div class="bg-gray-50 p-4 rounded-lg hover:shadow-md transition-custom">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium">文案3</h4>
+                                <button class="text-primary text-sm hover:underline">复制</button>
+                            </div>
+                            <p class="text-gray-medium text-sm text-sm leading-relaxed">
+                                标题："别再乱拍视频了！掌握这3点，新手也能拍出爆款"
+                                <br><br>
+                                开头："很多新手拍视频都是凭感觉，结果播放量总是上不去。其实，拍出爆款视频并不难，只要掌握这3个核心要素！"
+                                <br><br>
+                                结尾："记住这3个核心要素，你拍出的视频想不火都难！觉得有用的话，点赞关注，我会分享更多短视频创作技巧！"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // 切换选项卡
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化图表
+            const ctx = document.getElementById('retentionChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['0s', '5s', '10s', '15s', '20s', '25s', '30s'],
+                        datasets: [{
+                            label: '观众留存率',
+                            data: [100, 85, 78, 70, 65, 60, 58],
+                            borderColor: '#165DFF',
+                            backgroundColor: 'rgba(22, 93, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 选项卡切换
+            const urlTab = document.getElementById('url-tab');
+            const uploadTab = document.getElementById('upload-tab');
+            const urlForm = document.getElementById('url-form');
+            const uploadForm = document.getElementById('upload-form');
+
+            if (urlTab && uploadTab && urlForm && uploadForm) {
+                urlTab.addEventListener('click', function() {
+                    urlTab.classList.add('text-primary', 'border-primary');
+                    urlTab.classList.remove('text-gray-medium');
+                    uploadTab.classList.remove('text-primary', 'border-primary');
+                    uploadTab.classList.add('text-gray-medium');
+                    urlForm.classList.remove('hidden');
+                    uploadForm.classList.add('hidden');
+                });
+
+                uploadTab.addEventListener('click', function() {
+                    uploadTab.classList.add('text-primary', 'border-primary');
+                    uploadTab.classList.remove('text-gray-medium');
+                    urlTab.classList.remove('text-primary', 'border-primary');
+                    urlTab.classList.add('text-gray-medium');
+                    uploadForm.classList.remove('hidden');
+                    urlForm.classList.add('hidden');
+                });
+            }
+
+            // 上传区域点击事件
+            const dropArea = document.getElementById('drop-area');
+            const fileInput = document.getElementById('file-input');
+
+            if (dropArea && fileInput) {
+                dropArea.addEventListener('click', function() {
+                    fileInput.click();
+                });
+
+                // 拖放功能
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, highlight, false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, unhighlight, false);
+                });
+
+                function highlight() {
+                    dropArea.classList.add('border-primary', 'bg-primary/5');
+                }
+
+                function unhighlight() {
+                    dropArea.classList.remove('border-primary', 'bg-primary/5');
+                }
+
+                dropArea.addEventListener('drop', handleDrop, false);
+
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    // 这里可以处理上传的文件
+                    console.log('Files dropped:', files);
+                }
+            }
+
+            // 分析按钮点击事件
+            const analyzeUrlBtn = document.getElementById('analyze-url');
+            const analyzeUploadBtn = document.getElementById('analyze-upload');
+            const analysisResults = document.getElementById('analysis-results');
+
+            if (analyzeUrlBtn) {
+                analyzeUrlBtn.addEventListener('click', function() {
+                    // 模拟分析过程
+                    simulateAnalysis();
+                });
+            }
+
+            if (analyzeUploadBtn) {
+                analyzeUploadBtn.addEventListener('click', function() {
+                    // 模拟分析过程
+                    simulateAnalysis();
+                });
+            }
+
+            function simulateAnalysis() {
+                // 显示加载状态
+                if (analyzeUrlBtn) {
+                    analyzeUrlBtn.disabled = true;
+                    analyzeUrlBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 分析中...';
+                }
+                if (analyzeUploadBtn) {
+                    analyzeUploadBtn.disabled = true;
+                    analyzeUploadBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 分析中...';
+                }
+
+                // 模拟分析延迟
+                setTimeout(function() {
+                    // 恢复按钮状态
+                    if (analyzeUrlBtn) {
+                        analyzeUrlBtn.disabled = false;
+                        analyzeUrlBtn.innerHTML = '<i class="fa fa-play-circle mr-2"></i> 开始分析视频';
+                    }
+                    if (analyzeUploadBtn) {
+                        analyzeUploadBtn.disabled = false;
+                        analyzeUploadBtn.innerHTML = '<i class="fa fa-play-circle mr-2"></i> 开始分析视频';
+                    }
+
+                    // 显示分析结果
+                    if (analysisResults) {
+                        analysisResults.classList.remove('hidden');
+                        // 滚动到结果区域
+                        analysisResults.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 2000);
+            }
+
+            // 复制按钮功能
+            const copyButtons = document.querySelectorAll('#copywriting-examples button');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const textToCopy = this.closest('div').querySelector('p').textContent;
+                    navigator.clipboard.writeText(textToCopy).then(function() {
+                        const originalText = button.textContent;
+                        button.textContent = '已复制！';
+                        button.classList.add('text-green-500');
+                        setTimeout(function() {
+                            button.textContent = originalText;
+                            button.classList.remove('text-green-500');
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

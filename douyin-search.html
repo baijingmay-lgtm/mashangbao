@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>抖音商品数据查询</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="resources/css/tailwind.css">
+
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .chat-bubble-user {
+        @apply bg-blue-100 text-blue-800 rounded-lg rounded-tl-none p-4 max-w-[85%] ml-auto;
+      }
+      .chat-bubble-bot {
+        @apply bg-neutral-100 text-neutral-800 rounded-lg rounded-tr-none p-4 max-w-[85%];
+      }
+      .product-card {
+        @apply border border-neutral-200 rounded-lg overflow-hidden transition-all hover:shadow-lg hover:border-blue-600;
+      }
+      .product-stats {
+        @apply text-sm text-neutral-500 flex flex-wrap gap-x-4 gap-y-1;
+      }
+    }
+  </style>
+</head>
+<body class="p-4 bg-gray-50 min-h-screen flex flex-col">
+  <header class="mb-6">
+    <h1 class="text-xl font-bold text-neutral-800 mb-2">抖音商品数据查询</h1>
+    <p class="text-sm text-neutral-500">通过对话方式输入需求，自动抓取抖音商品数据</p>
+  </header>
+
+  <main class="flex-1 flex flex-col md:flex-row gap-6">
+    <!-- 左侧聊天区域 -->
+    <div class="w-full md:w-1/3 flex flex-col bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+      <div class="p-4 border-b border-neutral-200 bg-neutral-50">
+        <h2 class="font-medium">对话查询</h2>
+      </div>
+
+      <div id="chatContainer" class="flex-1 p-4 overflow-y-auto space-y-4 h-[400px]">
+        <div class="flex flex-col space-y-2">
+          <div class="chat-bubble-bot">
+            <p>你好！我是抖音商品数据助手。请输入你的查询需求，例如："昨日抖音销量top100的T恤男装给我看一下"</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-neutral-200 bg-neutral-50">
+        <div class="flex gap-2">
+          <input type="text" id="queryInput" class="flex-1 px-4 py-2 rounded-lg border border-neutral-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none" placeholder="输入查询需求...">
+          <button id="sendBtn" class="btn-primary">
+            <i class="fa fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧结果展示区域 -->
+    <div class="w-full md:w-2/3 flex flex-col bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+      <div class="p-4 border-b border-neutral-200 bg-neutral-50 flex justify-between items-center">
+        <h2 class="font-medium" id="resultTitle">查询结果</h2>
+        <div class="text-sm text-neutral-500" id="resultCount"></div>
+      </div>
+
+      <div id="resultContainer" class="flex-1 p-4 overflow-y-auto">
+        <div class="flex items-center justify-center h-full text-neutral-400 flex-col">
+          <i class="fa fa-search text-5xl mb-3"></i>
+          <p>请在左侧输入查询需求开始搜索</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // 获取DOM元素
+    const chatContainer = document.getElementById('chatContainer');
+    const queryInput = document.getElementById('queryInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const resultContainer = document.getElementById('resultContainer');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultCount = document.getElementById('resultCount');
+
+    // 发送查询按钮点击事件
+    sendBtn.addEventListener('click', sendQuery);
+
+    // 输入框回车事件
+    queryInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendQuery();
+      }
+    });
+
+    // 发送查询
+    function sendQuery() {
+      const query = queryInput.value.trim();
+      if (!query) return;
+
+      // 添加用户消息
+      addMessage('user', query);
+      queryInput.value = '';
+
+      // 显示加载状态
+      addMessage('bot', '<div class="flex items-center"><i class="fa fa-spinner fa-spin mr-2"></i>正在获取数据...</div>');
+
+      // 模拟API调用延迟
+      setTimeout(() => {
+        // 解析查询意图
+        const intent = parseQuery(query);
+        // 模拟获取数据
+        const products = generateMockProducts(intent);
+        // 显示结果
+        displayResults(products, intent);
+        // 更新机器人消息
+        updateLastBotMessage(`已为你找到${products.length}个相关商品`);
+      }, 1500);
+    }
+
+    // 添加消息到聊天容器
+    function addMessage(role, content) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'flex flex-col space-y-2';
+
+      const bubbleDiv = document.createElement('div');
+      bubbleDiv.className = role === 'user' ? 'chat-bubble-user' : 'chat-bubble-bot';
+      bubbleDiv.innerHTML = content;
+
+      messageDiv.appendChild(bubbleDiv);
+      chatContainer.appendChild(messageDiv);
+
+      // 滚动到底部
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // 更新最后一条机器人消息
+    function updateLastBotMessage(content) {
+      const messages = chatContainer.querySelectorAll('.chat-bubble-bot');
+      if (messages.length > 0) {
+        const lastMessage = messages[messages.length - 1];
+        lastMessage.innerHTML = content;
+      }
+    }
+
+    // 解析查询意图
+    function parseQuery(query) {
+      // 简单的意图解析，实际项目中可以使用NLP
+      const intent = {
+        type: 'product_search',
+        platform: 'douyin',
+        timeRange: 'yesterday',
+        category: 'all',
+        limit: 10
+      };
+
+      // 提取品类
+      if (query.includes('T恤')) intent.category = 'tshirt';
+      else if (query.includes('男装')) intent.category = 'men_clothing';
+      else if (query.includes('女装')) intent.category = 'women_clothing';
+      else if (query.includes('鞋子')) intent.category = 'shoes';
+      else if (query.includes('箱包')) intent.category = 'bags';
+
+      // 提取时间范围
+      if (query.includes('今日') || query.includes('今天')) intent.timeRange = 'today';
+      else if (query.includes('昨日') || query.includes('昨天')) intent.timeRange = 'yesterday';
+      else if (query.includes('本周')) intent.timeRange = 'this_week';
+      else if (query.includes('上周')) intent.timeRange = 'last_week';
+      else if (query.includes('本月')) intent.timeRange = 'this_month';
+      else if (query.includes('上月')) intent.timeRange = 'last_month';
+
+      // 提取数量
+      const matchLimit = query.match(/top(\d+)/i);
+      if (matchLimit && matchLimit[1]) {
+        intent.limit = Math.min(parseInt(matchLimit[1]), 100); // 限制最大100
+      }
+
+      return intent;
+    }
+
+    // 生成模拟商品数据
+    function generateMockProducts(intent) {
+      const products = [];
+      const categories = {
+        tshirt: ['纯棉T恤', '印花T恤', '纯色T恤', '宽松T恤', '修身T恤'],
+        men_clothing: ['男士外套', '男士卫衣', '男士衬衫', '男士裤子', '男士夹克'],
+        women_clothing: ['女士连衣裙', '女士上衣', '女士裤子', '女士外套', '女士卫衣'],
+        shoes: ['运动鞋', '休闲鞋', '皮鞋', '板鞋', '拖鞋'],
+        bags: ['背包', '单肩包', '手提包', '钱包', '行李箱'],
+        all: ['商品']
+      };
+
+      const categoryNames = categories[intent.category] || categories.all;
+
+      for (let i = 1; i <= intent.limit; i++) {
+        const randomCategory = categoryNames[Math.floor(Math.random() * categoryNames.length)];
+        const randomPrice = Math.floor(Math.random() * 200) + 30;
+        const yesterdaySales = Math.floor(Math.random() * 1000) + 100;
+        const totalSales = yesterdaySales + Math.floor(Math.random() * 9000);
+        const views = totalSales * Math.floor(Math.random() * 50) + 1000;
+        const favorites = Math.floor(views * (Math.random() * 0.1 + 0.01));
+
+        products.push({
+          id: `prod-${Date.now()}-${i}`,
+          title: `${randomCategory} ${intent.timeRange === 'yesterday' ? '昨日爆款' : '热销'} ${i}`,
+          description: `这款${randomCategory}采用优质面料，舒适透气，时尚百搭，是您日常穿搭的理想选择。`,
+          price: randomPrice,
+          yesterdaySales: yesterdaySales,
+          totalSales: totalSales,
+          views: views,
+          favorites: favorites,
+          imageUrl: `https://picsum.photos/300/200?random=${i}`,
+          videoUrl: `https://www.example.com/video-${i}.mp4` // 示例视频URL
+        });
+      }
+
+      return products;
+    }
+
+    // 显示查询结果
+    function displayResults(products, intent) {
+      // 更新结果标题
+      let categoryText = '商品';
+      switch(intent.category) {
+        case 'tshirt': categoryText = 'T恤'; break;
+        case 'men_clothing': categoryText = '男装'; break;
+        case 'women_clothing': categoryText = '女装'; break;
+        case 'shoes': categoryText = '鞋子'; break;
+        case 'bags': categoryText = '箱包'; break;
+      }
+
+      let timeText = '昨日';
+      switch(intent.timeRange) {
+        case 'today': timeText = '今日'; break;
+        case 'yesterday': timeText = '昨日'; break;
+        case 'this_week': timeText = '本周'; break;
+        case 'last_week': timeText = '上周'; break;
+        case 'this_month': timeText = '本月'; break;
+        case 'last_month': timeText = '上月'; break;
+      }
+
+      resultTitle.textContent = `${timeText}销量TOP${intent.limit} ${categoryText}`;
+      resultCount.textContent = `共 ${products.length} 个商品`;
+
+      // 清空结果容器
+      resultContainer.innerHTML = '';
+
+      if (products.length === 0) {
+        resultContainer.innerHTML = `
+          <div class="flex items-center justify-center h-full text-neutral-400 flex-col">
+            <i class="fa fa-search text-5xl mb-3"></i>
+            <p>没有找到相关商品数据</p>
+          </div>
+        `;
+        return;
+      }
+
+      // 创建商品网格
+      const gridDiv = document.createElement('div');
+      gridDiv.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
+
+      // 添加商品卡片
+      products.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
+
+        productCard.innerHTML = `
+          <div class="relative h-48 bg-neutral-100 overflow-hidden">
+            <img src="${product.imageUrl}" alt="${product.title}" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+              <button class="bg-white text-primary rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
+                <i class="fa fa-play"></i>
+              </button>
+            </div>
+            <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-full">
+              ¥${product.price}
+            </div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium mb-2 line-clamp-2 h-12">${product.title}</h3>
+            <p class="text-sm text-neutral-500 mb-3 line-clamp-2 h-10">${product.description}</p>
+            <div class="product-stats">
+              <span><i class="fa fa-shopping-cart mr-1"></i> 昨日销量: ${product.yesterdaySales}</span>
+              <span><i class="fa fa-shopping-bag mr-1"></i> 总销量: ${product.totalSales}</span>
+              <span><i class="fa fa-eye mr-1"></i> 浏览量: ${product.views}</span>
+              <span><i class="fa fa-heart mr-1"></i> 收藏量: ${product.favorites}</span>
+            </div>
+          </div>
+        `;
+
+        gridDiv.appendChild(productCard);
+      });
+
+      resultContainer.appendChild(gridDiv);
+    }
+  </script>
+</body>
+</html>

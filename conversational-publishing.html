@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>对话式自动投放系统 - 磁力金牛</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- 配置Tailwind自定义颜色和字体 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            success: '#52C41A',
+            warning: '#FAAD14',
+            danger: '#FF4D4F',
+            dark: '#1D2129',
+            'gray-light': '#F2F3F5',
+            'gray-medium': '#C9CDD4',
+            'chat-bg': '#F9FAFB'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .folder-tree-line {
+        @apply border-l-2 border-gray-300 ml-3 pl-6;
+      }
+      .message-appear {
+        animation: messageAppear 0.3s ease-out forwards;
+      }
+      .typing-indicator {
+        display: inline-flex;
+        align-items: center;
+      }
+      .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        margin: 0 1px;
+        background-color: #999;
+        border-radius: 50%;
+        display: block;
+        animation: typing 1.4s infinite ease-in-out both;
+      }
+      .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+      .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    }
+    
+    @keyframes messageAppear {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes typing {
+      0% { transform: translateY(0px); }
+      28% { transform: translateY(-5px); }
+      44% { transform: translateY(0px); }
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="text-primary text-2xl">
+          <i class="fa fa-comments"></i>
+        </div>
+        <h1 class="text-xl font-bold">对话式自动投放系统</h1>
+        <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">磁力金牛</span>
+      </div>
+      
+      <div class="flex items-center space-x-6">
+        <button class="text-gray-600 hover:text-primary transition-colors">
+          <i class="fa fa-question-circle"></i>
+          <span class="ml-1 hidden sm:inline">帮助</span>
+        </button>
+        <button class="text-gray-600 hover:text-primary transition-colors">
+          <i class="fa fa-bell"></i>
+          <span class="ml-1 hidden sm:inline">通知</span>
+        </button>
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+            <i class="fa fa-user"></i>
+          </div>
+          <span class="hidden sm:inline">管理员</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex-grow container mx-auto px-4 py-6">
+    <!-- 状态概览 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow-sm p-5 border-l-4 border-primary transform hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-gray-500 text-sm">待投放任务</p>
+            <h3 class="text-2xl font-bold mt-1" id="pending-count">5</h3>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+            <i class="fa fa-clock-o"></i>
+          </div>
+        </div>
+        <div class="mt-4 text-xs text-success flex items-center">
+          <i class="fa fa-arrow-up mr-1"></i> 较昨日 +2
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-sm p-5 border-l-4 border-success transform hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-gray-500 text-sm">今日已投放</p>
+            <h3 class="text-2xl font-bold mt-1" id="completed-count">12</h3>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success">
+            <i class="fa fa-check-circle"></i>
+          </div>
+        </div>
+        <div class="mt-4 text-xs text-success flex items-center">
+          <i class="fa fa-arrow-up mr-1"></i> 较昨日 +3
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-sm p-5 border-l-4 border-warning transform hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-gray-500 text-sm">投放中任务</p>
+            <h3 class="text-2xl font-bold mt-1" id="processing-count">3</h3>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center text-warning">
+            <i class="fa fa-spinner"></i>
+          </div>
+        </div>
+        <div class="mt-4 text-xs text-danger flex items-center">
+          <i class="fa fa-arrow-down mr-1"></i> 较昨日 -1
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-sm p-5 border-l-4 border-danger transform hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-gray-500 text-sm">投放失败</p>
+            <h3 class="text-2xl font-bold mt-1" id="failed-count">1</h3>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center text-danger">
+            <i class="fa fa-exclamation-circle"></i>
+          </div>
+        </div>
+        <div class="mt-4 text-xs text-success flex items-center">
+          <i class="fa fa-arrow-down mr-1"></i> 较昨日 -2
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- 左侧：快捷操作面板 -->
+      <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white rounded-lg shadow-sm p-5">
+          <h2 class="text-lg font-semibold mb-4">快捷操作</h2>
+          <div class="space-y-3">
+            <button id="create-folder-quick" class="w-full flex items-center justify-start bg-gray-light hover:bg-gray-200 text-dark py-2 px-3 rounded-md transition-colors">
+              <i class="fa fa-folder text-warning mr-3 w-5 text-center"></i>
+              <span>创建日期文件夹</span>
+            </button>
+            <button id="upload-files-quick" class="w-full flex items-center justify-start bg-gray-light hover:bg-gray-200 text-dark py-2 px-3 rounded-md transition-colors">
+              <i class="fa fa-upload text-primary mr-3 w-5 text-center"></i>
+              <span>上传资源文件</span>
+            </button>
+            <button id="new-publishing-quick" class="w-full flex items-center justify-start bg-gray-light hover:bg-gray-200 text-dark py-2 px-3 rounded-md transition-colors">
+              <i class="fa fa-plus-circle text-success mr-3 w-5 text-center"></i>
+              <span>新建投放任务</span>
+            </button>
+            <button id="view-history-quick" class="w-full flex items-center justify-start bg-gray-light hover:bg-gray-200 text-dark py-2 px-3 rounded-md transition-colors">
+              <i class="fa fa-history text-gray-600 mr-3 w-5 text-center"></i>
+              <span>查看投放历史</span>
+            </button>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-5">
+          <h2 class="text-lg font-semibold mb-4">资源目录</h2>
+          <div class="text-sm text-gray-500 mb-3">
+            <i class="fa fa-folder-open mr-2 text-primary"></i>
+            <span>D:\投放资源\</span>
+          </div>
+          
+          <div id="folder-tree" class="space-y-2 max-h-[300px] overflow-y-auto pr-2 text-sm">
+            <!-- 2023年文件夹 -->
+            <div class="folder-item">
+              <div class="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
+                <i class="fa fa-folder text-warning mr-2"></i>
+                <span>2023</span>
+                <i class="fa fa-chevron-down ml-auto text-xs text-gray-400 transition-transform"></i>
+              </div>
+              <div class="folder-content folder-tree-line mt-1 space-y-2">
+                <!-- 11月文件夹 -->
+                <div class="folder-item">
+                  <div class="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
+                    <i class="fa fa-folder text-warning mr-2"></i>
+                    <span>11月</span>
+                    <i class="fa fa-chevron-down ml-auto text-xs text-gray-400 transition-transform"></i>
+                  </div>
+                  <div class="folder-content folder-tree-line mt-1 space-y-2">
+                    <div class="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
+                      <i class="fa fa-folder text-warning mr-2"></i>
+                      <span>20231101</span>
+                      <span class="ml-auto text-xs text-gray-500">3个文件</span>
+                    </div>
+                    <div class="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
+                      <i class="fa fa-folder text-warning mr-2"></i>
+                      <span>20231105</span>
+                      <span class="ml-auto text-xs text-gray-500">5个文件</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 右侧：对话区域 -->
+      <div class="lg:col-span-3">
+        <div class="bg-white rounded-lg shadow-sm flex flex-col h-[600px]">
+          <!-- 对话头部 -->
+          <div class="border-b border-gray-200 p-4">
+            <h2 class="text-lg font-semibold">投放助手</h2>
+            <p class="text-sm text-gray-500 mt-1">请告诉我您需要执行的操作，例如"创建今天的文件夹"或"设置明天10点的投放"</p>
+          </div>
+          
+          <!-- 对话内容区域 -->
+          <div id="chat-messages" class="flex-grow p-4 overflow-y-auto bg-chat-bg space-y-4">
+            <!-- 系统欢迎消息 -->
+            <div class="message-appear">
+              <div class="flex items-start">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white flex-shrink-0">
+                  <i class="fa fa-robot"></i>
+                </div>
+                <div class="ml-3 max-w-[80%]">
+                  <div class="bg-primary/10 p-3 rounded-lg rounded-tl-none">
+                    <p>您好！我是磁力金牛自动投放助手，我可以帮您完成以下操作：</p>
+                    <ul class="mt-2 space-y-1 list-disc list-inside text-sm">
+                      <li>按日期在D盘创建投放资源文件夹</li>
+                      <li>上传资源文件到指定文件夹</li>
+                      <li>创建新的投放任务，设置标题和卖点文案</li>
+                      <li>设置投放时间和平台参数</li>
+                      <li>查询投放历史记录</li>
+                    </ul>
+                    <p class="mt-2">请问您需要执行什么操作？</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 这里会动态添加消息 -->
+          </div>
+          
+          <!-- 输入区域 -->
+          <div class="border-t border-gray-200 p-4">
+            <div class="flex space-x-3">
+              <input type="text" id="user-input" placeholder="请输入您的操作指令..." 
+                class="flex-grow p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+              <button id="send-btn" class="bg-primary text-white p-2 px-4 rounded-md hover:bg-primary/90 transition-colors">
+                <i class="fa fa-paper-plane"></i>
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button class="text-xs bg-gray-light px-3 py-1 rounded-md hover:bg-gray-200 transition-colors sample-command" data-command="创建今天的文件夹">创建今天的文件夹</button>
+              <button class="text-xs bg-gray-light px-3 py-1 rounded-md hover:bg-gray-200 transition-colors sample-command" data-command="上传文件到20231105">上传文件到20231105</button>
+              <button class="text-xs bg-gray-light px-3 py-1 rounded-md hover:bg-gray-200 transition-colors sample-command" data-command="创建新投放任务">创建新投放任务</button>
+              <button class="text-xs bg-gray-light px-3 py-1 rounded-md hover:bg-gray-200 transition-colors sample-command" data-command="查看最近投放记录">查看最近投放记录</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-white border-t border-gray-200 py-4 mt-8">
+    <div class="container mx-auto px-4 text-center text-sm text-gray-500">
+      <p>© 2023 对话式自动投放系统 - 磁力金牛平台管理工具</p>
+    </div>
+  </footer>
+
+  <!-- 模态框：创建文件夹 -->
+  <div id="create-folder-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 transform transition-all">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">创建日期文件夹</h3>
+        <button class="close-modal text-gray-400 hover:text-gray-500">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">选择日期</label>
+        <input type="date" id="folder-date" class="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">文件夹路径</label>
+        <div class="bg-gray-light p-2 rounded-md text-sm">
+          D:\投放资源\<span id="folder-path-preview">20231115</span>
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3 mt-6">
+        <button class="close-modal border border-gray-300 bg-white text-gray-700 py-2 px-5 rounded-md text-sm hover:bg-gray-50 transition-colors">
+          取消
+        </button>
+        <button id="confirm-folder" class="bg-primary text-white py-2 px-5 rounded-md text-sm hover:bg-primary/90 transition-colors">
+          确认创建
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态框：上传文件 -->
+  <div id="upload-files-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 transform transition-all">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">上传资源文件</h3>
+        <button class="close-modal text-gray-400 hover:text-gray-500">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">目标文件夹</label>
+        <select id="target-folder" class="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          <option>2023/11月/20231101</option>
+          <option>2023/11月/20231105</option>
+        </select>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">选择文件</label>
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+          <input type="file" id="file-upload" multiple class="hidden">
+          <label for="file-upload" class="cursor-pointer">
+            <i class="fa fa-cloud-upload text-2xl text-gray-400 mb-2"></i>
+            <p class="text-sm text-gray-500">点击或拖拽文件到此处上传</p>
+          </label>
+          <div id="uploaded-files-list" class="mt-3 text-sm hidden">
+            <p class="text-gray-600 mb-1">已选择文件：</p>
+            <ul id="files-list" class="text-gray-500 list-disc list-inside"></ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3 mt-6">
+        <button class="close-modal border border-gray-300 bg-white text-gray-700 py-2 px-5 rounded-md text-sm hover:bg-gray-50 transition-colors">
+          取消
+        </button>
+        <button id="confirm-upload" class="bg-primary text-white py-2 px-5 rounded-md text-sm hover:bg-primary/90 transition-colors">
+          开始上传
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态框：创建投放任务 -->
+  <div id="create-publishing-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 transform transition-all my-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">创建投放任务</h3>
+        <button class="close-modal text-gray-400 hover:text-gray-500">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">投放标题</label>
+          <input type="text" id="publishing-title" placeholder="请输入投放标题" 
+            class="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">卖点文案</label>
+          <textarea id="publishing-content" rows="3" placeholder="请输入产品卖点文案" 
+            class="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">关联资源</label>
+          <select id="publishing-resource" class="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+            <option>20231101/羽绒服主图.jpg</option>
+            <option>20231101/羽绒服细节图.jpg</option>
+            <option>20231105/智能手表宣传图.jpg</option>
+          </select>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">投放时间</label>
+            <input type="datetime-local" id="publishing-time" 
+              class="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">投放平台</label>
+            <select id="publishing-platform" class="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+              <option>磁力金牛 - 首页推荐</option>
+              <option>磁力金牛 - 搜索结果</option>
+              <option>磁力金牛 - 商品详情页</option>
+              <option>磁力金牛 - 全渠道</option>
+            </select>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">投放范围</label>
+          <div class="space-y-2">
+            <label class="flex items-center">
+              <input type="radio" name="publishing-range" checked class="text-primary focus:ring-primary">
+              <span class="ml-2 text-sm">全部用户</span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="publishing-range" class="text-primary focus:ring-primary">
+              <span class="ml-2 text-sm">新用户</span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="publishing-range" class="text-primary focus:ring-primary">
+              <span class="ml-2 text-sm">老用户</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3 mt-6">
+        <button class="close-modal border border-gray-300 bg-white text-gray-700 py-2 px-5 rounded-md text-sm hover:bg-gray-50 transition-colors">
+          取消
+        </button>
+        <button id="confirm-publishing" class="bg-primary text-white py-2 px-5 rounded-md text-sm hover:bg-primary/90 transition-colors">
+          确认创建
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态框：投放历史 -->
+  <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center overflow-y-auto">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 transform transition-all my-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">投放历史记录</h3>
+        <button class="close-modal text-gray-400 hover:text-gray-500">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead>
+            <tr class="border-b border-gray-200">
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">投放时间</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">标题</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平台</th>
+              <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr>
+              <td class="py-3 px-4 text-sm">2023-11-01 09:30</td>
+              <td class="py-3 px-4 text-sm">秋季新品连衣裙</td>
+              <td class="py-3 px-4 text-sm">磁力金牛 - 首页推荐</td>
+              <td class="py-3 px-4 text-sm">
+                <span class="bg-success/10 text-success text-xs px-2 py-0.5 rounded-full">已完成</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 text-sm">2023-11-02 15:15</td>
+              <td class="py-3 px-4 text-sm">男士休闲牛仔裤</td>
+              <td class="py-3 px-4 text-sm">磁力金牛 - 搜索结果</td>
+              <td class="py-3 px-4 text-sm">
+                <span class="bg-success/10 text-success text-xs px-2 py-0.5 rounded-full">已完成</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 text-sm">2023-11-03 10:00</td>
+              <td class="py-3 px-4 text-sm">无线蓝牙耳机</td>
+              <td class="py-3 px-4 text-sm">磁力金牛 - 全渠道</td>
+              <td class="py-3 px-4 text-sm">
+                <span class="bg-danger/10 text-danger text-xs px-2 py-0.5 rounded-full">失败</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 text-sm">2023-11-05 14:30</td>
+              <td class="py-3 px-4 text-sm">智能手表全功能运动监测</td>
+              <td class="py-3 px-4 text-sm">磁力金牛 - 商品详情页</td>
+              <td class="py-3 px-4 text-sm">
+                <span class="bg-success/10 text-success text-xs px-2 py-0.5 rounded-full">已完成</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="flex justify-end mt-6">
+        <button class="close-modal border border-gray-300 bg-white text-gray-700 py-2 px-5 rounded-md text-sm hover:bg-gray-50 transition-colors">
+          关闭
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 成功提示 -->
+  <div id="success-toast" class="fixed bottom-5 right-5 bg-success text-white px-4 py-3 rounded-md shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
+    <i class="fa fa-check-circle mr-2"></i>
+    <span id="success-message">操作成功</span>
+  </div>
+
+  <script>
+    // DOM元素
+    const chatMessages = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const sampleCommands = document.querySelectorAll('.sample-command');
+    
+    // 快捷操作按钮
+    const createFolderQuick = document.getElementById('create-folder-quick');
+    const uploadFilesQuick = document.getElementById('upload-files-quick');
+    const newPublishingQuick = document.getElementById('new-publishing-quick');
+    const viewHistoryQuick = document.getElementById('view-history-quick');
+    
+    // 模态框相关
+    const modals = {
+      createFolder: document.getElementById('create-folder-modal'),
+      uploadFiles: document.getElementById('upload-files-modal'),
+      createPublishing: document.getElementById('create-publishing-modal'),
+      history: document.getElementById('history-modal')
+    };
+    
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+    
+    // 设置默认日期
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date();
+      
+      // 设置文件夹日期默认值
+      const folderDateInput = document.getElementById('folder-date');
+      const folderPreview = document.getElementById('folder-path-preview');
+      const formattedDate = today.toISOString().split('T')[0];
+      folderDateInput.value = formattedDate;
+      folderPreview.textContent = formattedDate.replace(/-/g, '');
+      
+      folderDateInput.addEventListener('change', function() {
+        if (this.value) {
+          folderPreview.textContent = this.value.replace(/-/g, '');
+        }
+      });
+      
+      // 设置投放时间默认值为明天同一时间
+      const tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+      const formattedTomorrow = tomorrow.toISOString().slice(0, 16);
+      document.getElementById('publishing-time').value = formattedTomorrow;
+      
+      // 文件夹树交互
+      const folderHeaders = document.querySelectorAll('.folder-item > div');
+      folderHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+          const content = this.nextElementSibling;
+          const icon = this.querySelector('.fa-chevron-down, .fa-chevron-right');
+          
+          if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.classList.remove('fa-chevron-right');
+            icon.classList.add('fa-chevron-down');
+          } else {
+            content.classList.add('hidden');
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-right');
+          }
+        });
+      });
+      
+      // 文件上传预览
+      const fileUpload = document.getElementById('file-upload');
+      const uploadedFilesList = document.getElementById('uploaded-files-list');
+      const filesList = document.getElementById('files-list');
+      
+      fileUpload.addEventListener('change', function() {
+        if (this.files.length > 0) {
+          uploadedFilesList.classList.remove('hidden');
+          filesList.innerHTML = '';
+          
+          for (let i = 0; i < this.files.length; i++) {
+            const li = document.createElement('li');
+            li.textContent = this.files[i].name;
+            filesList.appendChild(li);
+          }
+        } else {
+          uploadedFilesList.classList.add('hidden');
+        }
+      });
+      
+      // 绑定事件监听器
+      bindEventListeners();
+    });
+    
+    // 绑定所有事件监听器
+    function bindEventListeners() {
+      // 发送消息
+      sendBtn.addEventListener('click', sendMessage);
+      userInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendMessage();
+        }
+      });
+      
+      // 示例命令
+      sampleCommands.forEach(btn => {
+        btn.addEventListener('click', function() {
+          userInput.value = this.getAttribute('data-command');
+          sendMessage();
+        });
+      });
+      
+      // 快捷操作
+      createFolderQuick.addEventListener('click', function() {
+        addUserMessage('创建日期文件夹');
+        showTypingIndicator();
+        
+        setTimeout(() => {
+          removeTypingIndicator();
+          addSystemMessage('请选择要创建文件夹的日期：');
+          modals.createFolder.classList.remove('hidden');
+          modals.createFolder.classList.add('flex');
+        }, 1000);
+      });
+      
+      uploadFilesQuick.addEventListener('click', function() {
+        addUserMessage('上传资源文件');
+        showTypingIndicator();
+        
+        setTimeout(() => {
+          removeTypingIndicator();
+          addSystemMessage('请选择目标文件夹并上传文件：');
+          modals.uploadFiles.classList.remove('hidden');
+          modals.uploadFiles.classList.add('flex');
+        }, 1000);
+      });
+      
+      newPublishingQuick.addEventListener('click', function() {
+        addUserMessage('创建新的投放任务');
+        showTypingIndicator();
+        
+        setTimeout(() => {
+          removeTypingIndicator();
+          addSystemMessage('请填写投放任务的详细信息：');
+          modals.createPublishing.classList.remove('hidden');
+          modals.createPublishing.classList.add('flex');
+        }, 1000);
+      });
+      
+      viewHistoryQuick.addEventListener('click', function() {
+        addUserMessage('查看投放历史记录');
+        showTypingIndicator();
+        
+        setTimeout(() => {
+          removeTypingIndicator();
+          addSystemMessage('以下是最近的投放记录：');
+          modals.history.classList.remove('hidden');
+          modals.history.classList.add('flex');
+        }, 1000);
+      });
+      
+      // 关闭模态框
+      closeModalButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          for (const key in modals) {
+            modals[key].classList.add('hidden');
+            modals[key].classList.remove('flex');
+          }
+        });
+      });
+      
+      // 确认创建文件夹
+      document.getElementById('confirm-folder').addEventListener('click', function() {
+        const folderName = document.getElementById('folder-path-preview').textContent;
+        modals.createFolder.classList.add('hidden');
+        modals.createFolder.classList.remove('flex');
+        
+        addSystemMessage(`已在D:\\投放资源\\下创建文件夹：${folderName}`);
+        showSuccessToast(`文件夹 ${folderName} 创建成功`);
+        
+        // 刷新文件夹树
+        refreshFolderTree(folderName);
+      });
+      
+      // 确认上传文件
+      document.getElementById('confirm-upload').addEventListener('click', function() {
+        const targetFolder = document.getElementById('target-folder').value;
+        const fileCount = document.getElementById('file-upload').files.length;
+        
+        if (fileCount === 0) {
+          alert('请选择要上传的文件');
+          return;
+        }
+        
+        modals.uploadFiles.classList.add('hidden');
+        modals.uploadFiles.classList.remove('flex');
+        
+        addSystemMessage(`已成功上传 ${fileCount} 个文件到 ${targetFolder} 文件夹`);
+        showSuccessToast(`文件上传成功`);
+        
+        // 清空文件选择
+        document.getElementById('file-upload').value = '';
+        document.getElementById('uploaded-files-list').classList.add('hidden');
+      });
+      
+      // 确认创建投放任务
+      document.getElementById('confirm-publishing').addEventListener('click', function() {
+        const title = document.getElementById('publishing-title').value;
+        const time = document.getElementById('publishing-time').value;
+        const platform = document.getElementById('publishing-platform').value;
+        
+        if (!title) {
+          alert('请输入投放标题');
+          return;
+        }
+        
+        if (!time) {
+          alert('请选择投放时间');
+          return;
+        }
+        
+        modals.createPublishing.classList.add('hidden');
+        modals.createPublishing.classList.remove('flex');
+        
+        // 格式化时间显示
+        const formattedTime = new Date(time).toLocaleString();
+        
+        addSystemMessage(`投放任务创建成功：
+- 标题：${title}
+- 投放时间：${formattedTime}
+- 投放平台：${platform}
+
+任务已加入待投放队列，将按时自动执行。`);
+        
+        showSuccessToast('投放任务创建成功');
+        
+        // 更新待投放任务数量
+        const pendingCount = document.getElementById('pending-count');
+        pendingCount.textContent = parseInt(pendingCount.textContent) + 1;
+        
+        // 清空表单
+        document.getElementById('publishing-title').value = '';
+        document.getElementById('publishing-content').value = '';
+      });
+    }
+    
+    // 发送消息
+    function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+      
+      // 添加用户消息
+      addUserMessage(message);
+      
+      // 清空输入框
+      userInput.value = '';
+      
+      // 显示正在输入指示器
+      showTypingIndicator();
+      
+      // 处理消息并回复
+      processMessage(message);
+    }
+    
+    // 添加用户消息
+    function addUserMessage(text) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message-appear';
+      messageDiv.innerHTML = `
+        <div class="flex items-start justify-end">
+          <div class="mr-3 max-w-[80%]">
+            <div class="bg-primary text-white p-3 rounded-lg rounded-tr-none">
+              <p>${text}</p>
+            </div>
+          </div>
+          <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 flex-shrink-0">
+            <i class="fa fa-user"></i>
+          </div>
+        </div>
+      `;
+      
+      chatMessages.appendChild(messageDiv);
+      scrollToBottom();
+    }
+    
+    // 添加系统消息
+    function addSystemMessage(text) {
+      // 将换行符转换为<br>
+      text = text.replace(/\n/g, '<br>');
+      
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message-appear';
+      messageDiv.innerHTML = `
+        <div class="flex items-start">
+          <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white flex-shrink-0">
+            <i class="fa fa-robot"></i>
+          </div>
+          <div class="ml-3 max-w-[80%]">
+            <div class="bg-primary/10 p-3 rounded-lg rounded-tl-none">
+              <p>${text}</p>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      chatMessages.appendChild(messageDiv);
+      scrollToBottom();
+    }
+    
+    // 显示正在输入指示器
+    function showTypingIndicator() {
+      const indicatorDiv = document.createElement('div');
+      indicatorDiv.id = 'typing-indicator';
+      indicatorDiv.className = 'message-appear';
+      indicatorDiv.innerHTML = `
+        <div class="flex items-start">
+          <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white flex-shrink-0">
+            <i class="fa fa-robot"></i>
+          </div>
+          <div class="ml-3">
+            <div class="bg-primary/10 p-3 rounded-lg rounded-tl-none">
+              <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      chatMessages.appendChild(indicatorDiv);
+      scrollToBottom();
+    }
+    
+    // 移除正在输入指示器
+    function removeTypingIndicator() {
+      const indicator = document.getElementById('typing-indicator');
+      if (indicator) {
+        indicator.remove();
+      }
+    }
+    
+    // 滚动到底部
+    function scrollToBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // 处理消息并回复
+    function processMessage(message) {
+      // 简单的命令识别
+      setTimeout(() => {
+        removeTypingIndicator();
+        
+        if (message.includes('创建') && (message.includes('文件夹') || message.includes('目录'))) {
+          let response = '请选择要创建文件夹的日期：';
+          
+          // 检查是否包含"今天"
+          if (message.includes('今天')) {
+            const today = new Date().toISOString().split('T')[0];
+            const folderName = today.replace(/-/g, '');
+            response = `已为您创建今天(${folderName})的文件夹：`;
+            
+            // 直接创建文件夹
+            addSystemMessage(response);
+            showSuccessToast(`文件夹 ${folderName} 创建成功`);
+            refreshFolderTree(folderName);
+            return;
+          }
+          
+          addSystemMessage(response);
+          modals.createFolder.classList.remove('hidden');
+          modals.createFolder.classList.add('flex');
+        } 
+        else if (message.includes('上传') && (message.includes('文件') || message.includes('图片') || message.includes('资源'))) {
+          let targetFolder = '';
+          
+          // 提取文件夹名称（如20231105）
+          const folderMatch = message.match(/\d{8}/);
+          if (folderMatch) {
+            targetFolder = folderMatch[0];
+          }
+          
+          let response = '请选择目标文件夹并上传文件：';
+          if (targetFolder) {
+            response = `准备上传文件到 ${targetFolder} 文件夹：`;
+            // 尝试设置目标文件夹
+            const select = document.getElementById('target-folder');
+            for (let i = 0; i < select.options.length; i++) {
+              if (select.options[i].text.includes(targetFolder)) {
+                select.selectedIndex = i;
+                break;
+              }
+            }
+          }
+          
+          addSystemMessage(response);
+          modals.uploadFiles.classList.remove('hidden');
+          modals.uploadFiles.classList.add('flex');
+        } 
+        else if (message.includes('投放') && (message.includes('创建') || message.includes('新建') || message.includes('设置'))) {
+          addSystemMessage('请填写投放任务的详细信息：');
+          modals.createPublishing.classList.remove('hidden');
+          modals.createPublishing.classList.add('flex');
+        } 
+        else if (message.includes('历史') || message.includes('记录') || message.includes('查看')) {
+          addSystemMessage('以下是最近的投放记录：');
+          modals.history.classList.remove('hidden');
+          modals.history.classList.add('flex');
+        } 
+        else if (message.includes('帮助') || message.includes('功能')) {
+          addSystemMessage(`我可以帮您完成以下操作：
+- 按日期在D盘创建投放资源文件夹（例如："创建今天的文件夹"）
+- 上传资源文件到指定文件夹（例如："上传文件到20231105"）
+- 创建新的投放任务，设置标题和卖点文案
+- 设置投放时间和平台参数
+- 查询投放历史记录
+
+请告诉我您需要执行什么操作？`);
+        } 
+        else {
+          addSystemMessage(`抱歉，我不太理解您的需求。我可以帮您：
+- 创建日期文件夹
+- 上传资源文件
+- 创建投放任务
+- 查看投放历史
+
+请尝试使用这些关键词重新描述您的需求。`);
+        }
+      }, 1000 + Math.random() * 1000); // 随机延迟，模拟思考过程
+    }
+    
+    // 显示成功提示
+    function showSuccessToast(message) {
+      const toast = document.getElementById('success-toast');
+      const messageEl = document.getElementById('success-message');
+      
+      messageEl.textContent = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+    
+    // 刷新文件夹树（模拟）
+    function refreshFolderTree(newFolderName) {
+      // 提取年份和月份
+      const year = newFolderName.substring(0, 4);
+      const month = newFolderName.substring(4, 6);
+      const monthName = `${parseInt(month)}月`;
+      
+      // 查找年份文件夹
+      let yearFolder = document.querySelector(`.folder-item:has(> div > span:contains('${year}'))`);
+      
+      if (!yearFolder) {
+        // 如果年份文件夹不存在，则创建
+        const folderTree = document.getElementById('folder-tree');
+        const newYearFolder = document.createElement('div');
+        newYearFolder.className = 'folder-item';
+        newYearFolder.innerHTML = `
+          <div class="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
+            <i class="fa fa-folder text-warning mr-2"></i>
+            <span>${year}</span>
+            <i class="fa fa-chevron-down ml-auto text-xs text-gray-400 transition-transform"></i>
+          </div>
+          <div class="folder-content folder-tree-line mt-1 space-y-2">
+          </div>
+        `;
+        folderTree.appendChild(newYearFolder);
+        yearFolder = newYearFolder;
+        
+        // 绑定点击事件
+        yearFolder.querySelector('div').addEventListener('click', function() {
+          const content = this.nextElementSibling;
+          const icon = this.querySelector('.fa-chevron-down, .fa-chevron-right');
+          
+          if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.classList.remove('fa-chevron-right');
+            icon.classList.add('fa-chevron-down');
+          } else {
+            content.classList.add('hidden');
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-right');
+          }
+        });
+      }
+      
+      const yearContent = yearFolder.querySelector('.folder-content');
+      
+      // 查找月份文件夹
+      let monthFolder = yearContent.querySelector(`.folder-item:has(> div > span:contains('${monthName}'))`);
+      
+      if (!monthFolder) {
+        // 如果月份文件夹不存在，则创建
+        const newMonthFolder = document.createElement('div');
+        newMonthFolder.className = 'folder-item';
+        newMonthFolder.innerHTML = `
+          <div class="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
+            <i class="fa fa-folder text-warning mr-2"></i>
+            <span>${monthName}</span>
+            <i class="fa fa-chevron-down ml-auto text-xs text-gray-400 transition-transform"></i>
+          </div>
+          <div class="folder-content folder-tree-line mt-1 space-y-2">
+          </div>
+        `;
+        yearContent.appendChild(newMonthFolder);
+        monthFolder = newMonthFolder;
+        
+        // 绑定点击事件
+        monthFolder.querySelector('div').addEventListener('click', function() {
+          const content = this.nextElementSibling;
+          const icon = this.querySelector('.fa-chevron-down, .fa-chevron-right');
+          
+          if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.classList.remove('fa-chevron-right');
+            icon.classList.add('fa-chevron-down');
+          } else {
+            content.classList.add('hidden');
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-right');
+          }
+        });
+      }
+      
+      const monthContent = monthFolder.querySelector('.folder-content');
+      
+      // 添加新的日期文件夹
+      const newDateFolder = document.createElement('div');
+      newDateFolder.className = 'flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded';
+      newDateFolder.innerHTML = `
+        <i class="fa fa-folder text-warning mr-2"></i>
+        <span>${newFolderName}</span>
+        <span class="ml-auto text-xs text-gray-500">0个文件</span>
+      `;
+      monthContent.appendChild(newDateFolder);
+      
+      // 展开年份和月份文件夹
+      yearFolder.querySelector('.folder-content').classList.remove('hidden');
+      yearFolder.querySelector('.fa-chevron-right')?.classList.replace('fa-chevron-right', 'fa-chevron-down');
+      
+      monthFolder.querySelector('.folder-content').classList.remove('hidden');
+      monthFolder.querySelector('.fa-chevron-right')?.classList.replace('fa-chevron-right', 'fa-chevron-down');
+    }
+  </script>
+</body>
+</html>
+    
