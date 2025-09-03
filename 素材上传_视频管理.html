@@ -150,12 +150,9 @@
         <!-- 页面标题 -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-text-primary">视频管理</h1>
-            <div class="flex gap-3">
-               
-                <button class="bg-primary text-white px-4 py-2 rounded-md flex items-center btn-hover" onclick="openVideoUploadModal()">
-                    <i class="fa fa-upload mr-2"></i> 上传视频
-                </button>
-            </div>
+            <button class="bg-primary text-white px-4 py-2 rounded-md flex items-center btn-hover" onclick="openVideoUploadModal()">
+                <i class="fa fa-upload mr-2"></i> 上传视频
+            </button>
         </div>
         
         <!-- 顶部筛选栏 -->
@@ -801,53 +798,7 @@
             // 9. 上传视频按钮点击事件
             const uploadButton = document.querySelector('button:has(.fa-upload)');
             if (uploadButton) {
-                uploadButton.addEventListener('click', function() {
-                    console.log('点击上传视频，打开创建视频上传任务弹窗');
-                    // 创建弹窗容器
-                    const popupOverlay = document.createElement('div');
-                    popupOverlay.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center';
-                    popupOverlay.style.display = 'flex';
-                    
-                    // 创建弹窗主体
-                    const popupContainer = document.createElement('div');
-                    popupContainer.className = 'bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[98vh] h-[95vh] overflow-hidden flex flex-col';
-                    
-                    // 创建弹窗头部
-                    const popupHeader = document.createElement('div');
-                    popupHeader.className = 'flex justify-between items-center p-4 border-b border-border-light';
-                    popupHeader.innerHTML = '<h2 class="text-lg font-semibold text-text-primary">创建视频上传任务</h2>';
-                    
-                    // 创建关闭按钮
-                    const closeButton = document.createElement('button');
-                    closeButton.className = 'text-text-secondary hover:text-text-primary';
-                    closeButton.innerHTML = '<i class="fa fa-times text-xl"></i>';
-                    closeButton.addEventListener('click', function() {
-                        document.body.removeChild(popupOverlay);
-                    });
-                    
-                    popupHeader.appendChild(closeButton);
-                    
-                    // 创建弹窗内容区域（iframe）
-                    const popupContent = document.createElement('iframe');
-                    popupContent.src = '创建视频上传任务.html';
-                    popupContent.className = 'flex-1 w-full border-0';
-                    popupContent.title = '创建视频上传任务';
-                    
-                    // 组装弹窗
-                    popupContainer.appendChild(popupHeader);
-                    popupContainer.appendChild(popupContent);
-                    popupOverlay.appendChild(popupContainer);
-                    
-                    // 添加到页面
-                    document.body.appendChild(popupOverlay);
-                    
-                    // 点击遮罩层关闭弹窗
-                    popupOverlay.addEventListener('click', function(e) {
-                        if (e.target === popupOverlay) {
-                            document.body.removeChild(popupOverlay);
-                        }
-                    });
-                });
+                // 上传按钮的点击事件已通过openVideoUploadModal()函数实现
             }
 
             // 10. 表格中的各种按钮点击事件
