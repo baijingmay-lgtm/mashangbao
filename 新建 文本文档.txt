@@ -1,0 +1,7 @@
+查看更改：git status
+添加所有：git add .
+提交更改，说明：git commit -m "新增 docs 和 images 文件夹及相关文件"
+推送到git：git push
+
+cd C:\Users\baijing\Desktop
+cd d:\mycodesmashangbao

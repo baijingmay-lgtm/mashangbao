@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据统计</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 引入Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- 配置Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1677ff',
+            secondary: '#8c8c8c',
+            light: '#f5f5f5',
+            dark: '#333333',
+            border: '#e5e5e5',
+            success: '#52c41a',
+            warning: '#faad14',
+            danger: '#f5222d',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .tab-active {
+        color: #1677ff;
+        border-bottom: 2px solid #1677ff;
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans text-dark">
+  <div class="max-w-7xl mx-auto px-4 py-8 bg-white min-h-screen">
+    <!-- 页面标题 -->
+    <header class="mb-8 pb-4 border-b border-border">
+      <h1 class="text-[clamp(1.5rem,3vw,1.8rem)] font-semibold text-dark">数据统计</h1>
+    </header>
+    
+    <!-- 日期筛选器 -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="relative">
+          <input type="date" id="startDate" class="appearance-none h-10 px-3 pr-8 bg-white border border-border text-dark rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm">
+        </div>
+        <span class="text-secondary">至</span>
+        <div class="relative">
+          <input type="date" id="endDate" class="appearance-none h-10 px-3 pr-8 bg-white border border-border text-dark rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm">
+        </div>
+        <button id="queryBtn" class="px-4 h-10 bg-primary text-white rounded-md text-sm hover:bg-primary/90 transition-colors">查询</button>
+      </div>
+      
+      <div class="flex flex-wrap gap-2">
+        <button class="px-3 py-2 border border-border rounded-md text-sm hover:bg-gray-50 transition-colors flex items-center">
+          <i class="fa fa-download text-primary mr-1"></i>
+          导出
+        </button>
+        <button class="px-3 py-2 border border-border rounded-md text-sm hover:bg-gray-50 transition-colors flex items-center">
+          <i class="fa fa-refresh text-primary mr-1"></i>
+          刷新
+        </button>
+      </div>
+    </div>
+    
+    <!-- Tab导航 -->
+    <div class="mb-6 overflow-x-auto">
+      <div class="flex space-x-8 pb-1 border-b border-border min-w-max">
+        <button class="tab-btn tab-active py-3 text-sm font-medium whitespace-nowrap" data-tab="account">广告账户数据</button>
+        <button class="tab-btn py-3 text-secondary text-sm font-medium whitespace-nowrap" data-tab="plan">广告计划数据</button>
+        <button class="tab-btn py-3 text-secondary text-sm font-medium whitespace-nowrap" data-tab="unit">广告单元数据</button>
+        <button class="tab-btn py-3 text-secondary text-sm font-medium whitespace-nowrap" data-tab="creative">广告创意数据</button>
+        <button class="tab-btn py-3 text-secondary text-sm font-medium whitespace-nowrap" data-tab="site">全站数据</button>
+        <button class="tab-btn py-3 text-secondary text-sm font-medium whitespace-nowrap" data-tab="material">素材报表数据</button>
+        <button class="tab-btn py-3 text-secondary text-sm font-medium whitespace-nowrap" data-tab="audience">人群报表数据</button>
+      </div>
+    </div>
+    
+    <!-- 主要内容区域 -->
+    <main>
+      <!-- 广告账户数据 Tab -->
+      <div class="tab-content" id="account">
+        <!-- 数据概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">总花费(元)</p>
+                <h3 class="text-2xl font-bold mt-1">128,459.32</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <i class="fa fa-rmb text-primary"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>12.5%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">展现量</p>
+                <h3 class="text-2xl font-bold mt-1">2,456,789</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <i class="fa fa-eye text-success"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>8.3%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">点击量</p>
+                <h3 class="text-2xl font-bold mt-1">145,678</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                <i class="fa fa-mouse-pointer text-warning"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>5.7%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">点击率(CTR)</p>
+                <h3 class="text-2xl font-bold mt-1">5.93%</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                <i class="fa fa-line-chart text-purple-500"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-danger text-sm">
+              <i class="fa fa-arrow-down mr-1"></i>
+              <span>1.2%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 趋势图表 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-border mb-6">
+          <div class="flex flex-wrap justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">数据趋势</h2>
+            <div class="flex space-x-2 mt-2 sm:mt-0">
+              <button class="chart-filter-btn px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium">日</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">周</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">月</button>
+            </div>
+          </div>
+          <div class="h-80">
+            <canvas id="accountTrendChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- 数据表格 -->
+        <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="p-5 border-b border-border">
+            <h2 class="text-lg font-medium">广告账户数据列表</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-light">
+                  <th class="py-3 px-4 text-left font-medium text-secondary">账户ID</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">账户名称</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">总花费(元)</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">展现量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">点击量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">点击率(CTR)</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">转化量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">转化率</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">1001</td>
+                  <td class="py-3 px-4 font-medium">测试账户1</td>
+                  <td class="py-3 px-4">89,542.67</td>
+                  <td class="py-3 px-4">1,687,321</td>
+                  <td class="py-3 px-4">98,765</td>
+                  <td class="py-3 px-4">5.85%</td>
+                  <td class="py-3 px-4">1,234</td>
+                  <td class="py-3 px-4">1.25%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">1002</td>
+                  <td class="py-3 px-4 font-medium">测试账户2</td>
+                  <td class="py-3 px-4">38,916.65</td>
+                  <td class="py-3 px-4">769,468</td>
+                  <td class="py-3 px-4">46,913</td>
+                  <td class="py-3 px-4">6.10%</td>
+                  <td class="py-3 px-4">567</td>
+                  <td class="py-3 px-4">1.21%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p-4 border-t border-border flex justify-between items-center">
+            <div class="text-sm text-secondary">共 2 条数据</div>
+            <div class="flex space-x-1">
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-left text-xs"></i>
+              </button>
+              <button class="w-8 h-8 border border-primary bg-primary text-white rounded-md flex items-center justify-center">1</button>
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 广告计划数据 Tab (默认隐藏) -->
+      <div class="tab-content hidden" id="plan">
+        <!-- 数据概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">总花费(元)</p>
+                <h3 class="text-2xl font-bold mt-1">128,459.32</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <i class="fa fa-rmb text-primary"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>12.5%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">展现量</p>
+                <h3 class="text-2xl font-bold mt-1">2,456,789</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <i class="fa fa-eye text-success"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>8.3%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">点击量</p>
+                <h3 class="text-2xl font-bold mt-1">145,678</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                <i class="fa fa-mouse-pointer text-warning"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>5.7%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">ROI</p>
+                <h3 class="text-2xl font-bold mt-1">3.24</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                <i class="fa fa-percent text-purple-500"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>0.8%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 趋势图表 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-border mb-6">
+          <div class="flex flex-wrap justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">数据趋势</h2>
+            <div class="flex space-x-2 mt-2 sm:mt-0">
+              <button class="chart-filter-btn px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium">日</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">周</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">月</button>
+            </div>
+          </div>
+          <div class="h-80">
+            <canvas id="planTrendChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- 数据表格 -->
+        <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="p-5 border-b border-border">
+            <h2 class="text-lg font-medium">广告计划数据列表</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-light">
+                  <th class="py-3 px-4 text-left font-medium text-secondary">计划ID</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">计划名称</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">总花费(元)</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">展现量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">点击量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">点击率(CTR)</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">转化量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">转化成本</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">ROI</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">2001</td>
+                  <td class="py-3 px-4 font-medium">春季新品推广</td>
+                  <td class="py-3 px-4">56,789.23</td>
+                  <td class="py-3 px-4">987,654</td>
+                  <td class="py-3 px-4">65,432</td>
+                  <td class="py-3 px-4">6.63%</td>
+                  <td class="py-3 px-4">789</td>
+                  <td class="py-3 px-4">72.08</td>
+                  <td class="py-3 px-4">3.56</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">2002</td>
+                  <td class="py-3 px-4 font-medium">限时折扣活动</td>
+                  <td class="py-3 px-4">45,678.91</td>
+                  <td class="py-3 px-4">876,543</td>
+                  <td class="py-3 px-4">54,321</td>
+                  <td class="py-3 px-4">6.20%</td>
+                  <td class="py-3 px-4">678</td>
+                  <td class="py-3 px-4">67.37</td>
+                  <td class="py-3 px-4">3.02</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">2003</td>
+                  <td class="py-3 px-4 font-medium">爆款产品促销</td>
+                  <td class="py-3 px-4">26,091.18</td>
+                  <td class="py-3 px-4">592,592</td>
+                  <td class="py-3 px-4">25,925</td>
+                  <td class="py-3 px-4">4.38%</td>
+                  <td class="py-3 px-4">334</td>
+                  <td class="py-3 px-4">78.12</td>
+                  <td class="py-3 px-4">2.89</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p-4 border-t border-border flex justify-between items-center">
+            <div class="text-sm text-secondary">共 3 条数据</div>
+            <div class="flex space-x-1">
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-left text-xs"></i>
+              </button>
+              <button class="w-8 h-8 border border-primary bg-primary text-white rounded-md flex items-center justify-center">1</button>
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 广告单元数据 Tab (默认隐藏) -->
+      <div class="tab-content hidden" id="unit">
+        <!-- 数据概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">总花费(元)</p>
+                <h3 class="text-2xl font-bold mt-1">128,459.32</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <i class="fa fa-rmb text-primary"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>12.5%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">展现量</p>
+                <h3 class="text-2xl font-bold mt-1">2,456,789</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <i class="fa fa-eye text-success"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>8.3%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">点击量</p>
+                <h3 class="text-2xl font-bold mt-1">145,678</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                <i class="fa fa-mouse-pointer text-warning"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>5.7%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">千次展现成本</p>
+                <h3 class="text-2xl font-bold mt-1">52.3</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
+                <i class="fa fa-line-chart text-danger"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-danger text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>2.1%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 趋势图表 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-border mb-6">
+          <div class="flex flex-wrap justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">数据趋势</h2>
+            <div class="flex space-x-2 mt-2 sm:mt-0">
+              <button class="chart-filter-btn px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium">日</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">周</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">月</button>
+            </div>
+          </div>
+          <div class="h-80">
+            <canvas id="unitTrendChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- 数据表格 -->
+        <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="p-5 border-b border-border">
+            <h2 class="text-lg font-medium">广告单元数据列表</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-light">
+                  <th class="py-3 px-4 text-left font-medium text-secondary">单元ID</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">单元名称</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">总花费(元)</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">展现量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">点击量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">点击率(CTR)</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">转化量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">千次展现成本</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">3001</td>
+                  <td class="py-3 px-4 font-medium">男士T恤组</td>
+                  <td class="py-3 px-4">32,567.89</td>
+                  <td class="py-3 px-4">543,210</td>
+                  <td class="py-3 px-4">34,567</td>
+                  <td class="py-3 px-4">6.36%</td>
+                  <td class="py-3 px-4">456</td>
+                  <td class="py-3 px-4">59.95</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">3002</td>
+                  <td class="py-3 px-4 font-medium">女士连衣裙组</td>
+                  <td class="py-3 px-4">28,901.23</td>
+                  <td class="py-3 px-4">456,789</td>
+                  <td class="py-3 px-4">28,901</td>
+                  <td class="py-3 px-4">6.33%</td>
+                  <td class="py-3 px-4">345</td>
+                  <td class="py-3 px-4">63.27</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">3003</td>
+                  <td class="py-3 px-4 font-medium">童装促销组</td>
+                  <td class="py-3 px-4">25,678.91</td>
+                  <td class="py-3 px-4">412,345</td>
+                  <td class="py-3 px-4">24,567</td>
+                  <td class="py-3 px-4">5.96%</td>
+                  <td class="py-3 px-4">289</td>
+                  <td class="py-3 px-4">62.27</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">3004</td>
+                  <td class="py-3 px-4 font-medium">运动装特惠组</td>
+                  <td class="py-3 px-4">41,311.29</td>
+                  <td class="py-3 px-4">1,044,445</td>
+                  <td class="py-3 px-4">57,643</td>
+                  <td class="py-3 px-4">5.52%</td>
+                  <td class="py-3 px-4">523</td>
+                  <td class="py-3 px-4">39.55</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p-4 border-t border-border flex justify-between items-center">
+            <div class="text-sm text-secondary">共 4 条数据</div>
+            <div class="flex space-x-1">
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-left text-xs"></i>
+              </button>
+              <button class="w-8 h-8 border border-primary bg-primary text-white rounded-md flex items-center justify-center">1</button>
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 广告创意数据 Tab (默认隐藏) -->
+      <div class="tab-content hidden" id="creative">
+        <!-- 数据概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">总花费(元)</p>
+                <h3 class="text-2xl font-bold mt-1">128,459.32</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <i class="fa fa-rmb text-primary"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>12.5%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">展现量</p>
+                <h3 class="text-2xl font-bold mt-1">2,456,789</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <i class="fa fa-eye text-success"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>8.3%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">点击量</p>
+                <h3 class="text-2xl font-bold mt-1">145,678</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                <i class="fa fa-mouse-pointer text-warning"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>5.7%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">平均点击成本</p>
+                <h3 class="text-2xl font-bold mt-1">0.88</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                <i class="fa fa-rmb text-purple-500"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-danger text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>0.03</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 趋势图表 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-border mb-6">
+          <div class="flex flex-wrap justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">数据趋势</h2>
+            <div class="flex space-x-2 mt-2 sm:mt-0">
+              <button class="chart-filter-btn px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium">日</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">周</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">月</button>
+            </div>
+          </div>
+          <div class="h-80">
+            <canvas id="creativeTrendChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- 数据表格 -->
+        <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="p-5 border-b border-border">
+            <h2 class="text-lg font-medium">广告创意数据列表</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-light">
+                  <th class="py-3 px-4 text-left font-medium text-secondary">创意ID</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">创意名称</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">总花费(元)</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">展现量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">点击量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">点击率(CTR)</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">转化量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">平均点击成本</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">播放量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">5秒完播率</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">4001</td>
+                  <td class="py-3 px-4 font-medium">春季新款展示</td>
+                  <td class="py-3 px-4">45,678.91</td>
+                  <td class="py-3 px-4">987,654</td>
+                  <td class="py-3 px-4">54,321</td>
+                  <td class="py-3 px-4">5.50%</td>
+                  <td class="py-3 px-4">678</td>
+                  <td class="py-3 px-4">0.84</td>
+                  <td class="py-3 px-4">987,654</td>
+                  <td class="py-3 px-4">38.2%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">4002</td>
+                  <td class="py-3 px-4 font-medium">限时折扣宣传</td>
+                  <td class="py-3 px-4">32,567.89</td>
+                  <td class="py-3 px-4">654,321</td>
+                  <td class="py-3 px-4">32,109</td>
+                  <td class="py-3 px-4">4.91%</td>
+                  <td class="py-3 px-4">456</td>
+                  <td class="py-3 px-4">1.01</td>
+                  <td class="py-3 px-4">654,321</td>
+                  <td class="py-3 px-4">32.5%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">4003</td>
+                  <td class="py-3 px-4 font-medium">产品功能介绍</td>
+                  <td class="py-3 px-4">28,901.23</td>
+                  <td class="py-3 px-4">456,789</td>
+                  <td class="py-3 px-4">31,234</td>
+                  <td class="py-3 px-4">6.84%</td>
+                  <td class="py-3 px-4">345</td>
+                  <td class="py-3 px-4">0.92</td>
+                  <td class="py-3 px-4">456,789</td>
+                  <td class="py-3 px-4">41.3%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">4004</td>
+                  <td class="py-3 px-4 font-medium">用户评价展示</td>
+                  <td class="py-3 px-4">21,311.29</td>
+                  <td class="py-3 px-4">358,025</td>
+                  <td class="py-3 px-4">28,014</td>
+                  <td class="py-3 px-4">7.82%</td>
+                  <td class="py-3 px-4">234</td>
+                  <td class="py-3 px-4">0.76</td>
+                  <td class="py-3 px-4">358,025</td>
+                  <td class="py-3 px-4">45.6%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p-4 border-t border-border flex justify-between items-center">
+            <div class="text-sm text-secondary">共 4 条数据</div>
+            <div class="flex space-x-1">
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-left text-xs"></i>
+              </button>
+              <button class="w-8 h-8 border border-primary bg-primary text-white rounded-md flex items-center justify-center">1</button>
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 全站数据 Tab (默认隐藏) -->
+      <div class="tab-content hidden" id="site">
+        <!-- 数据概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">总访问量</p>
+                <h3 class="text-2xl font-bold mt-1">5,678,912</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <i class="fa fa-users text-primary"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>15.2%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">独立访客</p>
+                <h3 class="text-2xl font-bold mt-1">1,234,567</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <i class="fa fa-user text-success"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>10.8%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">平均停留时长</p>
+                <h3 class="text-2xl font-bold mt-1">2:35</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                <i class="fa fa-clock-o text-warning"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>8.3%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">跳出率</p>
+                <h3 class="text-2xl font-bold mt-1">32.5%</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                <i class="fa fa-sign-out text-purple-500"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-down mr-1"></i>
+              <span>2.1%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 趋势图表 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-border mb-6">
+          <div class="flex flex-wrap justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">数据趋势</h2>
+            <div class="flex space-x-2 mt-2 sm:mt-0">
+              <button class="chart-filter-btn px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium">日</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">周</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">月</button>
+            </div>
+          </div>
+          <div class="h-80">
+            <canvas id="siteTrendChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- 数据表格 -->
+        <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="p-5 border-b border-border">
+            <h2 class="text-lg font-medium">页面访问数据列表</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-light">
+                  <th class="py-3 px-4 text-left font-medium text-secondary">页面名称</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">访问量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">独立访客</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">平均停留时长</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">跳出率</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">页面转化率</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4 font-medium">首页</td>
+                  <td class="py-3 px-4">1,234,567</td>
+                  <td class="py-3 px-4">890,123</td>
+                  <td class="py-3 px-4">1:45</td>
+                  <td class="py-3 px-4">38.5%</td>
+                  <td class="py-3 px-4">2.3%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4 font-medium">商品列表页</td>
+                  <td class="py-3 px-4">987,654</td>
+                  <td class="py-3 px-4">765,432</td>
+                  <td class="py-3 px-4">2:10</td>
+                  <td class="py-3 px-4">32.1%</td>
+                  <td class="py-3 px-4">3.5%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4 font-medium">商品详情页</td>
+                  <td class="py-3 px-4">876,543</td>
+                  <td class="py-3 px-4">654,321</td>
+                  <td class="py-3 px-4">3:25</td>
+                  <td class="py-3 px-4">28.7%</td>
+                  <td class="py-3 px-4">5.8%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4 font-medium">购物车页</td>
+                  <td class="py-3 px-4">654,321</td>
+                  <td class="py-3 px-4">432,109</td>
+                  <td class="py-3 px-4">4:15</td>
+                  <td class="py-3 px-4">25.3%</td>
+                  <td class="py-3 px-4">8.9%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p-4 border-t border-border flex justify-between items-center">
+            <div class="text-sm text-secondary">共 4 条数据</div>
+            <div class="flex space-x-1">
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-left text-xs"></i>
+              </button>
+              <button class="w-8 h-8 border border-primary bg-primary text-white rounded-md flex items-center justify-center">1</button>
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 素材报表数据 Tab (默认隐藏) -->
+      <div class="tab-content hidden" id="material">
+        <!-- 数据概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">素材数量</p>
+                <h3 class="text-2xl font-bold mt-1">256</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <i class="fa fa-picture-o text-primary"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>12.5%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">总展现量</p>
+                <h3 class="text-2xl font-bold mt-1">2,456,789</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <i class="fa fa-eye text-success"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>8.3%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">总点击量</p>
+                <h3 class="text-2xl font-bold mt-1">145,678</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                <i class="fa fa-mouse-pointer text-warning"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>5.7%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">平均点击率</p>
+                <h3 class="text-2xl font-bold mt-1">5.93%</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                <i class="fa fa-line-chart text-purple-500"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-danger text-sm">
+              <i class="fa fa-arrow-down mr-1"></i>
+              <span>1.2%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 趋势图表 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-border mb-6">
+          <div class="flex flex-wrap justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">素材数据趋势</h2>
+            <div class="flex space-x-2 mt-2 sm:mt-0">
+              <button class="chart-filter-btn px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium">日</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">周</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">月</button>
+            </div>
+          </div>
+          <div class="h-80">
+            <canvas id="materialTrendChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- 数据表格 -->
+        <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="p-5 border-b border-border">
+            <h2 class="text-lg font-medium">素材报表数据列表</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-light">
+                  <th class="py-3 px-4 text-left font-medium text-secondary">素材ID</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">素材名称</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">素材类型</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">展现量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">点击量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">点击率(CTR)</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">转化量</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">5001</td>
+                  <td class="py-3 px-4 font-medium">春季主图1</td>
+                  <td class="py-3 px-4">图片</td>
+                  <td class="py-3 px-4">678,901</td>
+                  <td class="py-3 px-4">45,678</td>
+                  <td class="py-3 px-4">6.73%</td>
+                  <td class="py-3 px-4">567</td>
+                  <td class="py-3 px-4">--</td>
+                  <td class="py-3 px-4">--</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">5002</td>
+                  <td class="py-3 px-4 font-medium">春季视频展示</td>
+                  <td class="py-3 px-4">视频</td>
+                  <td class="py-3 px-4">543,210</td>
+                  <td class="py-3 px-4">34,567</td>
+                  <td class="py-3 px-4">6.36%</td>
+                  <td class="py-3 px-4">456</td>
+                  <td class="py-3 px-4">890,123</td>
+                  <td class="py-3 px-4">35.6%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">5003</td>
+                  <td class="py-3 px-4 font-medium">产品细节展示</td>
+                  <td class="py-3 px-4">图片</td>
+                  <td class="py-3 px-4">456,789</td>
+                  <td class="py-3 px-4">28,901</td>
+                  <td class="py-3 px-4">6.33%</td>
+                  <td class="py-3 px-4">345</td>
+                  <td class="py-3 px-4">--</td>
+                  <td class="py-3 px-4">--</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">5004</td>
+                  <td class="py-3 px-4 font-medium">客户评价图片</td>
+                  <td class="py-3 px-4">图片</td>
+                  <td class="py-3 px-4">321,098</td>
+                  <td class="py-3 px-4">21,345</td>
+                  <td class="py-3 px-4">6.65%</td>
+                  <td class="py-3 px-4">289</td>
+                  <td class="py-3 px-4">--</td>
+                  <td class="py-3 px-4">--</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">5005</td>
+                  <td class="py-3 px-4 font-medium">促销活动视频</td>
+                  <td class="py-3 px-4">视频</td>
+                  <td class="py-3 px-4">456,789</td>
+                  <td class="py-3 px-4">15,187</td>
+                  <td class="py-3 px-4">3.33%</td>
+                  <td class="py-3 px-4">189</td>
+                  <td class="py-3 px-4">765,432</td>
+                  <td class="py-3 px-4">28.9%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p-4 border-t border-border flex justify-between items-center">
+            <div class="text-sm text-secondary">共 5 条数据</div>
+            <div class="flex space-x-1">
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-left text-xs"></i>
+              </button>
+              <button class="w-8 h-8 border border-primary bg-primary text-white rounded-md flex items-center justify-center">1</button>
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 人群报表数据 Tab (默认隐藏) -->
+      <div class="tab-content hidden" id="audience">
+        <!-- 数据概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">总覆盖人数</p>
+                <h3 class="text-2xl font-bold mt-1">2,456,789</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <i class="fa fa-users text-primary"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>12.5%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">互动人数</p>
+                <h3 class="text-2xl font-bold mt-1">145,678</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <i class="fa fa-handshake-o text-success"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>8.3%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">互动率</p>
+                <h3 class="text-2xl font-bold mt-1">5.93%</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                <i class="fa fa-line-chart text-warning"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-danger text-sm">
+              <i class="fa fa-arrow-down mr-1"></i>
+              <span>1.2%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-border card-hover">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-secondary text-sm">转化人数</p>
+                <h3 class="text-2xl font-bold mt-1">12,345</h3>
+              </div>
+              <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                <i class="fa fa-exchange text-purple-500"></i>
+              </div>
+            </div>
+            <div class="flex items-center text-success text-sm">
+              <i class="fa fa-arrow-up mr-1"></i>
+              <span>15.7%</span>
+              <span class="text-secondary ml-2">较昨日</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 趋势图表 -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-border mb-6">
+          <div class="flex flex-wrap justify-between items-center mb-4">
+            <h2 class="text-lg font-medium">人群数据趋势</h2>
+            <div class="flex space-x-2 mt-2 sm:mt-0">
+              <button class="chart-filter-btn px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium">日</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">周</button>
+              <button class="chart-filter-btn px-3 py-1.5 border border-border rounded-md text-xs font-medium">月</button>
+            </div>
+          </div>
+          <div class="h-80">
+            <canvas id="audienceTrendChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- 数据表格 -->
+        <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="p-5 border-b border-border">
+            <h2 class="text-lg font-medium">人群报表数据列表</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-light">
+                  <th class="py-3 px-4 text-left font-medium text-secondary">人群包ID</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">人群包名称</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">覆盖人数</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">互动人数</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">互动率</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">转化人数</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">转化率</th>
+                  <th class="py-3 px-4 text-left font-medium text-secondary">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">6001</td>
+                  <td class="py-3 px-4 font-medium">潜在客户人群</td>
+                  <td class="py-3 px-4">987,654</td>
+                  <td class="py-3 px-4">56,789</td>
+                  <td class="py-3 px-4">5.75%</td>
+                  <td class="py-3 px-4">4,321</td>
+                  <td class="py-3 px-4">4.38%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">6002</td>
+                  <td class="py-3 px-4 font-medium">老客户人群</td>
+                  <td class="py-3 px-4">765,432</td>
+                  <td class="py-3 px-4">45,678</td>
+                  <td class="py-3 px-4">5.97%</td>
+                  <td class="py-3 px-4">3,456</td>
+                  <td class="py-3 px-4">4.51%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">6003</td>
+                  <td class="py-3 px-4 font-medium">竞品人群</td>
+                  <td class="py-3 px-4">543,210</td>
+                  <td class="py-3 px-4">34,567</td>
+                  <td class="py-3 px-4">6.36%</td>
+                  <td class="py-3 px-4">2,567</td>
+                  <td class="py-3 px-4">4.73%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+                <tr class="border-b border-border hover:bg-gray-50">
+                  <td class="py-3 px-4">6004</td>
+                  <td class="py-3 px-4 font-medium">高价值人群</td>
+                  <td class="py-3 px-4">160,493</td>
+                  <td class="py-3 px-4">8,644</td>
+                  <td class="py-3 px-4">5.38%</td>
+                  <td class="py-3 px-4">2,001</td>
+                  <td class="py-3 px-4">12.47%</td>
+                  <td class="py-3 px-4">
+                    <button class="text-primary hover:text-primary/80">详情</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p-4 border-t border-border flex justify-between items-center">
+            <div class="text-sm text-secondary">共 4 条数据</div>
+            <div class="flex space-x-1">
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-left text-xs"></i>
+              </button>
+              <button class="w-8 h-8 border border-primary bg-primary text-white rounded-md flex items-center justify-center">1</button>
+              <button class="w-8 h-8 border border-border rounded-md flex items-center justify-center text-secondary" disabled>
+                <i class="fa fa-chevron-right text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // 设置默认日期范围（最近7天）
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date();
+      const weekAgo = new Date();
+      weekAgo.setDate(today.getDate() - 7);
+      
+      // 格式化日期为YYYY-MM-DD
+      function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+      
+      document.getElementById('startDate').value = formatDate(weekAgo);
+      document.getElementById('endDate').value = formatDate(today);
+      
+      // 初始化图表
+      initCharts();
+      
+      // 绑定Tab切换事件
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const tabId = this.getAttribute('data-tab');
+          
+          // 移除所有tab的active状态
+          tabBtns.forEach(b => {
+            b.classList.remove('tab-active');
+            b.classList.add('text-secondary');
+          });
+          
+          // 添加当前tab的active状态
+          this.classList.add('tab-active');
+          this.classList.remove('text-secondary');
+          
+          // 隐藏所有内容
+          const tabContents = document.querySelectorAll('.tab-content');
+          tabContents.forEach(content => {
+            content.classList.add('hidden');
+          });
+          
+          // 显示当前内容
+          document.getElementById(tabId).classList.remove('hidden');
+        });
+      });
+      
+      // 绑定日期查询事件
+      document.getElementById('queryBtn').addEventListener('click', function() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        if (!startDate || !endDate) {
+          alert('请选择日期范围');
+          return;
+        }
+        
+        if (new Date(startDate) > new Date(endDate)) {
+          alert('开始日期不能晚于结束日期');
+          return;
+        }
+        
+        // 模拟数据刷新
+        refreshData();
+      });
+      
+      // 绑定图表筛选事件
+      const chartFilterBtns = document.querySelectorAll('.chart-filter-btn');
+      chartFilterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const parent = this.closest('div');
+          const siblings = parent.querySelectorAll('.chart-filter-btn');
+          siblings.forEach(b => {
+            b.classList.remove('bg-primary', 'text-white');
+            b.classList.add('border', 'border-border');
+          });
+          
+          this.classList.add('bg-primary', 'text-white');
+          this.classList.remove('border', 'border-border');
+          
+          // 更新对应图表
+          updateCharts();
+        });
+      });
+    });
+    
+    // 初始化所有图表
+    function initCharts() {
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      };
+      
+      // 广告账户数据图表 - 两级数据展示：总花费、展现量/点击量
+      const accountCtx = document.getElementById('accountTrendChart').getContext('2d');
+      new Chart(accountCtx, {
+        type: 'line',
+        data: {
+          labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'],
+          datasets: [
+            {
+              label: '总花费(元)',
+              data: [15000, 17000, 18500, 16200, 19000, 21000, 22759],
+              borderColor: '#1677ff',
+              backgroundColor: 'rgba(22, 119, 255, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '展现量',
+              data: [280000, 320000, 340000, 310000, 350000, 370000, 426789],
+              borderColor: '#52c41a',
+              backgroundColor: 'rgba(82, 196, 26, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '点击量',
+              data: [16000, 18500, 19200, 17500, 20000, 21500, 22978],
+              borderColor: '#faad14',
+              backgroundColor: 'rgba(250, 173, 20, 0.1)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: commonOptions
+      });
+      
+      // 广告计划数据图表 - 两级数据展示：总花费、ROI
+      const planCtx = document.getElementById('planTrendChart').getContext('2d');
+      new Chart(planCtx, {
+        type: 'line',
+        data: {
+          labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'],
+          datasets: [
+            {
+              label: '总花费(元)',
+              data: [12000, 14500, 15800, 13200, 16000, 18500, 20159],
+              borderColor: '#1677ff',
+              backgroundColor: 'rgba(22, 119, 255, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'ROI',
+              data: [2.4, 2.7, 2.5, 2.3, 2.8, 3.1, 3.2],
+              borderColor: '#f5222d',
+              backgroundColor: 'rgba(245, 34, 45, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '展现量',
+              data: [240000, 280000, 300000, 270000, 310000, 330000, 380000],
+              borderColor: '#52c41a',
+              backgroundColor: 'rgba(82, 196, 26, 0.1)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: commonOptions
+      });
+      
+      // 广告单元数据图表 - 两级数据展示：总花费、转化量
+      const unitCtx = document.getElementById('unitTrendChart').getContext('2d');
+      new Chart(unitCtx, {
+        type: 'line',
+        data: {
+          labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'],
+          datasets: [
+            {
+              label: '总花费(元)',
+              data: [9500, 11000, 12500, 10200, 13000, 14500, 16320],
+              borderColor: '#1677ff',
+              backgroundColor: 'rgba(22, 119, 255, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '转化量',
+              data: [850, 920, 980, 830, 1050, 1120, 1250],
+              borderColor: '#722ed1',
+              backgroundColor: 'rgba(114, 46, 209, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '点击量',
+              data: [12000, 14500, 15200, 13500, 16000, 17500, 19800],
+              borderColor: '#faad14',
+              backgroundColor: 'rgba(250, 173, 20, 0.1)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: commonOptions
+      });
+      
+      // 广告创意数据图表 - 两级数据展示：总花费、播放量/5秒完播率
+      const creativeCtx = document.getElementById('creativeTrendChart').getContext('2d');
+      new Chart(creativeCtx, {
+        type: 'line',
+        data: {
+          labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'],
+          datasets: [
+            {
+              label: '总花费(元)',
+              data: [8000, 9500, 10800, 9200, 11000, 12500, 14200],
+              borderColor: '#1677ff',
+              backgroundColor: 'rgba(22, 119, 255, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '播放量',
+              data: [750000, 820000, 890000, 780000, 950000, 1020000, 1150000],
+              borderColor: '#13c2c2',
+              backgroundColor: 'rgba(19, 194, 194, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '5秒完播率(%)',
+              data: [32, 34, 35, 33, 36, 38, 40],
+              borderColor: '#eb2f96',
+              backgroundColor: 'rgba(235, 47, 150, 0.1)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: commonOptions
+      });
+      
+      // 全站数据图表 - 两级数据展示：总访问量、转化率
+      const siteCtx = document.getElementById('siteTrendChart').getContext('2d');
+      new Chart(siteCtx, {
+        type: 'line',
+        data: {
+          labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'],
+          datasets: [
+            {
+              label: '总访问量',
+              data: [120000, 140000, 155000, 130000, 165000, 180000, 200000],
+              borderColor: '#1677ff',
+              backgroundColor: 'rgba(22, 119, 255, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '转化率(%)',
+              data: [4.5, 4.8, 5.1, 4.7, 5.3, 5.5, 5.8],
+              borderColor: '#fadb14',
+              backgroundColor: 'rgba(250, 219, 20, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '跳出率(%)',
+              data: [58, 56, 54, 57, 53, 51, 49],
+              borderColor: '#fa8c16',
+              backgroundColor: 'rgba(250, 140, 22, 0.1)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: commonOptions
+      });
+      
+      // 素材报表数据图表 - 两级数据展示：展现量、播放量/点击率
+      const materialCtx = document.getElementById('materialTrendChart').getContext('2d');
+      new Chart(materialCtx, {
+        type: 'line',
+        data: {
+          labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'],
+          datasets: [
+            {
+              label: '展现量',
+              data: [320000, 360000, 390000, 340000, 410000, 440000, 480000],
+              borderColor: '#1677ff',
+              backgroundColor: 'rgba(22, 119, 255, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '播放量',
+              data: [820000, 890000, 960000, 850000, 1020000, 1100000, 1250000],
+              borderColor: '#13c2c2',
+              backgroundColor: 'rgba(19, 194, 194, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '点击率(%)',
+              data: [5.8, 6.1, 6.3, 5.9, 6.5, 6.8, 7.1],
+              borderColor: '#52c41a',
+              backgroundColor: 'rgba(82, 196, 26, 0.1)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: commonOptions
+      });
+      
+      // 人群报表数据图表 - 两级数据展示：总覆盖人数、转化率
+      const audienceCtx = document.getElementById('audienceTrendChart').getContext('2d');
+      new Chart(audienceCtx, {
+        type: 'line',
+        data: {
+          labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'],
+          datasets: [
+            {
+              label: '总覆盖人数',
+              data: [520000, 580000, 620000, 550000, 660000, 710000, 780000],
+              borderColor: '#1677ff',
+              backgroundColor: 'rgba(22, 119, 255, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '转化率(%)',
+              data: [3.2, 3.5, 3.7, 3.3, 3.9, 4.2, 4.5],
+              borderColor: '#722ed1',
+              backgroundColor: 'rgba(114, 46, 209, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '点击率(%)',
+              data: [4.8, 5.1, 5.3, 4.9, 5.5, 5.8, 6.1],
+              borderColor: '#52c41a',
+              backgroundColor: 'rgba(82, 196, 26, 0.1)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: commonOptions
+      });
+      // 实际上在完整实现中，需要为每个Tab创建对应的图表
+    }
+    
+    // 更新图表数据
+    function updateCharts() {
+      // 获取所有激活的图表筛选按钮
+      const activeFilters = document.querySelectorAll('.chart-filter-btn.bg-primary');
+      
+      // 为每个Tab更新对应的图表
+      updateAccountChart();
+      updatePlanChart();
+      updateUnitChart();
+      updateCreativeChart();
+      updateSiteChart();
+      updateMaterialChart();
+      updateAudienceChart();
+      
+      console.log('更新图表数据完成');
+    }
+    
+    // 广告账户图表更新
+    function updateAccountChart() {
+      const filterBtn = document.querySelector('#accountTab .chart-filter-btn.bg-primary');
+      if (!filterBtn) return;
+      
+      const timeRange = filterBtn.textContent;
+      const ctx = document.getElementById('accountTrendChart').getContext('2d');
+      
+      let labels, datasets;
+      
+      if (timeRange === '日') {
+        labels = ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'];
+        datasets = [
+          { label: '总花费(元)', data: [15000, 17000, 18500, 16200, 19000, 21000, 22759] },
+          { label: '展现量', data: [280000, 320000, 340000, 310000, 350000, 370000, 426789] },
+          { label: '点击量', data: [16000, 18500, 19200, 17500, 20000, 21500, 22978] }
+        ];
+      } else if (timeRange === '周') {
+        labels = ['第1周', '第2周', '第3周', '第4周'];
+        datasets = [
+          { label: '总花费(元)', data: [75000, 89000, 95000, 105000] },
+          { label: '展现量', data: [1400000, 1680000, 1800000, 2000000] },
+          { label: '点击量', data: [82000, 95000, 102000, 115000] }
+        ];
+      } else if (timeRange === '月') {
+        labels = ['1月', '2月', '3月', '4月', '5月', '6月'];
+        datasets = [
+          { label: '总花费(元)', data: [350000, 420000, 480000, 520000, 580000, 650000] },
+          { label: '展现量', data: [7200000, 8800000, 9600000, 10500000, 11500000, 12800000] },
+          { label: '点击量', data: [420000, 500000, 560000, 620000, 680000, 760000] }
+        ];
+      }
+      
+      updateChart(ctx, labels, datasets);
+    }
+    
+    // 广告计划图表更新
+    function updatePlanChart() {
+      const filterBtn = document.querySelector('#planTab .chart-filter-btn.bg-primary');
+      if (!filterBtn) return;
+      
+      const timeRange = filterBtn.textContent;
+      const ctx = document.getElementById('planTrendChart').getContext('2d');
+      
+      let labels, datasets;
+      
+      if (timeRange === '日') {
+        labels = ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'];
+        datasets = [
+          { label: '总花费(元)', data: [12000, 14500, 15800, 13200, 16000, 18500, 20159] },
+          { label: 'ROI', data: [2.4, 2.7, 2.5, 2.3, 2.8, 3.1, 3.2] },
+          { label: '展现量', data: [240000, 280000, 300000, 270000, 310000, 330000, 380000] }
+        ];
+      } else if (timeRange === '周') {
+        labels = ['第1周', '第2周', '第3周', '第4周'];
+        datasets = [
+          { label: '总花费(元)', data: [65000, 78000, 85000, 95000] },
+          { label: 'ROI', data: [2.5, 2.7, 2.9, 3.1] },
+          { label: '展现量', data: [1200000, 1450000, 1600000, 1800000] }
+        ];
+      } else if (timeRange === '月') {
+        labels = ['1月', '2月', '3月', '4月', '5月', '6月'];
+        datasets = [
+          { label: '总花费(元)', data: [320000, 380000, 450000, 500000, 550000, 620000] },
+          { label: 'ROI', data: [2.6, 2.8, 3.0, 3.2, 3.4, 3.6] },
+          { label: '展现量', data: [6500000, 8000000, 9200000, 10000000, 11000000, 12500000] }
+        ];
+      }
+      
+      updateChart(ctx, labels, datasets, ['#1677ff', '#f5222d', '#52c41a']);
+    }
+    
+    // 广告单元图表更新
+    function updateUnitChart() {
+      const filterBtn = document.querySelector('#unitTab .chart-filter-btn.bg-primary');
+      if (!filterBtn) return;
+      
+      const timeRange = filterBtn.textContent;
+      const ctx = document.getElementById('unitTrendChart').getContext('2d');
+      
+      let labels, datasets;
+      
+      if (timeRange === '日') {
+        labels = ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'];
+        datasets = [
+          { label: '总花费(元)', data: [9500, 11000, 12500, 10200, 13000, 14500, 16320] },
+          { label: '转化量', data: [850, 920, 980, 830, 1050, 1120, 1250] },
+          { label: '点击量', data: [12000, 14500, 15200, 13500, 16000, 17500, 19800] }
+        ];
+      } else if (timeRange === '周') {
+        labels = ['第1周', '第2周', '第3周', '第4周'];
+        datasets = [
+          { label: '总花费(元)', data: [52000, 65000, 72000, 82000] },
+          { label: '转化量', data: [4500, 5200, 5800, 6500] },
+          { label: '点击量', data: [75000, 88000, 95000, 108000] }
+        ];
+      } else if (timeRange === '月') {
+        labels = ['1月', '2月', '3月', '4月', '5月', '6月'];
+        datasets = [
+          { label: '总花费(元)', data: [280000, 350000, 400000, 450000, 500000, 580000] },
+          { label: '转化量', data: [22000, 26000, 30000, 34000, 38000, 42000] },
+          { label: '点击量', data: [380000, 450000, 520000, 580000, 650000, 720000] }
+        ];
+      }
+      
+      updateChart(ctx, labels, datasets, ['#1677ff', '#722ed1', '#faad14']);
+    }
+    
+    // 广告创意图表更新
+    function updateCreativeChart() {
+      const filterBtn = document.querySelector('#creativeTab .chart-filter-btn.bg-primary');
+      if (!filterBtn) return;
+      
+      const timeRange = filterBtn.textContent;
+      const ctx = document.getElementById('creativeTrendChart').getContext('2d');
+      
+      let labels, datasets;
+      
+      if (timeRange === '日') {
+        labels = ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'];
+        datasets = [
+          { label: '总花费(元)', data: [8000, 9500, 10800, 9200, 11000, 12500, 14200] },
+          { label: '播放量', data: [750000, 820000, 890000, 780000, 950000, 1020000, 1150000] },
+          { label: '5秒完播率(%)', data: [32, 34, 35, 33, 36, 38, 40] }
+        ];
+      } else if (timeRange === '周') {
+        labels = ['第1周', '第2周', '第3周', '第4周'];
+        datasets = [
+          { label: '总花费(元)', data: [45000, 58000, 65000, 75000] },
+          { label: '播放量', data: [3500000, 4200000, 4800000, 5500000] },
+          { label: '5秒完播率(%)', data: [34, 35, 37, 39] }
+        ];
+      } else if (timeRange === '月') {
+        labels = ['1月', '2月', '3月', '4月', '5月', '6月'];
+        datasets = [
+          { label: '总花费(元)', data: [250000, 320000, 380000, 430000, 490000, 560000] },
+          { label: '播放量', data: [18000000, 22000000, 25000000, 28000000, 32000000, 36000000] },
+          { label: '5秒完播率(%)', data: [35, 36, 37, 38, 39, 40] }
+        ];
+      }
+      
+      updateChart(ctx, labels, datasets, ['#1677ff', '#13c2c2', '#eb2f96']);
+    }
+    
+    // 全站数据图表更新
+    function updateSiteChart() {
+      const filterBtn = document.querySelector('#siteTab .chart-filter-btn.bg-primary');
+      if (!filterBtn) return;
+      
+      const timeRange = filterBtn.textContent;
+      const ctx = document.getElementById('siteTrendChart').getContext('2d');
+      
+      let labels, datasets;
+      
+      if (timeRange === '日') {
+        labels = ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'];
+        datasets = [
+          { label: '总访问量', data: [120000, 140000, 155000, 130000, 165000, 180000, 200000] },
+          { label: '转化率(%)', data: [4.5, 4.8, 5.1, 4.7, 5.3, 5.5, 5.8] },
+          { label: '跳出率(%)', data: [58, 56, 54, 57, 53, 51, 49] }
+        ];
+      } else if (timeRange === '周') {
+        labels = ['第1周', '第2周', '第3周', '第4周'];
+        datasets = [
+          { label: '总访问量', data: [600000, 750000, 820000, 920000] },
+          { label: '转化率(%)', data: [4.8, 5.0, 5.3, 5.5] },
+          { label: '跳出率(%)', data: [56, 55, 53, 51] }
+        ];
+      } else if (timeRange === '月') {
+        labels = ['1月', '2月', '3月', '4月', '5月', '6月'];
+        datasets = [
+          { label: '总访问量', data: [3200000, 3800000, 4500000, 5200000, 5800000, 6500000] },
+          { label: '转化率(%)', data: [5.0, 5.2, 5.4, 5.6, 5.7, 5.9] },
+          { label: '跳出率(%)', data: [55, 54, 53, 52, 51, 50] }
+        ];
+      }
+      
+      updateChart(ctx, labels, datasets, ['#1677ff', '#fadb14', '#fa8c16']);
+    }
+    
+    // 素材报表图表更新
+    function updateMaterialChart() {
+      const filterBtn = document.querySelector('#materialTab .chart-filter-btn.bg-primary');
+      if (!filterBtn) return;
+      
+      const timeRange = filterBtn.textContent;
+      const ctx = document.getElementById('materialTrendChart').getContext('2d');
+      
+      let labels, datasets;
+      
+      if (timeRange === '日') {
+        labels = ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'];
+        datasets = [
+          { label: '展现量', data: [320000, 360000, 390000, 340000, 410000, 440000, 480000] },
+          { label: '播放量', data: [820000, 890000, 960000, 850000, 1020000, 1100000, 1250000] },
+          { label: '点击率(%)', data: [5.8, 6.1, 6.3, 5.9, 6.5, 6.8, 7.1] }
+        ];
+      } else if (timeRange === '周') {
+        labels = ['第1周', '第2周', '第3周', '第4周'];
+        datasets = [
+          { label: '展现量', data: [1600000, 1900000, 2100000, 2300000] },
+          { label: '播放量', data: [4200000, 4800000, 5500000, 6200000] },
+          { label: '点击率(%)', data: [6.0, 6.3, 6.6, 6.9] }
+        ];
+      } else if (timeRange === '月') {
+        labels = ['1月', '2月', '3月', '4月', '5月', '6月'];
+        datasets = [
+          { label: '展现量', data: [8000000, 9500000, 11000000, 12500000, 14000000, 15500000] },
+          { label: '播放量', data: [22000000, 26000000, 30000000, 34000000, 38000000, 42000000] },
+          { label: '点击率(%)', data: [6.2, 6.4, 6.6, 6.8, 7.0, 7.2] }
+        ];
+      }
+      
+      updateChart(ctx, labels, datasets, ['#1677ff', '#13c2c2', '#52c41a']);
+    }
+    
+    // 人群报表图表更新
+    function updateAudienceChart() {
+      const filterBtn = document.querySelector('#audienceTab .chart-filter-btn.bg-primary');
+      if (!filterBtn) return;
+      
+      const timeRange = filterBtn.textContent;
+      const ctx = document.getElementById('audienceTrendChart').getContext('2d');
+      
+      let labels, datasets;
+      
+      if (timeRange === '日') {
+        labels = ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'];
+        datasets = [
+          { label: '总覆盖人数', data: [520000, 580000, 620000, 550000, 660000, 710000, 780000] },
+          { label: '转化率(%)', data: [3.2, 3.5, 3.7, 3.3, 3.9, 4.2, 4.5] },
+          { label: '点击率(%)', data: [4.8, 5.1, 5.3, 4.9, 5.5, 5.8, 6.1] }
+        ];
+      } else if (timeRange === '周') {
+        labels = ['第1周', '第2周', '第3周', '第4周'];
+        datasets = [
+          { label: '总覆盖人数', data: [2600000, 3000000, 3300000, 3800000] },
+          { label: '转化率(%)', data: [3.4, 3.6, 3.9, 4.2] },
+          { label: '点击率(%)', data: [5.0, 5.3, 5.6, 5.9] }
+        ];
+      } else if (timeRange === '月') {
+        labels = ['1月', '2月', '3月', '4月', '5月', '6月'];
+        datasets = [
+          { label: '总覆盖人数', data: [13000000, 15000000, 17000000, 19000000, 21000000, 24000000] },
+          { label: '转化率(%)', data: [3.6, 3.8, 4.0, 4.2, 4.4, 4.6] },
+          { label: '点击率(%)', data: [5.2, 5.4, 5.6, 5.8, 6.0, 6.2] }
+        ];
+      }
+      
+      updateChart(ctx, labels, datasets, ['#1677ff', '#722ed1', '#52c41a']);
+    }
+    
+    // 通用图表更新函数
+    function updateChart(ctx, labels, datasets, customColors = null) {
+      // 如果画布已经有图表实例，先销毁
+      if (ctx.chartInstance) {
+        ctx.chartInstance.destroy();
+      }
+      
+      // 默认颜色配置
+      const defaultColors = ['#1677ff', '#52c41a', '#faad14'];
+      const colors = customColors || defaultColors;
+      
+      // 准备图表数据
+      const chartData = {
+        labels: labels,
+        datasets: datasets.map((dataset, index) => ({
+          label: dataset.label,
+          data: dataset.data,
+          borderColor: colors[index % colors.length],
+          backgroundColor: `${colors[index % colors.length]}1A`, // 10% opacity
+          tension: 0.3,
+          fill: true
+        }))
+      };
+      
+      // 创建新图表实例
+      ctx.chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+    
+    // 刷新数据（模拟）
+    function refreshData() {
+      // 这里应该根据选择的日期范围请求数据并更新页面
+      // 现在只是模拟刷新效果
+      console.log('刷新数据');
+      alert('数据已刷新');
+    }
+
+    // 详情弹窗相关功能
+    const detailModal = document.createElement('div');
+    detailModal.id = 'detailModal';
+    detailModal.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden';
+    detailModal.innerHTML = `
+      <div class="bg-white rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <!-- 弹窗头部 -->
+        <div class="p-5 border-b border-border flex justify-between items-center">
+          <h3 id="modalTitle" class="text-lg font-medium">详情</h3>
+          <button id="closeModalBtn" class="text-secondary hover:text-dark">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <!-- 筛选器 -->
+        <div class="p-4 border-b border-border bg-light">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="text-sm font-medium">数据字段筛选</div>
+            <div id="fieldFilters" class="flex flex-wrap gap-2">
+              <!-- 字段筛选按钮会动态添加 -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- 详情内容 -->
+        <div class="p-5 overflow-y-auto max-h-[calc(90vh-160px)]">
+          <div id="detailContent" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 详情数据会动态添加 -->
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(detailModal);
+
+    // 绑定弹窗关闭事件
+    document.getElementById('closeModalBtn').addEventListener('click', function() {
+      document.getElementById('detailModal').classList.add('hidden');
+    });
+
+    // 点击弹窗外部关闭弹窗
+    detailModal.addEventListener('click', function(e) {
+      if (e.target === detailModal) {
+        detailModal.classList.add('hidden');
+      }
+    });
+
+    // 为所有详情按钮绑定点击事件
+    document.querySelectorAll('.text-primary').forEach(btn => {
+      if (btn.textContent.trim() === '详情') {
+        btn.addEventListener('click', function() {
+          const row = this.closest('tr');
+          const tabId = this.closest('.tab-content').id;
+          showDetailModal(row, tabId);
+        });
+      }
+    });
+
+    // 显示详情弹窗
+    function showDetailModal(row, tabId) {
+      const modal = document.getElementById('detailModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const detailContent = document.getElementById('detailContent');
+      const fieldFilters = document.getElementById('fieldFilters');
+      
+      // 根据Tab类型设置标题
+      const tabTitles = {
+        account: '账户详情',
+        plan: '计划详情',
+        unit: '单元详情',
+        creative: '创意详情',
+        site: '全站详情',
+        material: '素材详情',
+        audience: '人群详情'
+      };
+      modalTitle.textContent = tabTitles[tabId] || '详情';
+      
+      // 获取行数据
+      const cells = row.querySelectorAll('td');
+      let headers = [];
+      let data = [];
+      
+      // 获取表头
+      const table = row.closest('table');
+      if (table) {
+        const thElements = table.querySelectorAll('thead th');
+        headers = Array.from(thElements).map(th => th.textContent.trim());
+      }
+      
+      // 获取数据
+      data = Array.from(cells).map(cell => cell.textContent.trim());
+      
+      // 移除最后一个操作列
+      if (headers.length > data.length) {
+        headers.pop();
+      }
+      
+      // 根据Tab类型补充完整数据
+      const fullData = getFullDetailsForTab(tabId, data, headers);
+      
+      // 清空内容和筛选器
+      detailContent.innerHTML = '';
+      fieldFilters.innerHTML = '';
+      
+      // 创建数据字段筛选按钮
+      fullData.headers.forEach((header, index) => {
+        const filterBtn = document.createElement('button');
+        filterBtn.className = 'px-2 py-1 text-xs bg-primary text-white rounded-md';
+        filterBtn.textContent = header;
+        filterBtn.dataset.index = index;
+        filterBtn.addEventListener('click', function() {
+          this.classList.toggle('bg-primary');
+          this.classList.toggle('bg-border');
+          updateVisibleFields();
+        });
+        fieldFilters.appendChild(filterBtn);
+      });
+      
+      // 渲染详情内容
+      fullData.headers.forEach((header, index) => {
+        const fieldItem = document.createElement('div');
+        fieldItem.className = 'p-3 border border-border rounded-lg';
+        fieldItem.dataset.fieldIndex = index;
+        fieldItem.innerHTML = `
+          <div class="text-sm text-secondary mb-1">${header}</div>
+          <div class="font-medium">${fullData.values[index]}</div>
+        `;
+        detailContent.appendChild(fieldItem);
+      });
+      
+      // 显示弹窗
+      modal.classList.remove('hidden');
+    }
+
+    // 根据Tab类型获取完整数据
+    function getFullDetailsForTab(tabId, data, headers) {
+      // 根据不同Tab类型返回不同的完整数据结构
+      const allHeaders = {
+        account: ['账户ID', '账户名称', '总花费(元)', '展现量', '点击量', '点击率(CTR)', '转化量', '转化率', '千次展现成本', '平均点击成本', '广告主名称', '负责人', '创建时间', '最近更新时间', '账户状态'],
+        plan: ['计划ID', '计划名称', '总花费(元)', '展现量', '点击量', '点击率(CTR)', '转化量', '平均点击成本', '千次展现成本', 'ROI', '计划状态', '投放时段', '预算', '出价方式', '创建时间', '最近更新时间'],
+        unit: ['单元ID', '单元名称', '总花费(元)', '展现量', '点击量', '点击率(CTR)', '转化量', '转化率', '千次展现成本', '平均点击成本', '单元状态', '定向人群', '出价策略', '创建时间', '最近更新时间'],
+        creative: ['创意ID', '创意名称', '总花费(元)', '展现量', '点击量', '点击率(CTR)', '转化量', '平均点击成本', '播放量', '5秒完播率', '创意状态', '创意类型', '素材尺寸', '投放平台', '创建时间', '最近更新时间'],
+        site: ['总访问量', '独立访客', '平均停留时间', '跳出率', '转化率', '客单价', '销售额', '新访客占比', '老访客占比', '流量来源', '访问设备分布', '地域分布', '时段分布', '页面访问排行', '注册量'],
+        material: ['素材ID', '素材名称', '素材类型', '展现量', '点击量', '点击率(CTR)', '转化量', '播放量', '5秒完播率', '素材尺寸', '素材格式', '创建时间', '使用次数', '审核状态', '点击率排行', '转化率排行'],
+        audience: ['人群ID', '人群名称', '总覆盖人数', '转化率(%)', '点击率(%)', '平均停留时间', '跳出率', '地域分布', '性别分布', '年龄分布', '兴趣标签', '设备偏好', '活跃时段', '创建时间', '最近更新时间']
+      };
+      
+      // 获取当前Tab的所有表头
+      const tabHeaders = allHeaders[tabId] || headers;
+      
+      // 创建对应的数据值
+      const values = [];
+      
+      // 首先填充已有数据
+      for (let i = 0; i < Math.min(headers.length, data.length); i++) {
+        const headerIndex = tabHeaders.indexOf(headers[i]);
+        if (headerIndex !== -1) {
+          values[headerIndex] = data[i];
+        }
+      }
+      
+      // 为剩余字段生成模拟数据
+      tabHeaders.forEach((header, index) => {
+        if (!values[index]) {
+          values[index] = generateMockDataForField(header);
+        }
+      });
+      
+      return { headers: tabHeaders, values };
+    }
+
+    // 根据字段名称生成模拟数据
+    function generateMockDataForField(fieldName) {
+      const mockData = {
+        '账户ID': '100' + Math.floor(Math.random() * 1000),
+        '账户名称': '测试账户' + Math.floor(Math.random() * 100),
+        '总花费(元)': (Math.random() * 100000).toFixed(2),
+        '展现量': Math.floor(Math.random() * 1000000),
+        '点击量': Math.floor(Math.random() * 100000),
+        '点击率(CTR)': (Math.random() * 10 + 1).toFixed(2) + '%',
+        '转化量': Math.floor(Math.random() * 10000),
+        '转化率': (Math.random() * 5).toFixed(2) + '%',
+        '千次展现成本': (Math.random() * 100).toFixed(2),
+        '平均点击成本': (Math.random() * 5).toFixed(2),
+        '广告主名称': '广告主' + Math.floor(Math.random() * 100),
+        '负责人': '张三' + Math.floor(Math.random() * 10),
+        '创建时间': '2023-' + Math.floor(Math.random() * 12 + 1) + '-' + Math.floor(Math.random() * 28 + 1),
+        '最近更新时间': '2023-' + Math.floor(Math.random() * 12 + 1) + '-' + Math.floor(Math.random() * 28 + 1),
+        '账户状态': ['启用', '暂停', '审核中'][Math.floor(Math.random() * 3)],
+        '计划ID': '200' + Math.floor(Math.random() * 1000),
+        '计划名称': '推广计划' + Math.floor(Math.random() * 100),
+        '计划状态': ['启用', '暂停', '审核中'][Math.floor(Math.random() * 3)],
+        '投放时段': '全天投放',
+        '预算': Math.floor(Math.random() * 100000) + '元/天',
+        '出价方式': ['CPC', 'CPM', 'CPA'][Math.floor(Math.random() * 3)],
+        'ROI': (Math.random() * 5 + 1).toFixed(2),
+        '单元ID': '300' + Math.floor(Math.random() * 1000),
+        '单元名称': '广告单元' + Math.floor(Math.random() * 100),
+        '单元状态': ['启用', '暂停', '审核中'][Math.floor(Math.random() * 3)],
+        '定向人群': '女性 18-35岁',
+        '出价策略': ['智能出价', '手动出价'][Math.floor(Math.random() * 2)],
+        '创意ID': '400' + Math.floor(Math.random() * 1000),
+        '创意名称': '广告创意' + Math.floor(Math.random() * 100),
+        '创意状态': ['启用', '暂停', '审核中'][Math.floor(Math.random() * 3)],
+        '创意类型': ['视频', '图片', '图文'][Math.floor(Math.random() * 3)],
+        '素材尺寸': '1080x1920',
+        '投放平台': '快手平台',
+        '播放量': Math.floor(Math.random() * 1000000),
+        '5秒完播率': (Math.random() * 50 + 20).toFixed(1) + '%',
+        '总访问量': Math.floor(Math.random() * 1000000),
+        '独立访客': Math.floor(Math.random() * 500000),
+        '平均停留时间': (Math.random() * 120 + 30).toFixed(1) + '秒',
+        '跳出率': (Math.random() * 50 + 20).toFixed(1) + '%',
+        '客单价': (Math.random() * 500 + 50).toFixed(2) + '元',
+        '销售额': (Math.random() * 100000 + 10000).toFixed(2) + '元',
+        '新访客占比': (Math.random() * 60 + 20).toFixed(1) + '%',
+        '老访客占比': (Math.random() * 60 + 20).toFixed(1) + '%',
+        '流量来源': '自然搜索',
+        '访问设备分布': '移动端90%, PC端10%',
+        '地域分布': '北京20%, 上海18%, 广州15%, 深圳12%, 其他35%',
+        '时段分布': '9-12点30%, 14-18点40%, 20-22点20%, 其他10%',
+        '页面访问排行': '首页40%, 产品页30%, 详情页20%, 其他10%',
+        '注册量': Math.floor(Math.random() * 10000),
+        '素材ID': '500' + Math.floor(Math.random() * 1000),
+        '素材名称': '广告素材' + Math.floor(Math.random() * 100),
+        '素材类型': ['视频', '图片', 'GIF'][Math.floor(Math.random() * 3)],
+        '素材格式': ['MP4', 'JPG', 'PNG'][Math.floor(Math.random() * 3)],
+        '使用次数': Math.floor(Math.random() * 100),
+        '审核状态': ['通过', '审核中', '拒绝'][Math.floor(Math.random() * 3)],
+        '点击率排行': Math.floor(Math.random() * 100) + '/100',
+        '转化率排行': Math.floor(Math.random() * 100) + '/100',
+        '人群ID': '600' + Math.floor(Math.random() * 1000),
+        '人群名称': '目标人群' + Math.floor(Math.random() * 100),
+        '总覆盖人数': Math.floor(Math.random() * 10000000),
+        '性别分布': '男' + Math.floor(Math.random() * 40 + 30) + '%, 女' + Math.floor(Math.random() * 40 + 30) + '%',
+        '年龄分布': '18-25岁' + Math.floor(Math.random() * 30 + 10) + '%, 26-35岁' + Math.floor(Math.random() * 40 + 20) + '%, 36-50岁' + Math.floor(Math.random() * 30 + 10) + '%, 其他10%',
+        '兴趣标签': '时尚, 美妆, 生活',
+        '设备偏好': 'iOS60%, Android40%',
+        '活跃时段': '20-22点'
+      };
+      
+      return mockData[fieldName] || '--';
+    }
+
+    // 更新可见字段
+    function updateVisibleFields() {
+      const fieldItems = document.querySelectorAll('#detailContent > div');
+      const filterBtns = document.querySelectorAll('#fieldFilters button');
+      
+      filterBtns.forEach((btn, index) => {
+        const fieldItem = document.querySelector(`#detailContent > div[data-field-index="${index}"]`);
+        if (fieldItem) {
+          if (btn.classList.contains('bg-primary')) {
+            fieldItem.classList.remove('hidden');
+          } else {
+            fieldItem.classList.add('hidden');
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>上传视频</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1677ff',
+            secondary: '#8c8c8c',
+            light: '#f5f5f5',
+            dark: '#333333',
+            border: '#e5e5e5',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .video-card-hover {
+        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+      }
+      .upload-area-hover {
+        @apply transition-all duration-300 hover:border-primary hover:bg-blue-50;
+      }
+      .shadow-custom {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .transition-custom {
+        transition: all 0.3s ease;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans text-dark">
+  <div class="max-w-6xl mx-auto px-4 py-8 bg-white shadow-sm min-h-screen">
+    <!-- 页面标题 -->
+    <header class="mb-8 pb-4 border-b border-border">
+      <h1 class="text-[clamp(1.5rem,3vw,1.8rem)] font-semibold text-dark">上传视频</h1>
+    </header>
+    
+    <!-- Tab导航 -->
+    <div class="mb-6 border-b border-border">
+      <div class="flex space-x-8">
+        <button id="localVideoTab" class="pb-3 border-b-2 border-primary text-primary font-medium">上传本地视频</button>
+        <button id="networkVideoTab" class="pb-3 border-b-2 border-transparent text-secondary hover:text-primary transition-colors">上传网络视频</button>
+      </div>
+    </div>
+    
+    <!-- 主要内容区域 -->
+    <main>
+      <!-- 本地视频上传内容 -->
+      <div id="localVideoContent">
+        <!-- 隐藏的文件选择输入 -->
+        <input type="file" id="videoFileInput" multiple accept="video/mp4,video/quicktime,video/x-msvideo" class="hidden">
+        
+        <!-- 视频上传和展示区域 -->
+        <section class="mb-10">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <!-- 上传区域 -->
+            <div class="aspect-video rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center p-4 upload-area-hover cursor-pointer group" id="uploadArea">
+              <div class="w-12 h-12 rounded-full bg-light flex items-center justify-center mb-3 group-hover:bg-primary/10 transition-colors">
+                <i class="fa fa-upload text-primary text-xl"></i>
+              </div>
+              <p class="text-secondary text-sm text-center">选择视频</p>
+            </div>
+            
+            <!-- 已上传视频 1 -->
+            <div class="aspect-video rounded-lg overflow-hidden bg-light relative video-card-hover">
+              <img src="https://picsum.photos/400/225?random=1" 
+                   alt="视频预览图" 
+                   class="w-full h-full object-cover" 
+                   onError="this.src='https://picsum.photos/400/225?default=1'; this.alt='默认视频封面';">
+              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                <button class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
+                  <i class="fa fa-play"></i>
+                </button>
+              </div>
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                <p class="text-white text-xs truncate">视频标题标题标题</p>
+              </div>
+              <div class="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-1.5 py-0.5 rounded">
+                <i class="fa fa-clock-o mr-1"></i>15:30
+              </div>
+            </div>
+            
+            <!-- 已上传视频 2 -->
+            <div class="aspect-video rounded-lg overflow-hidden bg-light relative video-card-hover">
+              <img src="https://picsum.photos/400/225?random=2" 
+                   alt="视频预览图" 
+                   class="w-full h-full object-cover" 
+                   onError="this.src='https://picsum.photos/400/225?default=1'; this.alt='默认视频封面';">
+              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                <button class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
+                  <i class="fa fa-play"></i>
+                </button>
+              </div>
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                <p class="text-white text-xs truncate">视频标题标题标题</p>
+              </div>
+              <div class="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-1.5 py-0.5 rounded">
+                <i class="fa fa-clock-o mr-1"></i>08:45
+              </div>
+            </div>
+            
+            <!-- 视频占位符 3-10 -->
+            <div class="aspect-video rounded-lg bg-light border border-border flex items-center justify-center text-secondary text-xs">
+              视频标题标题标题
+            </div>
+            <div class="aspect-video rounded-lg bg-light border border-border flex items-center justify-center text-secondary text-xs">
+              视频标题标题标题
+            </div>
+            <div class="aspect-video rounded-lg bg-light border border-border flex items-center justify-center text-secondary text-xs">
+              视频标题标题标题
+            </div>
+            <div class="aspect-video rounded-lg bg-light border border-border flex items-center justify-center text-secondary text-xs">
+              视频标题标题标题
+            </div>
+            <div class="aspect-video rounded-lg bg-light border border-border flex items-center justify-center text-secondary text-xs">
+              视频标题标题标题
+            </div>
+            <div class="aspect-video rounded-lg bg-light border border-border flex items-center justify-center text-secondary text-xs">
+              视频标题标题标题
+            </div>
+            <div class="aspect-video rounded-lg bg-light border border-border flex items-center justify-center text-secondary text-xs">
+              视频标题标题标题
+            </div>
+          </div>
+          
+          <!-- 第二行视频 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
+            <!-- 已上传视频 3 -->
+            <div class="aspect-video rounded-lg overflow-hidden bg-light relative video-card-hover">
+              <img src="https://picsum.photos/400/225?random=3" 
+                   alt="视频预览图" 
+                   class="w-full h-full object-cover" 
+                   onError="this.src='https://picsum.photos/400/225?default=1'; this.alt='默认视频封面';">
+              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                <button class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
+                  <i class="fa fa-play"></i>
+                </button>
+              </div>
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                <p class="text-white text-xs truncate">视频标题标题标题</p>
+              </div>
+              <div class="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-1.5 py-0.5 rounded">
+                <i class="fa fa-clock-o mr-1"></i>12:10
+              </div>
+            </div>
+            
+            <!-- 已上传视频 4 -->
+            <div class="aspect-video rounded-lg overflow-hidden bg-light relative video-card-hover">
+              <img src="https://picsum.photos/400/225?random=4" 
+                   alt="视频预览图" 
+                   class="w-full h-full object-cover" 
+                   onError="this.src='https://picsum.photos/400/225?default=1'; this.alt='默认视频封面';">
+              <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                <button class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
+                  <i class="fa fa-play"></i>
+                </button>
+              </div>
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                <p class="text-white text-xs truncate">视频标题标题标题</p>
+              </div>
+              <div class="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-1.5 py-0.5 rounded">
+                <i class="fa fa-clock-o mr-1"></i>05:50
+              </div>
+            </div>
+            
+            <!-- 视频占位符 11-20 -->
+            <div class="aspect-video rounded-lg bg-light border border-border flex items-center justify-center text-secondary text-xs">
+              视频标题标题标题
+            </div>
+            <div class="aspect-video rounded-lg bg-light border border-border flex items-center justify-center text-secondary text-xs">
+              视频标题标题标题
+            </div>
+            <div class="aspect-video rounded-lg bg-light border border-border flex items-center justify-center text-secondary text-xs">
+              视频标题标题标题
+            </div>
+          </div>
+        </section>
+        
+        <!-- 标签设置区域 -->
+        <section class="mb-10 p-5 bg-light rounded-lg">
+          <h2 class="text-lg font-medium mb-4">设置标签</h2>
+          <p class="text-secondary text-sm mb-4">添加的标签将对本次选择的全部视频有效</p>
+          
+          <div class="mb-3">
+            <span class="text-sm text-dark mr-2">宝贝标签</span>
+          </div>
+          
+          <!-- 标签选择框 -->
+          <div class="space-y-2 mb-5">
+            <label class="flex items-center text-sm cursor-pointer">
+              <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded border-border focus:ring-primary">
+              <span class="ml-2">银佛山钓面</span>
+            </label>
+            <label class="flex items-center text-sm cursor-pointer">
+              <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded border-border focus:ring-primary" checked>
+              <span class="ml-2">宝贝童装</span>
+            </label>
+            <label class="flex items-center text-sm cursor-pointer">
+              <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded border-border focus:ring-primary">
+              <span class="ml-2">天天的小店</span>
+            </label>
+          </div>
+          
+          <!-- 自定义标签输入 -->
+          <div class="flex items-center mb-4">
+            <input type="text" placeholder="自定义标签" class="flex-1 max-w-xs h-9 px-3 border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm">
+            <button id="confirmTagBtn" class="ml-2 px-4 h-9 bg-primary text-white rounded-md text-sm hover:bg-primary/90 transition-colors">确定</button>
+          </div>
+          
+          <!-- 新增：设置任务类型模块 -->
+          <div class="mt-6">
+            <h3 class="text-lg font-medium mb-3">设置任务类型</h3>
+            <div class="relative max-w-xs">
+              <select class="appearance-none w-full bg-white border border-border text-dark py-2.5 px-3 pr-8 rounded-md leading-tight focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm">
+                <option value="delivery" selected>投放视频</option>
+                <option value="parse">解析视频</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-secondary">
+                <i class="fa fa-chevron-down text-xs"></i>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- 视频上传要求 -->
+        <section class="mb-10 p-5 bg-light rounded-lg">
+          <h2 class="text-lg font-medium mb-4">视频上传要求</h2>
+          <ul class="text-sm text-secondary space-y-2">
+            <li class="flex items-start">
+              <span class="inline-block w-5 text-center mr-2">1.</span>
+              <span>视频格式支持mp4/mov/avi。</span>
+            </li>
+            <li class="flex items-start">
+              <span class="inline-block w-5 text-center mr-2">2.</span>
+              <span>码率不小于1000kbps，帧率不小于20fps。</span>
+            </li>
+            <li class="flex items-start">
+              <span class="inline-block w-5 text-center mr-2">3.</span>
+              <span>音频码率不能小于 32kbps。</span>
+            </li>
+            <li class="flex items-start">
+              <span class="inline-block w-5 text-center mr-2">4.</span>
+              <span>上传视频的时长不能小于5秒，建议不超过3分钟。</span>
+            </li>
+            <li class="flex items-start">
+              <span class="inline-block w-5 text-center mr-2">5.</span>
+              <span>竖版视频宽高比9:16（视频分辨率不小于 720p）或9:19（视频分辨率不小于 608*1280），横版视频宽高比16:9（视频分辨率不小于 720p）</span>
+            </li>
+            <li class="flex items-start">
+              <span class="inline-block w-5 text-center mr-2">6.</span>
+              <span>视频尺寸需小于500MB</span>
+            </li>
+            <li class="flex items-start">
+              <span class="inline-block w-5 text-center mr-2">7.</span>
+              <span>不能上传内容重复的相同视频。</span>
+            </li>
+          </ul>
+        </section>
+        
+        <!-- 操作按钮 -->
+        <div class="flex justify-end gap-3 mt-8">
+          <button id="cancelBtn" class="px-6 py-2.5 border border-border rounded-md text-dark text-sm hover:bg-gray-50 transition-colors">取消</button>
+          <button id="uploadBtn" class="px-6 py-2.5 bg-primary text-white rounded-md text-sm hover:bg-primary/90 transition-colors shadow-sm">上传</button>
+        </div>
+      </div>
+      
+      <!-- 网络视频上传内容 (默认隐藏) -->
+      <div id="networkVideoContent" class="hidden">
+        <!-- 主要功能模块 -->
+        <div class="bg-white rounded-xl shadow-custom p-6 mb-8">
+            <!-- 批量粘贴视频地址区域 -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fa fa-link text-primary mr-2"></i>批量粘贴视频地址
+                </h3>
+                <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+                    <textarea 
+                        id="videoUrls" 
+                        class="w-full h-40 p-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-custom resize-none"
+                        placeholder="支持粘贴有米有数、蝉妈妈、考古加、抖音、快手等主流平台的视频链接，多个链接请换行分隔..."></textarea>
+                </div>
+                <div class="text-sm text-gray-500 flex items-center">
+                    <i class="fa fa-info-circle mr-2"></i>
+                    <span>支持的平台：</span>
+                    <span class="ml-2 px-2 py-1 bg-blue-50 text-primary rounded-md">有米有数</span>
+                    <span class="ml-2 px-2 py-1 bg-blue-50 text-primary rounded-md">蝉妈妈</span>
+                    <span class="ml-2 px-2 py-1 bg-blue-50 text-primary rounded-md">考古加</span>
+                    <span class="ml-2 px-2 py-1 bg-blue-50 text-primary rounded-md">抖音</span>
+                    <span class="ml-2 px-2 py-1 bg-blue-50 text-primary rounded-md">快手</span>
+                </div>
+            </div>
+
+            <!-- 处理选项区域 -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fa fa-cogs text-primary mr-2"></i>处理选项
+                </h3>
+                <div class="flex flex-wrap gap-4">
+                    <label class="flex items-center cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-custom">
+                        <input type="checkbox" id="selectAll" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded mr-3">
+                        <span class="font-medium text-gray-700">全选</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-custom">
+                        <input type="checkbox" name="processOptions" value="removeSubtitle" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded mr-3">
+                        <span class="text-gray-700">去字幕</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-custom">
+                        <input type="checkbox" name="processOptions" value="removeWatermark" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded mr-3">
+                        <span class="text-gray-700">去水印</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-custom">
+                        <input type="checkbox" name="processOptions" value="enhanceQuality" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded mr-3">
+                        <span class="text-gray-700">画质增强</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-custom">
+                        <input type="checkbox" name="processOptions" value="aiTags" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded mr-3">
+                        <span class="text-gray-700">AI标签</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-custom">
+                        <input type="checkbox" name="processOptions" value="videoAnalysis" class="w-5 h-5 text-primary focus:ring-primary border-gray-300 rounded mr-3">
+                        <span class="text-gray-700">视频解析</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 按钮区域 -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                <button id="networkCancelBtn" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-custom font-medium">
+                    取消
+                </button>
+                <button id="startProcessBtn" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom font-medium flex items-center justify-center">
+                    <i class="fa fa-play-circle mr-2"></i>开始处理
+                </button>
+            </div>
+        </div>
+
+        <!-- 处理进度区域（初始隐藏） -->
+        <div id="processingSection" class="hidden bg-white rounded-xl shadow-custom p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">处理进度</h3>
+            <div class="mb-4">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm text-gray-600">总进度</span>
+                    <span id="progressPercentage" class="text-sm font-medium text-primary">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progressBar" class="bg-primary h-3 rounded-full transition-custom" style="width: 0%"></div>
+                </div>
+            </div>
+            <div id="taskList" class="space-y-3 max-h-60 overflow-y-auto">
+                <!-- 任务列表会动态生成 -->
+            </div>
+            <div id="taskComplete" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div class="flex items-center text-green-700">
+                    <i class="fa fa-check-circle text-xl mr-2"></i>
+                    <span class="font-medium">所有任务处理完成！</span>
+                </div>
+                <div class="mt-3 flex justify-end">
+                    <button id="viewTasksBtn" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom font-medium">
+                        查看处理结果
+                    </button>
+                </div>
+            </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- 帮助按钮 -->
+    <div class="fixed right-6 bottom-6">
+      <button class="w-12 h-12 rounded-full bg-primary text-white shadow-lg flex items-center justify-center hover:bg-primary/90 transition-colors">
+        <i class="fa fa-comments"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- JavaScript 交互逻辑 -->
+  <script>
+    // 等待DOM加载完成
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取DOM元素 - Tab相关
+      const localVideoTab = document.getElementById('localVideoTab');
+      const networkVideoTab = document.getElementById('networkVideoTab');
+      const localVideoContent = document.getElementById('localVideoContent');
+      const networkVideoContent = document.getElementById('networkVideoContent');
+      
+      // Tab切换功能
+      localVideoTab.addEventListener('click', function() {
+        // 激活本地视频tab
+        localVideoTab.classList.add('border-primary', 'text-primary');
+        localVideoTab.classList.remove('border-transparent', 'text-secondary');
+        // 取消激活网络视频tab
+        networkVideoTab.classList.remove('border-primary', 'text-primary');
+        networkVideoTab.classList.add('border-transparent', 'text-secondary');
+        // 显示/隐藏内容
+        localVideoContent.classList.remove('hidden');
+        networkVideoContent.classList.add('hidden');
+      });
+      
+      networkVideoTab.addEventListener('click', function() {
+        // 激活网络视频tab
+        networkVideoTab.classList.add('border-primary', 'text-primary');
+        networkVideoTab.classList.remove('border-transparent', 'text-secondary');
+        // 取消激活本地视频tab
+        localVideoTab.classList.remove('border-primary', 'text-primary');
+        localVideoTab.classList.add('border-transparent', 'text-secondary');
+        // 显示/隐藏内容
+        networkVideoContent.classList.remove('hidden');
+        localVideoContent.classList.add('hidden');
+      });
+      
+      // 本地视频上传相关功能
+      const uploadArea = document.getElementById('uploadArea');
+      const videoFileInput = document.getElementById('videoFileInput');
+      
+      // 点击上传区域时触发文件选择对话框
+      uploadArea.addEventListener('click', () => {
+        videoFileInput.click();
+      });
+      
+      // 处理文件选择
+      videoFileInput.addEventListener('change', (e) => {
+        const selectedFiles = e.target.files;
+        if (selectedFiles && selectedFiles.length > 0) {
+          // 显示选择的文件信息
+          let fileInfo = `已选择 ${selectedFiles.length} 个文件:\n`;
+          for (let i = 0; i < selectedFiles.length; i++) {
+            fileInfo += `- ${selectedFiles[i].name} (${formatFileSize(selectedFiles[i].size)})\n`;
+          }
+          alert(fileInfo);
+          
+          // 这里可以添加文件预览和上传处理逻辑
+        }
+      });
+      
+      // 格式化文件大小显示
+      function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        else return (bytes / 1048576).toFixed(1) + ' MB';
+      }
+      
+      // 视频播放按钮点击事件
+      document.querySelectorAll('.fa-play').forEach(playBtn => {
+        playBtn.parentElement.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const videoTitle = playBtn.closest('.relative').querySelector('p').textContent;
+          alert(`正在播放: ${videoTitle}`);
+        });
+      });
+      
+      // 自定义标签确定按钮点击事件
+      document.getElementById('confirmTagBtn').addEventListener('click', () => {
+        const customTagInput = document.querySelector('input[placeholder="自定义标签"]');
+        const tagText = customTagInput.value.trim();
+        if (tagText) {
+          alert(`已添加自定义标签: ${tagText}`);
+          customTagInput.value = '';
+        } else {
+          alert('请输入标签内容');
+        }
+      });
+      
+      // 上传按钮点击事件
+      document.getElementById('uploadBtn').addEventListener('click', () => {
+        // 获取选中的任务类型
+        const taskType = document.querySelector('select').value;
+        const taskTypeName = document.querySelector('select option:checked').text;
+        alert(`开始上传选中的视频，任务类型：${taskTypeName}`);
+      });
+      
+      // 本地视频取消按钮点击事件
+      document.getElementById('cancelBtn').addEventListener('click', () => {
+        if (confirm('确定要取消上传吗？未保存的内容将丢失。')) {
+          alert('已取消上传');
+        }
+      });
+      
+      // 网络视频相关功能
+      // 元素选择器
+      const videoUrlsTextarea = document.getElementById('videoUrls');
+      const selectAllCheckbox = document.getElementById('selectAll');
+      const processOptionsCheckboxes = document.querySelectorAll('input[name="processOptions"]');
+      const startProcessBtn = document.getElementById('startProcessBtn');
+      const networkCancelBtn = document.getElementById('networkCancelBtn');
+      const processingSection = document.getElementById('processingSection');
+      const progressBar = document.getElementById('progressBar');
+      const progressPercentage = document.getElementById('progressPercentage');
+      const taskList = document.getElementById('taskList');
+      const taskComplete = document.getElementById('taskComplete');
+      const viewTasksBtn = document.getElementById('viewTasksBtn');
+
+      // 全选/取消全选功能
+      selectAllCheckbox.addEventListener('change', function() {
+        const isChecked = this.checked;
+        processOptionsCheckboxes.forEach(checkbox => {
+          checkbox.checked = isChecked;
+        });
+      });
+
+      // 单个选项变化时更新全选状态
+      processOptionsCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          const allChecked = Array.from(processOptionsCheckboxes).every(cb => cb.checked);
+          selectAllCheckbox.checked = allChecked;
+        });
+      });
+
+      // 开始处理按钮点击事件
+      startProcessBtn.addEventListener('click', function() {
+        const videoUrls = videoUrlsTextarea.value.trim();
+        const selectedOptions = Array.from(processOptionsCheckboxes)
+          .filter(checkbox => checkbox.checked)
+          .map(checkbox => checkbox.value);
+
+        if (!videoUrls) {
+          alert('请输入视频地址');
+          return;
+        }
+
+        if (selectedOptions.length === 0) {
+          alert('请至少选择一个处理选项');
+          return;
+        }
+
+        // 显示处理进度区域
+        processingSection.classList.remove('hidden');
+        taskList.innerHTML = '';
+        taskComplete.classList.add('hidden');
+        
+        // 处理视频链接
+        const urls = videoUrls.split('\n').filter(url => url.trim() !== '');
+        simulateProcessing(urls, selectedOptions);
+      });
+
+      // 模拟处理过程
+      function simulateProcessing(urls, options) {
+        let processedCount = 0;
+        const totalCount = urls.length;
+        
+        urls.forEach((url, index) => {
+          // 创建任务项
+          const taskItem = document.createElement('div');
+          taskItem.className = 'flex items-center justify-between p-3 border border-gray-200 rounded-lg';
+          taskItem.innerHTML = `
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-800 truncate" title="${url}">视频 ${index + 1}</p>
+              <p class="text-xs text-gray-500 truncate">${getPlatformName(url)}</p>
+            </div>
+            <div class="flex items-center ml-4">
+              <span class="text-sm text-gray-600 mr-3">处理中...</span>
+              <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          `;
+          taskList.appendChild(taskItem);
+
+          // 模拟处理延迟
+          setTimeout(() => {
+            processedCount++;
+            const progress = Math.round((processedCount / totalCount) * 100);
+            progressBar.style.width = `${progress}%`;
+            progressPercentage.textContent = `${progress}%`;
+
+            // 更新任务状态
+            taskItem.innerHTML = `
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-gray-800 truncate" title="${url}">视频 ${index + 1}</p>
+                <p class="text-xs text-gray-500 truncate">${getPlatformName(url)}</p>
+              </div>
+              <div class="flex items-center ml-4">
+                <span class="text-sm text-green-600 mr-3">已完成</span>
+                <i class="fa fa-check-circle text-green-500"></i>
+              </div>
+            `;
+
+            // 所有任务完成
+            if (processedCount === totalCount) {
+              setTimeout(() => {
+                taskComplete.classList.remove('hidden');
+              }, 500);
+            }
+          }, 1000 + (index * 500));
+        });
+      }
+
+      // 根据URL简单判断平台
+      function getPlatformName(url) {
+        if (url.includes('douyin') || url.includes('tiktok')) return '抖音';
+        if (url.includes('kuaishou') || url.includes('kwai')) return '快手';
+        if (url.includes('youmi') || url.includes('mii') || url.includes('有米有数')) return '有米有数';
+        if (url.includes('chanmama') || url.includes('蝉妈妈')) return '蝉妈妈';
+        if (url.includes('kaogujia') || url.includes('考古加')) return '考古加';
+        return '其他平台';
+      }
+
+      // 查看处理结果按钮点击事件
+      viewTasksBtn.addEventListener('click', function() {
+        window.location.href = '素材上传_视频管理.html';
+      });
+
+      // 网络视频取消按钮点击事件
+      networkCancelBtn.addEventListener('click', function() {
+        if (confirm('确定要取消操作吗？')) {
+          videoUrlsTextarea.value = '';
+          selectAllCheckbox.checked = false;
+          processOptionsCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+          });
+          processingSection.classList.add('hidden');
+        }
+      });
+      
+      // 帮助按钮点击事件
+      document.querySelector('.fa-comments').parentElement.addEventListener('click', () => {
+        alert('正在连接客服...');
+      });
+    });
+  </script>
+</body>
+</html>
+    

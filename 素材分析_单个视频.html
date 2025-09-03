@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>带货短视频解析 | 深度分析报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <!-- 配置Tailwind自定义主题 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF7D00',
+                        neutral: {
+                            100: '#F5F7FA',
+                            200: '#E5E6EB',
+                            300: '#C9CDD4',
+                            400: '#86909C',
+                            500: '#4E5969',
+                            600: '#272E3B',
+                            700: '#1D2129',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 20px rgba(0, 0, 0, 0.08)',
+                        'hover': '0 8px 30px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .text-balance {
+                text-wrap: balance;
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            .animate-slide-up {
+                animation: slideUp 0.5s ease-out;
+            }
+            .animate-pulse-soft {
+                animation: pulseSoft 2s infinite;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes pulseSoft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6 md:py-8">
+        <!-- 视频基本信息 -->
+        <div class="mb-6 animate-fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-neutral-700">多功能料理机带货视频解析</h2>
+                    <p class="text-neutral-500 mt-1">解析完成于 2023-06-15 14:30 | 视频ID: VID-87261904</p>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button class="flex items-center space-x-2 px-4 py-2 border border-neutral-200 rounded-lg hover:border-primary hover:text-primary transition-all">
+                        <i class="fa fa-download"></i>
+                        <span>导出报告</span>
+                    </button>
+                    
+                    <button class="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all shadow-sm">
+                        <i class="fa fa-cloud-upload"></i>
+                        <span>上传案例视频</span>
+                   
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主要分析内容区 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 左侧：视频预览区 -->
+            <div class="lg:col-span-1 animate-slide-up" style="animation-delay: 0.1s">
+                <div class="bg-white rounded-xl shadow-card p-4 sticky top-20">
+                    <div class="relative rounded-lg overflow-hidden bg-neutral-100 aspect-video">
+                        <video class="w-full h-full object-cover" poster="https://picsum.photos/800/450?random=1" controls>
+                            <source src="#" type="video/mp4">
+                            您的浏览器不支持视频播放
+                        </video>
+                        <div class="absolute top-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                            01:45
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h3 class="font-semibold text-neutral-700 mb-2">视频数据概览</h3>
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-neutral-100 rounded-lg p-3">
+                                <p class="text-neutral-500 text-sm">点赞量</p>
+                                <p class="text-xl font-bold text-neutral-700">24.5k</p>
+                            </div>
+                            <div class="bg-neutral-100 rounded-lg p-3">
+                                <p class="text-neutral-500 text-sm">评论量</p>
+                                <p class="text-xl font-bold text-neutral-700">3.2k</p>
+                            </div>
+                            <div class="bg-neutral-100 rounded-lg p-3">
+                                <p class="text-neutral-500 text-sm">转发量</p>
+                                <p class="text-xl font-bold text-neutral-700">8.7k</p>
+                            </div>
+                            <div class="bg-neutral-100 rounded-lg p-3">
+                                <p class="text-neutral-500 text-sm">转化率</p>
+                                <p class="text-xl font-bold text-secondary">12.3%</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="text-neutral-500 text-sm mb-2">观众留存率</p>
+                            <canvas id="retentionChart" height="120"></canvas>
+                        </div>
+                        
+                        <div>
+                            <button class="w-full py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors">
+                                查看原始视频
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 中间：画面解析 & 文案解析 -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- 画面解析 -->
+                <section class="bg-white rounded-xl shadow-card p-6 animate-slide-up" style="animation-delay: 0.2s">
+                    <div class="flex items-center mb-5">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                            <i class="fa fa-film"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-neutral-700">画面解析</h3>
+                    </div>
+                    
+                    <!-- 短视频结构解析 -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-neutral-700 mb-4 flex items-center">
+                            <span class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">1</span>
+                            短视频结构解析
+                        </h4>
+                        
+                        <div class="mb-6">
+                            <div class="relative">
+                                <!-- 时间轴 -->
+                                <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-neutral-200"></div>
+                                
+                                <!-- 结构节点 -->
+                                <div class="relative pl-10 pb-6 last:pb-0">
+                                    <div class="absolute left-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs">0s</div>
+                                    <div>
+                                        <h5 class="font-medium text-neutral-700">开场吸引 (0-10s)</h5>
+                                        <p class="text-neutral-500 mt-1">使用快速剪辑展示多种美食成品，配合"3分钟搞定一桌菜"的文字特效，迅速抓住观众注意力。</p>
+                                        <div class="mt-2 flex space-x-2">
+                                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">视觉冲击</span>
+                                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">痛点解决</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="relative pl-10 pb-6 last:pb-0">
+                                    <div class="absolute left-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs">10s</div>
+                                    <div>
+                                        <h5 class="font-medium text-neutral-700">产品展示 (10-35s)</h5>
+                                        <p class="text-neutral-500 mt-1">特写展示料理机的外观设计、配件组合和操作界面，强调其时尚外观和多功能性。</p>
+                                        <div class="mt-2 flex space-x-2">
+                                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">细节展示</span>
+                                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">功能暗示</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="relative pl-10 pb-6 last:pb-0">
+                                    <div class="absolute left-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs">35s</div>
+                                    <div>
+                                        <h5 class="font-medium text-neutral-700">功能演示 (35-80s)</h5>
+                                        <p class="text-neutral-500 mt-1">分步骤演示搅拌、榨汁、研磨等核心功能，每个功能配合完成的美食成品展示，突出效率和效果。</p>
+                                        <div class="mt-2 flex space-x-2">
+                                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">实操演示</span>
+                                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">对比展示</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="relative pl-10 pb-6 last:pb-0">
+                                    <div class="absolute left-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs">80s</div>
+                                    <div>
+                                        <h5 class="font-medium text-neutral-700">场景应用 (80-100s)</h5>
+                                        <p class="text-neutral-500 mt-1">展示产品在家庭聚会、早餐制作、健身餐准备等不同场景的应用，增强用户代入感。</p>
+                                        <div class="mt-2 flex space-x-2">
+                                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">场景化</span>
+                                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">情感连接</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="relative pl-10 pb-6 last:pb-0">
+                                    <div class="absolute left-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs">100s</div>
+                                    <div>
+                                        <h5 class="font-medium text-neutral-700">促销引导 (100-105s)</h5>
+                                        <p class="text-neutral-500 mt-1">展示价格标签和限时优惠信息，配合箭头指示购买链接位置，促进即时转化。</p>
+                                        <div class="mt-2 flex space-x-2">
+                                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">紧迫感</span>
+                                            <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">明确引导</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-neutral-100 rounded-lg p-4">
+                            <h5 class="font-medium text-neutral-700 mb-2">结构评分与建议</h5>
+                            <div class="flex items-center mb-3">
+                                <div class="w-full bg-neutral-200 rounded-full h-2.5">
+                                    <div class="bg-primary h-2.5 rounded-full" style="width: 85%"></div>
+                                </div>
+                                <span class="ml-3 font-semibold text-primary">85分</span>
+                            </div>
+                            <p class="text-neutral-600 text-sm">
+                                视频结构清晰，符合AIDA模型（注意-兴趣-欲望-行动），节奏紧凑。建议可以适当增加用户评价或使用前后对比的镜头，增强信任感。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 分镜头脚本描述 -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-neutral-700 mb-4 flex items-center">
+                            <span class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">2</span>
+                            分镜头脚本描述
+                        </h4>
+                        
+                        <div class="space-y-4 mb-6">
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-primary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">1</div>
+                                    <h5 class="font-medium text-neutral-700">快速剪辑美食成品 (0-5s)</h5>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">拍摄手法</p>
+                                        <p class="text-neutral-600">跳切剪辑，每秒切换一个画面，手持稳定器拍摄，轻微运镜增强动感</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">画面内容</p>
+                                        <p class="text-neutral-600">6种不同美食成品特写，从早餐到晚餐全覆盖，色彩鲜艳，摆盘精致</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-primary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">2</div>
+                                    <h5 class="font-medium text-neutral-700">问题文字特效 (5-10s)</h5>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">拍摄手法</p>
+                                        <p class="text-neutral-600">静态画面，动态文字特效从右向左滑入，加粗黄色字体配合黑色描边</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">画面内容</p>
+                                        <p class="text-neutral-600">厨房背景虚化，中央显示"还在为做饭花两小时烦恼吗？"文字，结尾配合问号放大特效</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-primary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">3</div>
+                                    <h5 class="font-medium text-neutral-700">产品整体展示 (10-18s)</h5>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">拍摄手法</p>
+                                        <p class="text-neutral-600">45度角俯拍，产品缓慢旋转360度，柔光布打光突出产品质感</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">画面内容</p>
+                                        <p class="text-neutral-600">料理机放置在大理石台面上，周围摆放新鲜食材，展示整体设计和颜色搭配</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-primary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">4</div>
+                                    <h5 class="font-medium text-neutral-700">配件细节特写 (18-25s)</h5>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">拍摄手法</p>
+                                        <p class="text-neutral-600">微距镜头，从左到右平移拍摄，浅景深突出主体，背景虚化</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">画面内容</p>
+                                        <p class="text-neutral-600">展示不同功能的配件，特写接口细节和材质质感，突出做工精细</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-primary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">5</div>
+                                    <h5 class="font-medium text-neutral-700">榨汁功能演示 (35-45s)</h5>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">拍摄手法</p>
+                                        <p class="text-neutral-600">双机位拍摄，近景展示操作过程，特写展示食材变化</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">画面内容</p>
+                                        <p class="text-neutral-600">放入新鲜水果，盖上盖子，按下按钮，果汁快速形成，颜色鲜艳诱人</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-primary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">6</div>
+                                    <h5 class="font-medium text-neutral-700">研磨功能演示 (45-55s)</h5>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">拍摄手法</p>
+                                        <p class="text-neutral-600">慢动作拍摄，特写研磨过程，配合声音增强体验感</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">画面内容</p>
+                                        <p class="text-neutral-600">咖啡豆放入料理机，启动后逐渐被研磨成粉末，展示细腻程度</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-primary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">7</div>
+                                    <h5 class="font-medium text-neutral-700">家庭早餐场景 (80-90s)</h5>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">拍摄手法</p>
+                                        <p class="text-neutral-600">自然光拍摄，中景转近景，手持跟拍母亲为孩子制作早餐的过程</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">画面内容</p>
+                                        <p class="text-neutral-600">母亲使用料理机制作早餐，孩子在旁边等待，最后一家人开心享用早餐的温馨场景</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-primary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">8</div>
+                                    <h5 class="font-medium text-neutral-700">价格标签与购买引导 (100-105s)</h5>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">拍摄手法</p>
+                                        <p class="text-neutral-600">静态画面，动态价格标签从上方落下，箭头动画指向屏幕下方</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-neutral-500 font-medium">画面内容</p>
+                                        <p class="text-neutral-600">原价与现价对比，红色字体突出优惠，底部有"点击下方小黄车"文字和箭头指示</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 分镜头脚本创意解析 -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-neutral-700 mb-4 flex items-center">
+                            <span class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm mr-2">3</span>
+                            分镜头脚本创意解析
+                        </h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="border border-neutral-200 rounded-lg overflow-hidden hover:shadow-hover transition-shadow">
+                                <div class="h-40 bg-neutral-100 relative">
+                                    <img src="https://picsum.photos/400/225?random=2" alt="快速剪辑美食成品镜头" class="w-full h-full object-cover">
+                                    <div class="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">镜头1</div>
+                                </div>
+                                <div class="p-3">
+                                    <h5 class="font-medium text-neutral-700">快速剪辑美食成品</h5>
+                                    <p class="text-neutral-500 text-sm mt-1">使用跳切手法展示6种不同美食，每秒切换一次，配合轻快音乐，营造高效感。</p>
+                                    <div class="mt-2 flex items-center text-xs text-secondary">
+                                        <i class="fa fa-lightbulb-o mr-1"></i>
+                                        <span>创意点：通过视觉冲击激发食欲和好奇心</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg overflow-hidden hover:shadow-hover transition-shadow">
+                                <div class="h-40 bg-neutral-100 relative">
+                                    <img src="https://picsum.photos/400/225?random=3" alt="产品与食材特写镜头" class="w-full h-full object-cover">
+                                    <div class="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">镜头3</div>
+                                </div>
+                                <div class="p-3">
+                                    <h5 class="font-medium text-neutral-700">产品与食材特写</h5>
+                                    <p class="text-neutral-500 text-sm mt-1">45度角俯拍，食材环绕产品摆放，突出产品与美食的关联性，色调温暖明亮。</p>
+                                    <div class="mt-2 flex items-center text-xs text-secondary">
+                                        <i class="fa fa-lightbulb-o mr-1"></i>
+                                        <span>创意点：构图强调产品的中心地位和多功能性</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg overflow-hidden hover:shadow-hover transition-shadow">
+                                <div class="h-40 bg-neutral-100 relative">
+                                    <img src="https://picsum.photos/400/225?random=4" alt="操作过程延时摄影镜头" class="w-full h-full object-cover">
+                                    <div class="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">镜头5</div>
+                                </div>
+                                <div class="p-3">
+                                    <h5 class="font-medium text-neutral-700">操作过程延时摄影</h5>
+                                    <p class="text-neutral-500 text-sm mt-1">10倍速延时拍摄食材变成美食的全过程，压缩时间展示效率，配合"咻"的音效。</p>
+                                    <div class="mt-2 flex items-center text-xs text-secondary">
+                                        <i class="fa fa-lightbulb-o mr-1"></i>
+                                        <span>创意点：用技术手段直观展示产品高效性</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg overflow-hidden hover:shadow-hover transition-shadow">
+                                <div class="h-40 bg-neutral-100 relative">
+                                    <img src="https://picsum.photos/400/225?random=5" alt="家庭使用场景镜头" class="w-full h-full object-cover">
+                                    <div class="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">镜头8</div>
+                                </div>
+                                <div class="p-3">
+                                    <h5 class="font-medium text-neutral-700">家庭使用场景</h5>
+                                    <p class="text-neutral-500 text-sm mt-1">中景拍摄一家三口使用产品制作早餐的温馨场景，自然光线，色调明亮温暖。</p>
+                                    <div class="mt-2 flex items-center text-xs text-secondary">
+                                        <i class="fa fa-lightbulb-o mr-1"></i>
+                                        <span>创意点：通过真实场景建立情感连接</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-primary/5 rounded-lg p-4 border border-primary/20">
+                            <h5 class="font-medium text-primary mb-2 flex items-center">
+                                <i class="fa fa-star mr-2"></i>
+                                创意亮点总结
+                            </h5>
+                            <ul class="text-neutral-600 text-sm space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-0.5 mr-2"></i>
+                                    <span>镜头节奏与背景音乐完美配合，增强观看体验</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-0.5 mr-2"></i>
+                                    <span>善用特写镜头突出产品细节和使用效果</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-0.5 mr-2"></i>
+                                    <span>场景化拍摄增强用户代入感和购买欲望</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-0.5 mr-2"></i>
+                                    <span>技术手段（延时、快切）的运用提升专业感</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 文案解析 -->
+                <section class="bg-white rounded-xl shadow-card p-6 animate-slide-up" style="animation-delay: 0.3s">
+                    <div class="flex items-center mb-5">
+                        <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary mr-3">
+                            <i class="fa fa-file-text-o"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-neutral-700">文案解析</h3>
+                    </div>
+                    
+                    <!-- 文案结构解析 -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-neutral-700 mb-4 flex items-center">
+                            <span class="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-sm mr-2">1</span>
+                            文案结构解析
+                        </h4>
+                        
+                        <div class="bg-neutral-50 rounded-lg p-4 mb-6 border border-neutral-200">
+                            <h5 class="font-medium text-neutral-700 mb-3">完整文案内容</h5>
+                            <p class="text-neutral-600 leading-relaxed whitespace-pre-line">
+"还在为做一顿饭花两小时而烦恼吗？
+这款多功能料理机，让你3分钟搞定一桌菜！
+
+看这精致外观，放在厨房就是一道风景
+10大功能合一，榨汁、搅拌、研磨样样精通
+轻轻一按，自动完成，省时又省力
+
+早上起来，5分钟做好营养早餐
+朋友聚会，轻松搞定一桌美味
+健身达人，自制蛋白shake超方便
+
+原价399，今天直播间只要199
+前100名下单再送价值99元的料理食谱
+点击下方小黄车，把它带回家！"
+                            </p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-secondary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-sm mr-2">
+                                        <i class="fa fa-question-circle"></i>
+                                    </div>
+                                    <h5 class="font-medium text-neutral-700">问题引入 (0-10s)</h5>
+                                </div>
+                                <p class="text-neutral-500 text-sm">"还在为做一顿饭花两小时而烦恼吗？这款多功能料理机，让你3分钟搞定一桌菜！"</p>
+                                <p class="mt-2 text-xs text-neutral-500">通过直击痛点的问题引起观众共鸣，同时给出解决方案</p>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-secondary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-sm mr-2">
+                                        <i class="fa fa-info-circle"></i>
+                                    </div>
+                                    <h5 class="font-medium text-neutral-700">产品介绍 (10-45s)</h5>
+                                </div>
+                                <p class="text-neutral-500 text-sm">"看这精致外观...轻轻一按，自动完成，省时又省力"</p>
+                                <p class="mt-2 text-xs text-neutral-500">从外观到功能，突出核心优势和使用便捷性</p>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-secondary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-sm mr-2">
+                                        <i class="fa fa-users"></i>
+                                    </div>
+                                    <h5 class="font-medium text-neutral-700">场景应用 (45-85s)</h5>
+                                </div>
+                                <p class="text-neutral-500 text-sm">"早上起来...健身达人，自制蛋白shake超方便"</p>
+                                <p class="mt-2 text-xs text-neutral-500">针对不同场景和人群，展示产品的多样化应用</p>
+                            </div>
+                            
+                            <div class="border border-neutral-200 rounded-lg p-4 hover:border-secondary/30 transition-colors">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-sm mr-2">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </div>
+                                    <h5 class="font-medium text-neutral-700">促销引导 (85-105s)</h5>
+                                </div>
+                                <p class="text-neutral-500 text-sm">"原价399...点击下方小黄车，把它带回家！"</p>
+                                <p class="mt-2 text-xs text-neutral-500">突出价格优势和限时福利，明确引导购买行为</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-neutral-100 rounded-lg p-4">
+                            <h5 class="font-medium text-neutral-700 mb-2">结构分析</h5>
+                            <p class="text-neutral-600 text-sm mb-3">
+                                文案采用"问题-解决方案-场景展示-行动号召"的经典结构，逻辑清晰，层层递进。每个部分衔接自然，从引发兴趣到促进转化形成完整闭环。
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-xs bg-neutral-200 text-neutral-600 px-2 py-1 rounded-full">痛点切入</span>
+                                <span class="text-xs bg-neutral-200 text-neutral-600 px-2 py-1 rounded-full">利益明确</span>
+                                <span class="text-xs bg-neutral-200 text-neutral-600 px-2 py-1 rounded-full">场景具体</span>
+                                <span class="text-xs bg-neutral-200 text-neutral-600 px-2 py-1 rounded-full">行动清晰</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 文案创意解析 -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-neutral-700 mb-4 flex items-center">
+                            <span class="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-sm mr-2">2</span>
+                            文案创意解析
+                        </h4>
+                        
+                        <div class="mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-secondary/5 rounded-lg p-4 border border-secondary/20">
+                                    <h5 class="font-medium text-secondary mb-2">语言风格</h5>
+                                    <ul class="text-neutral-600 text-sm space-y-1">
+                                        <li class="flex items-start">
+                                            <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                            <span>口语化表达，亲切自然</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                            <span>短句为主，节奏明快</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                            <span>避免专业术语，通俗易懂</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-secondary/5 rounded-lg p-4 border border-secondary/20">
+                                    <h5 class="font-medium text-secondary mb-2">修辞手法</h5>
+                                    <ul class="text-neutral-600 text-sm space-y-1">
+                                        <li class="flex items-start">
+                                            <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                            <span>对比：突出前后变化</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                            <span>设问：引发观众思考</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                            <span>列举：清晰展示优势</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-secondary/5 rounded-lg p-4 border border-secondary/20">
+                                    <h5 class="font-medium text-secondary mb-2">情感诉求</h5>
+                                    <ul class="text-neutral-600 text-sm space-y-1">
+                                        <li class="flex items-start">
+                                            <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                            <span>节省时间的效率感</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                            <span>提升生活品质的满足感</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                            <span>获得优惠的占便宜感</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-neutral-200 rounded-lg p-4">
+                            <h5 class="font-medium text-neutral-700 mb-3">关键文案效果分析</h5>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <p class="text-sm font-medium text-neutral-700">"3分钟搞定一桌菜"</p>
+                                        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">高转化力</span>
+                                    </div>
+                                    <p class="text-neutral-500 text-xs">通过具体数字量化产品价值，对比传统烹饪时间，突出效率优势，直击用户痛点。</p>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <p class="text-sm font-medium text-neutral-700">"原价399，今天直播间只要199"</p>
+                                        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">高转化力</span>
+                                    </div>
+                                    <p class="text-neutral-500 text-xs">价格对比强烈，突出优惠力度，"今天直播间"创造紧迫感，促进即时决策。</p>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <p class="text-sm font-medium text-neutral-700">"前100名下单再送价值99元的料理食谱"</p>
+                                        <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">中等转化力</span>
+                                    </div>
+                                    <p class="text-neutral-500 text-xs">限量赠品增加吸引力，但"100名"数量较大，紧迫感稍弱，建议改为"前20名"增强稀缺性。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 特征标签 -->
+                <section class="bg-white rounded-xl shadow-card p-6 animate-slide-up" style="animation-delay: 0.4s">
+                    <div class="flex items-center mb-5">
+                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-3">
+                            <i class="fa fa-tags"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-neutral-700">特征标签</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h4 class="text-base font-semibold text-neutral-700 mb-3 flex items-center">
+                                <span class="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xs mr-2">1</span>
+                                视频内容分类
+                            </h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 产品演示</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 功能介绍</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 美食制作</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 直播切片</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 促销活动</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 家居生活</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-base font-semibold text-neutral-700 mb-3 flex items-center">
+                                <span class="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xs mr-2">2</span>
+                                商品分类
+                            </h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 厨房电器</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 多功能料理机</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 小家电</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 家居用品</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 生活电器</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-base font-semibold text-neutral-700 mb-3 flex items-center">
+                                <span class="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xs mr-2">3</span>
+                                视频属性
+                            </h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 时长 01:45</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 横屏拍摄</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 高清画质</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 有人声</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 背景音乐</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 字幕清晰</span>
+                                <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 产品特写多</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-neutral-200">
+                        <h4 class="text-base font-semibold text-neutral-700 mb-3 flex items-center">
+                            <span class="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xs mr-2">4</span>
+                            目标受众标签
+                        </h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 家庭主妇</span>
+                            <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 上班族</span>
+                            <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 健身人群</span>
+                            <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 美食爱好者</span>
+                            <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 懒人经济</span>
+                            <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 注重效率</span>
+                            <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 中等收入</span>
+                            <span class="px-3 py-1.5 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-purple-100 hover:text-purple-600 transition-colors cursor-pointer"># 25-40岁</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 投放后诊断报告 -->
+                <section class="bg-white rounded-xl shadow-card p-6 animate-slide-up" style="animation-delay: 0.5s">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                            <i class="fa fa-stethoscope"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-neutral-700">投放后带货短视频诊断报告</h3>
+                    </div>
+
+                    <!-- 模块1：修改建议 -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-neutral-700 mb-4 flex items-center">
+                            <span class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                                <i class="fa fa-lightbulb-o text-sm"></i>
+                            </span>
+                            各部分修改建议（含修改依据）
+                        </h4>
+                         
+                        <!-- 1）短视频结构解析 -->
+                        <div class="mb-6">
+                            <h5 class="text-base font-semibold text-neutral-700 mb-3 pl-3 border-l-4 border-primary">
+                                1）短视频结构解析
+                            </h5>
+                            <div class="pl-3 space-y-3">
+                                <div>
+                                    <div class="flex items-start">
+                                        <i class="fa fa-exclamation-circle text-warning mt-0.5 mr-3"></i>
+                                        <p>开场时间过长（当前10秒），建议缩短至5秒内，第一秒即展示核心产品或最吸引人的成果</p>
+                                    </div>
+                                    <div class="mt-2 ml-8">
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-blue-100 text-blue-700">数据分析</span>
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-purple-100 text-purple-700">行业基准</span>
+                                        <p class="text-sm text-neutral-500 mt-1">
+                                            数据显示：视频前3秒的观众流失率达42%（行业平均为28%），前5秒是决定观众是否继续观看的关键节点。同品类爆款视频平均开场时间为3.2秒。
+                                        </p>
+                                    </div>
+                                </div>
+                                 
+                                <div>
+                                    <div class="flex items-start">
+                                        <i class="fa fa-exclamation-circle text-warning mt-0.5 mr-3"></i>
+                                        <p>功能演示部分（35-80秒）节奏较慢，建议加快剪辑速度，每个功能展示控制在10秒内</p>
+                                    </div>
+                                    <div class="mt-2 ml-8">
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-blue-100 text-blue-700">数据分析</span>
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-green-100 text-green-700">用户行为</span>
+                                        <p class="text-sm text-neutral-500 mt-1">
+                                            热力图分析显示：45-60秒时段观众跳出率上升37%，平均观看完成率仅为62%。眼动追踪显示观众对超过10秒的单一功能演示注意力明显下降。
+                                        </p>
+                                    </div>
+                                </div>
+                                 
+                                <div>
+                                    <div class="flex items-start">
+                                        <i class="fa fa-exclamation-circle text-warning mt-0.5 mr-3"></i>
+                                        <p>促销引导部分（100-105秒）时间过短，建议延长至15秒，增加倒计时动画增强紧迫感</p>
+                                    </div>
+                                    <div class="mt-2 ml-8">
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-blue-100 text-blue-700">数据分析</span>
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-orange-100 text-orange-700">营销模型</span>
+                                        <p class="text-sm text-neutral-500 mt-1">
+                                            转化漏斗分析显示：当前促销信息展示期间的点击转化率仅为3.8%，远低于行业平均的8.5%。根据AIDA营销模型，需要足够时间完成从兴趣到行动的转化。
+                                        </p>
+                                    </div>
+                                </div>
+                                 
+                                <div>
+                                    <div class="flex items-start">
+                                        <i class="fa fa-check-circle text-success mt-0.5 mr-3"></i>
+                                        <p>保留场景应用部分的设计，但建议增加用户见证或使用前后对比的镜头</p>
+                                    </div>
+                                    <div class="mt-2 ml-8">
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-purple-100 text-purple-700">行业基准</span>
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-orange-100 text-orange-700">营销模型</span>
+                                        <p class="text-sm text-neutral-500 mt-1">
+                                            同品类TOP10视频中，87%使用了用户见证元素。根据社会证明理论，加入真实用户反馈可使信任度提升40%以上，转化率平均提升27%。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         
+                        <!-- 2）分镜头脚本拍摄和内容描述 -->
+                        <div class="mb-6">
+                            <h5 class="text-base font-semibold text-neutral-700 mb-3 pl-3 border-l-4 border-primary">
+                                2）短视频的分镜头脚本拍摄和内容描述
+                            </h5>
+                            <div class="pl-3 space-y-3">
+                                <div>
+                                    <div class="flex items-start">
+                                        <i class="fa fa-exclamation-circle text-warning mt-0.5 mr-3"></i>
+                                        <p>产品展示镜头缺少与竞品的直观对比，建议增加1个对比镜头突出优势</p>
+                                    </div>
+                                    <div class="mt-2 ml-8">
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-blue-100 text-blue-700">数据分析</span>
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-purple-100 text-purple-700">行业基准</span>
+                                        <p class="text-sm text-neutral-500 mt-1">
+                                            竞品分析显示：使用对比展示的视频，产品差异化认知度提升65%，用户评论中"比XX好"的正面评价增加2.3倍，转化率平均提升18%。
+                                        </p>
+                                    </div>
+                                </div>
+                                 
+                                <div>
+                                    <div class="flex items-start">
+                                        <i class="fa fa-exclamation-circle text-warning mt-0.5 mr-3"></i>
+                                        <p>功能演示镜头缺乏使用难度的体现，建议增加"老人/儿童也能轻松操作"的展示</p>
+                                    </div>
+                                    <div class="mt-2 ml-8">
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-green-100 text-green-700">用户行为</span>
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-red-100 text-red-700">用户反馈</span>
+                                        <p class="text-sm text-neutral-500 mt-1">
+                                            用户评论分析显示：27%的负面评论集中在"担心操作复杂"，客服咨询中31%涉及使用难度问题。添加简易操作展示可有效降低用户决策阻力。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         
+                        <!-- 3）画面创意解析 -->
+                        <div class="mb-6">
+                            <h5 class="text-base font-semibold text-neutral-700 mb-3 pl-3 border-l-4 border-primary">
+                                3）画面创意解析
+                            </h5>
+                            <div class="pl-3 space-y-3">
+                                <div>
+                                    <div class="flex items-start">
+                                        <i class="fa fa-exclamation-circle text-warning mt-0.5 mr-3"></i>
+                                        <p>色彩运用不够鲜明，建议增加高饱和度的食物色彩，增强视觉冲击力</p>
+                                    </div>
+                                    <div class="mt-2 ml-8">
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-green-100 text-green-700">用户行为</span>
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-purple-100 text-purple-700">行业基准</span>
+                                        <p class="text-sm text-neutral-500 mt-1">
+                                            眼动追踪研究显示：高饱和度食物画面的视觉吸引力提升58%，停留时间延长2.1倍。美食类爆款视频的色彩饱和度平均比普通视频高30%。
+                                        </p>
+                                    </div>
+                                </div>
+                                 
+                                <div>
+                                    <div class="flex items-start">
+                                        <i class="fa fa-exclamation-circle text-warning mt-0.5 mr-3"></i>
+                                        <p>缺乏动态转场效果，建议在镜头切换时使用更具创意的转场（如旋转、缩放）</p>
+                                    </div>
+                                    <div class="mt-2 ml-8">
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-blue-100 text-blue-700">数据分析</span>
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-purple-100 text-purple-700">行业基准</span>
+                                        <p class="text-sm text-neutral-500 mt-1">
+                                            数据显示：使用动态转场的视频观众流失率降低27%，完播率提升19%。平台TOP500带货视频中，83%使用了创意转场效果增强观看体验。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         
+                        <!-- 4）文案结构解析 -->
+                        <div class="mb-6">
+                            <h5 class="text-base font-semibold text-neutral-700 mb-3 pl-3 border-l-4 border-primary">
+                                4）文案结构解析
+                            </h5>
+                            <div class="pl-3 space-y-3">
+                                <div>
+                                    <div class="flex items-start">
+                                        <i class="fa fa-exclamation-circle text-warning mt-0.5 mr-3"></i>
+                                        <p>痛点切入不够精准，建议针对不同人群（如上班族、宝妈）设计更具体的痛点描述</p>
+                                    </div>
+                                    <div class="mt-2 ml-8">
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-red-100 text-red-700">用户反馈</span>
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-blue-100 text-blue-700">数据分析</span>
+                                        <p class="text-sm text-neutral-500 mt-1">
+                                            用户调研显示：67%的观众认为当前痛点描述"不够贴合我的情况"。精准人群痛点描述的视频，观众共鸣度提升58%，互动率增加42%。
+                                        </p>
+                                    </div>
+                                </div>
+                                 
+                                <div>
+                                    <div class="flex items-start">
+                                        <i class="fa fa-exclamation-circle text-warning mt-0.5 mr-3"></i>
+                                        <p>产品优势描述过于笼统，建议使用具体数据（如"节省70%时间"）替代模糊表述</p>
+                                    </div>
+                                    <div class="mt-2 ml-8">
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-orange-100 text-orange-700">营销模型</span>
+                                        <span class="inline-block text-xs px-2 py-0.5 rounded-full mr-1 mb-1 bg-purple-100 text-purple-700">行业基准</span>
+                                        <p class="text-sm text-neutral-500 mt-1">
+                                            根据精确性原则，使用具体数据的产品描述可使可信度提升65%。同品类爆款视频中，91%使用了具体数字描述产品优势，转化率平均高出37%。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     
+                    <!-- 模块2：口播文案修改前后对比 -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-neutral-700 mb-4 flex items-center">
+                            <span class="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center text-success mr-3">
+                                <i class="fa fa-check-square-o text-sm"></i>
+                            </span>
+                            口播文案修改前后对比
+                        </h4>
+                         
+                        <!-- 对比展示区 -->
+                        <div class="space-y-6">
+                            <!-- 修改前文案 -->
+                            <div>
+                                <h5 class="text-base font-semibold text-neutral-700 mb-3 pl-3 border-l-4 border-neutral-400">
+                                    口播文案（修改前）
+                                </h5>
+                                <div class="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                                    <p class="text-neutral-600 leading-relaxed whitespace-pre-line">
+"大家好，今天给大家介绍一款很好用的料理机。
+
+这款料理机功能很多，可以做很多东西，非常方便。操作也比较简单，大家都能学会。
+
+不管是在家里还是其他地方都能用，做出来的东西也很好。
+
+现在我们有优惠活动，价格很实惠，有需要的可以买一个。
+点击下面的链接就可以购买了，数量不多了。"
+                                    </p>
+                                </div>
+                            </div>
+                             
+                            <!-- 修改后文案 -->
+                            <div>
+                                <h5 class="text-base font-semibold text-neutral-700 mb-3 pl-3 border-l-4 border-success">
+                                    口播文案（修改后）
+                                </h5>
+                                <div class="bg-neutral-50 rounded-lg p-4 border border-neutral-200 relative" style="padding-left: 1.5rem;">
+                                    <div class="absolute -left-2 -top-1 bg-primary text-white text-xs px-1.5 py-0.5 rounded">改</div>
+                                    <p class="text-neutral-600 leading-relaxed whitespace-pre-line">
+"还在为早餐花40分钟？加班回家还要半小时备餐？
+这款多功能料理机，<span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">3分钟就能搞定一桌美食</span>！
+
+<s class="bg-red-50 text-red-700 px-0.5 rounded border border-red-200">这款料理机功能很多</s><span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">10大功能合一，比传统料理机快3倍</span>，
+<s class="bg-red-50 text-red-700 px-0.5 rounded border border-red-200">操作也比较简单</s><span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">一键操作，老人小孩都会用</span>，
+<s class="bg-red-50 text-red-700 px-0.5 rounded border border-red-200">大家都能学会</s><span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">10000+家庭的聪明选择</span>！
+
+<s class="bg-red-50 text-red-700 px-0.5 rounded border border-red-200">不管是在家里还是其他地方都能用</s>
+<span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">上班族：5分钟搞定营养早餐，多睡半小时</span>
+<span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">宝妈们：轻松制作宝宝辅食，安全又健康</span>
+<span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">健身党：自制蛋白shake，比买的省70%</span>
+<s class="bg-red-50 text-red-700 px-0.5 rounded border border-red-200">做出来的东西也很好</s><span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">3分钟做出米其林级美味</span>！
+
+<s class="bg-red-50 text-red-700 px-0.5 rounded border border-red-200">现在我们有优惠活动，价格很实惠</s>
+<span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">原价399，今日专属价199，每天不到1块钱</span>，
+<span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">就能解放你的双手</span>！
+<s class="bg-red-50 text-red-700 px-0.5 rounded border border-red-200">有需要的可以买一个</s>
+<span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">前20名下单送价值129元的豪华食谱</span>！
+
+<s class="bg-red-50 text-red-700 px-0.5 rounded border border-red-200">点击下面的链接就可以购买了</s><span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">点击下方3号链接</span>，
+<s class="bg-red-50 text-red-700 px-0.5 rounded border border-red-200">数量不多了</s><span class="bg-green-50 text-green-700 px-0.5 rounded border border-green-200">库存只剩最后87件，手慢无</span>！"
+                                    </p>
+                                </div>
+                            </div>
+                             
+                            <!-- 文案修改说明 -->
+                            <div>
+                                <h5 class="text-base font-semibold text-neutral-700 mb-3 pl-3 border-l-4 border-primary">
+                                    文案修改说明
+                                </h5>
+                                <div class="space-y-2 pl-3">
+                                    <div class="flex items-start">
+                                        <i class="fa fa-check-circle text-success mt-0.5 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">痛点切入更精准</p>
+                                            <p class="text-neutral-500 text-sm mt-0.5">使用具体场景化痛点（"早餐花40分钟"）替代模糊表述，提升观众共鸣度，根据数据分析，精准痛点描述可使观众留存率提升42%</p>
+                                        </div>
+                                    </div>
+                                     
+                                    <div class="flex items-start">
+                                        <i class="fa fa-check-circle text-success mt-0.5 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">数据化表达产品优势</p>
+                                            <p class="text-neutral-500 text-sm mt-0.5">用"10大功能合一，比传统料理机快3倍"等具体数据替代笼统描述，可信度提升65%，符合精确性营销原则</p>
+                                        </div>
+                                    </div>
+                                     
+                                    <div class="flex items-start">
+                                        <i class="fa fa-check-circle text-success mt-0.5 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">分人群场景化描述</p>
+                                            <p class="text-neutral-500 text-sm mt-0.5">针对上班族、宝妈、健身党三类核心人群设计专属场景，覆盖度提升40%，不同人群的转化率分别提升28%-35%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-neutral-200 mt-10">
+        <div class="container mx-auto px-4 py-6">                     
+            <div class="mt-6 pt-6 border-t border-neutral-200 text-center text-neutral-500 text-sm">
+                <p>copyright@2025 马上豹产品管理系统出品</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 页面加载完成后初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 观众留存率图表
+            const retentionCtx = document.getElementById('retentionChart').getContext('2d');
+            new Chart(retentionCtx, {
+                type: 'line',
+                data: {
+                    labels: ['0s', '20s', '40s', '60s', '80s', '100s'],
+                    datasets: [{
+                        label: '留存率',
+                        data: [100, 85, 78, 70, 65, 60],
+                        borderColor: '#165DFF',
+                        backgroundColor: 'rgba(22, 93, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#165DFF',
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            padding: 10,
+                            titleFont: {
+                                size: 12
+                            },
+                            bodyFont: {
+                                size: 12
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    return `留存率: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                },
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 滚动时导航栏效果
+            window.addEventListener('scroll', function() {
+                const header = document.querySelector('header');
+                if (window.scrollY > 10) {
+                    header.classList.add('shadow');
+                } else {
+                    header.classList.remove('shadow');
+                }
+            });
+            
+            // 标签点击效果
+            const tags = document.querySelectorAll('.rounded-full.cursor-pointer');
+            tags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    this.classList.toggle('bg-purple-100');
+                    this.classList.toggle('text-purple-600');
+                    this.classList.toggle('bg-neutral-100');
+                    this.classList.toggle('text-neutral-700');
+                });
+            });
+            
+            // 为修改部分添加淡入动画
+            const modifiedElements = document.querySelectorAll('.relative');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '0';
+                        entry.target.style.transform = 'translateY(20px)';
+                        entry.target.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                        
+                        // 轻微延迟以确保过渡效果生效
+                        setTimeout(() => {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, 50);
+                        
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            modifiedElements.forEach(element => {
+                observer.observe(element);
+            });
+        });
+    </script>
+</body>
+</html>

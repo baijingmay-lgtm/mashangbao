@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>同一商品推广视频批量解析结果对比</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB', // 主色（蓝）- 用于标题与重点元素
+                        success: '#10B981', // 优数据色（绿）- 标记数据好的视频特征
+                        danger: '#9CA3AF',  // 差数据色（灰）- 标记数据差的视频特征
+                        neutral: '#6B7280', // 中性色 - 辅助文本
+                        light: '#F3F4F6',   // 浅色背景
+                        dark: '#1F2937',    // 深色文本
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .dimension-card {
+                @apply bg-white rounded-xl shadow-sm p-6 md:p-8 mb-8 transition-all hover:shadow-md;
+            }
+            .feature-list {
+                @apply space-y-3 text-neutral;
+            }
+            .feature-item {
+                @apply flex items-start;
+            }
+            .section-title {
+                @apply text-xl md:text-2xl font-bold mb-6 flex items-center text-dark;
+            }
+            .dimension-label {
+                @apply text-sm font-medium px-3 py-1 rounded-full inline-block mb-4;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 text-dark">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-bar-chart text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-primary">商品视频解析结果平台</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="bg-primary/10 text-primary px-4 py-2 rounded-lg hover:bg-primary/20 transition-all">
+                    <i class="fa fa-download mr-1"></i> 导出报告
+                </button>
+                <button class="bg-light text-neutral px-4 py-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <i class="fa fa-share-alt mr-1"></i> 分享
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- 解析概览信息栏 -->
+        <section class="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-10 border-l-4 border-primary">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold mb-2">同一商品推广视频批量解析结果</h2>
+                    <p class="text-neutral">分析对象：<span class="font-medium text-dark">XX品牌无线蓝牙耳机（型号：BH-2024）</span> | 视频总数：<span class="font-medium text-dark">100个</span> | 分析维度：7个核心维度</p>
+                </div>
+                <div class="flex flex-wrap gap-4">
+                    <div class="bg-success/10 rounded-lg px-4 py-3 flex items-center">
+                        <i class="fa fa-thumbs-up text-success text-xl mr-2"></i>
+                        <div>
+                            <p class="text-xs text-neutral">数据表现优良</p>
+                            <p class="text-xl font-bold text-success">63个视频</p>
+                            <p class="text-xs italic text-success">筛选原则：最终转化率高于平均值</p>
+                        </div>
+                    </div>
+                    <div class="bg-danger/10 rounded-lg px-4 py-3 flex items-center">
+                        <i class="fa fa-thumbs-down text-danger text-xl mr-2"></i>
+                        <div>
+                            <p class="text-xs text-neutral">数据表现较差</p>
+                            <p class="text-xl font-bold text-danger">37个视频</p>
+                            <p class="text-xs italic text-danger">筛选原则：最终转化率低于平均值</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Top3表现好的视频素材 -->
+                <div class="mt-6 p-4 bg-indigo-900/30 rounded-lg">
+                    <h4 class="text-lg font-semibold text-white mb-3">Top3表现好的视频素材</h4>
+                    <div class="space-y-2">
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1001 - 转化率领先均值28%</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1005 - 转化率领先均值22%</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1009 - 转化率领先均值19%</a>
+                    </div>
+                </div>
+                <!-- Top3表现好的视频素材 -->
+                <div class="mt-6 p-4 bg-indigo-900/30 rounded-lg">
+                    <h4 class="text-lg font-semibold text-white mb-3">Top3表现好的视频素材</h4>
+                    <div class="space-y-2">
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1055 - 文案结构评分97分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1060 - 文案结构评分94分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1065 - 文案结构评分92分</a>
+                    </div>
+                </div>
+                <!-- Top3表现好的视频素材 -->
+                <div class="mt-6 p-4 bg-indigo-900/30 rounded-lg">
+                    <h4 class="text-lg font-semibold text-white mb-3">Top3表现好的视频素材</h4>
+                    <div class="space-y-2">
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1085 - 音频质量评分98分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1090 - 音频质量评分95分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1095 - 音频质量评分93分</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据分布可视化 - 新代码替换部分 -->
+        <section class="mb-12">
+            <div class="container max-w-1200 mx-auto bg-white rounded-xl shadow-sm p-6 md:p-8">
+                <h3 class="section-title text-lg md:text-xl">
+                    <i class="fa fa-bar-chart text-primary mr-3"></i>
+                    数据分布可视化
+                </h3>
+                
+                <div class="bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl p-6 md:p-8 shadow-inner">
+                    <h1 class="text-2xl md:text-3xl font-bold text-white text-center mb-6">视频转化漏斗分析（五环节）</h1>
+                    
+                    <!-- 优化后的控制按钮区域 -->
+                    <div class="controls flex justify-center gap-3 flex-wrap mb-6">
+                        <button id="toggleLines" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg transition-all shadow-md text-sm md:text-base">
+                            <i class="fa fa-toggle-on mr-1"></i> 显示/隐藏视频折线
+                        </button>
+                        <button id="highlightBest" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg transition-all shadow-md text-sm md:text-base">
+                            <i class="fa fa-trophy mr-1"></i> 高亮最佳转化视频
+                        </button>
+                        <button id="highlightWorst" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg transition-all shadow-md text-sm md:text-base">
+                            <i class="fa fa-warning mr-1"></i> 高亮最差转化视频
+                        </button>
+                        <button id="showAverages" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg transition-all shadow-md text-sm md:text-base">
+                            <i class="fa fa-line-chart mr-1"></i> 显示/隐藏平均值
+                        </button>
+                        <button id="resetView" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg transition-all shadow-md text-sm md:text-base">
+                            <i class="fa fa-refresh mr-1"></i> 重置视图
+                        </button>
+                    </div>
+                    
+                    <div class="chart-container relative h-[400px] md:h-[500px] mb-6">
+                        <canvas id="conversionChart"></canvas>
+                    </div>
+                    
+                    <div class="legend flex justify-center flex-wrap gap-4 mb-6 p-4 bg-blue-800/30 rounded-lg">
+                        <div class="legend-item flex items-center gap-2">
+                            <div class="legend-color w-4 h-4 rounded bg-purple-400"></div>
+                            <span class="text-blue-100">平均转化线</span>
+                        </div>
+                        <div class="legend-item flex items-center gap-2">
+                            <div class="legend-color w-4 h-4 rounded bg-red-500"></div>
+                            <span class="text-blue-100">最佳转化视频</span>
+                        </div>
+                        <div class="legend-item flex items-center gap-2">
+                            <div class="legend-color w-4 h-4 rounded bg-green-500"></div>
+                            <span class="text-blue-100">高于平均值</span>
+                        </div>
+                        <div class="legend-item flex items-center gap-2">
+                            <div class="legend-color w-4 h-4 rounded bg-gray-400"></div>
+                            <span class="text-blue-100">低于平均值</span>
+                        </div>
+                    </div>
+                    
+                        <!-- 优化后的关键指标卡片 -->
+                    <div class="summary grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                        <div class="metric-card bg-blue-800/50 p-4 rounded-lg border-l-4 border-purple-400 transform transition-all hover:scale-105">
+                            <h3 class="text-blue-200 text-sm font-medium mb-2">平均曝光人次</h3>
+                            <p id="avgExposure" class="text-white text-xl font-bold">0</p>
+                        </div>
+                        <div class="metric-card bg-blue-800/50 p-4 rounded-lg border-l-4 border-purple-400 transform transition-all hover:scale-105">
+                            <h3 class="text-blue-200 text-sm font-medium mb-2">平均5秒完播</h3>
+                            <p id="avgPlay5s" class="text-white text-xl font-bold">0</p>
+                        </div>
+                        <div class="metric-card bg-blue-800/50 p-4 rounded-lg border-l-4 border-purple-400 transform transition-all hover:scale-105">
+                            <h3 class="text-blue-200 text-sm font-medium mb-2">平均点击人次</h3>
+                            <p id="avgClick" class="text-white text-xl font-bold">0</p>
+                        </div>
+                        <div class="metric-card bg-blue-800/50 p-4 rounded-lg border-l-4 border-purple-400 transform transition-all hover:scale-105">
+                            <h3 class="text-blue-200 text-sm font-medium mb-2">平均浏览人次</h3>
+                            <p id="avgView" class="text-white text-xl font-bold">0</p>
+                        </div>
+                        <div class="metric-card bg-blue-800/50 p-4 rounded-lg border-l-4 border-purple-400 transform transition-all hover:scale-105">
+                            <h3 class="text-blue-200 text-sm font-medium mb-2">平均下单人次</h3>
+                            <p id="avgOrder" class="text-white text-xl font-bold">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 维度1：各环节转化效率分析 -->
+        <section class="dimension-card">
+            <h3 class="section-title">
+                <i class="fa fa-line-chart text-primary mr-3"></i>
+                维度1：各环节转化效率分析
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 均线之上的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-success/20 text-success">高于平均值的视频（63个）特征</span>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-dark mb-2">曝光→播放环节</h4>
+                        <ul class="feature-list pl-4">
+                            <li class="feature-item">
+                                <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                                <span>缩略图包含产品核心卖点（如“降噪”图标）和高对比度色彩，点击率比普通缩略图高40%</span>
+                            </li>
+                            <li class="feature-item">
+                                <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                                <span>标题使用数字和疑问式表达（如“30小时续航够不够？”），吸引用户点击</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-dark mb-2">播放→5秒完播环节</h4>
+                        <ul class="feature-list pl-4">
+                            <li class="feature-item">
+                                <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                                <span>前3秒出现产品使用前后对比（如“戴耳机前vs戴耳机后”），视觉冲击力强</span>
+                            </li>
+                            <li class="feature-item">
+                                <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                                <span>首帧即展示核心功能（如降噪开启瞬间），无冗余片头，观众留存率超75%</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-dark mb-2">5秒完播→点击环节</h4>
+                        <ul class="feature-list pl-4">
+                            <li class="feature-item">
+                                <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                                <span>在5-8秒区间出现明确的价值点（如“现在下单立减50元”），引导点击</span>
+                            </li>
+                            <li class="feature-item">
+                                <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                                <span>视频中添加悬浮按钮或箭头指向，视觉上引导用户点击，点击率提升35%</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-dark mb-2">点击→下单环节</h4>
+                        <ul class="feature-list pl-4">
+                            <li class="feature-item">
+                                <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                                <span>包含明确的限时优惠信息（如“前100名送配件”），创造紧迫感</span>
+                            </li>
+                            <li class="feature-item">
+                                <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                                <span>展示用户评价或销量数据（如“已售10万+”），增强信任感，转化率提升28%</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 均线之下的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-danger/20 text-danger">低于平均值的视频（37个）特征</span>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-dark mb-2">曝光→播放环节</h4>
+                        <ul class="feature-list pl-4">
+                            <li class="feature-item">
+                                <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                                <span>缩略图为纯产品图或模糊场景，无核心卖点提示，点击率低于均值30%</span>
+                            </li>
+                            <li class="feature-item">
+                                <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                                <span>标题使用模糊描述（如“好耳机推荐”），缺乏吸引力，用户点击意愿低</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-dark mb-2">播放→5秒完播环节</h4>
+                        <ul class="feature-list pl-4">
+                            <li class="feature-item">
+                                <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                                <span>前5秒为品牌LOGO或无关场景，未展示产品价值，观众流失率超60%</span>
+                            </li>
+                            <li class="feature-item">
+                                <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                                <span>开场节奏缓慢，3秒后才出现产品，观众耐心耗尽，5秒完播率低于35%</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-dark mb-2">5秒完播→点击环节</h4>
+                        <ul class="feature-list pl-4">
+                            <li class="feature-item">
+                                <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                                <span>15秒后才出现引导点击信息，观众已失去兴趣，点击转化率低</span>
+                            </li>
+                            <li class="feature-item">
+                                <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                                <span>无明确点击引导，仅在视频末尾出现“点击购买”文字，点击率低于均值40%</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-dark mb-2">点击→下单环节</h4>
+                        <ul class="feature-list pl-4">
+                            <li class="feature-item">
+                                <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                                <span>未提及优惠信息或售后保障，用户购买决策犹豫，转化率低</span>
+                            </li>
+                            <li class="feature-item">
+                                <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                                <span>缺乏社会认同元素（如用户评价、销量），用户信任度不足，下单率低</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 维度2：短视频结构 -->
+        <section class="dimension-card">
+            <h3 class="section-title">
+                <i class="fa fa-sitemap text-primary mr-3"></i>
+                维度2：短视频结构
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 数据好的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-success/20 text-success">高于平均值的视频（63个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>开场3秒内直击核心：82%的视频以“耳机降噪效果实拍”或“续航痛点解决”开场，快速留住观众</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>结构标准化：90%采用“痛点→产品展示→效果验证→CTA”四段式，逻辑清晰（例：“地铁噪音大→戴耳机→噪音消失→点击购买”）</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>时长集中：78%的视频时长控制在18-25秒，无冗余内容，完播率超65%</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>CTA明确：100%包含“点击下方链接”“限时优惠”等行动指引，转化率比无CTA视频高30%</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 数据差的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-danger/20 text-danger">低于平均值的视频（37个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>开场拖沓：68%的视频前5秒为“品牌LOGO动画”或“无关场景（如风景）”，观众流失率超50%</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>结构混乱：72%无固定逻辑，例：“展示耳机外观→插入歌手唱歌片段→回到耳机参数”，观众理解成本高</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>时长失控：46%时长超35秒（含大量重复画面），完播率低于25%；18%时长不足12秒，信息未传递完整</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>无明确CTA：58%仅展示产品，未引导购买，点击转化率不足5%</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Top3表现好的视频素材 -->
+                <div class="mt-6 p-4 bg-indigo-900/30 rounded-lg">
+                    <h4 class="text-lg font-semibold text-white mb-3">Top3表现好的视频素材</h4>
+                    <div class="space-y-2">
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1012 - 结构完整性评分95分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1018 - 结构完整性评分92分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1022 - 结构完整性评分89分</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 维度3：短视频画面描述 -->
+        <section class="dimension-card">
+            <h3 class="section-title">
+                <i class="fa fa-picture-o text-primary mr-3"></i>
+                维度3：短视频画面描述
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 数据好的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-success/20 text-success">高于平均值的视频（63个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>产品聚焦：92%的画面中“耳机主体”占比超40%，且关键细节（如降噪按钮、充电口）有特写镜头</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>场景真实：85%包含“通勤佩戴”“办公使用”“运动防汗”等真实场景，观众代入感强</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>画质清晰：无模糊/过曝，70%采用1080P分辨率，色彩以“品牌蓝+白色”为主，视觉统一</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>信息叠加合理：仅在关键处添加文字（如“续航30小时”“降噪深度40dB”），无遮挡产品</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 数据差的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-danger/20 text-danger">低于平均值的视频（37个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>产品占比低：62%的画面中耳机占比不足20%（例：人物全身镜头中戴耳机），细节看不清</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>场景无关：54%为“纯白背景静态展示”，无使用场景，观众无法感知产品价值</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>画质问题：38%存在模糊/压缩痕迹，22%过曝（如逆光拍摄），色彩杂乱无统一风格</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>文字冗余：45%画面布满文字（如参数列表），遮挡产品且阅读困难，观众体验差</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 维度4：分镜头拍摄手法 -->
+        <section class="dimension-card">
+            <h3 class="section-title">
+                <i class="fa fa-camera text-primary mr-3"></i>
+                维度4：分镜头拍摄手法
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 数据好的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-success/20 text-success">高于平均值的视频（63个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>镜头多样：平均包含4-6种镜头（特写：耳机按键；中景：佩戴效果；全景：使用场景），视角丰富</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>切换节奏合理：平均2.5秒切换一次镜头，既保持新鲜感又不产生视觉疲劳，观众注意力集中</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>动态展示：76%包含“旋转展示外观”“拆解展示内部结构”“动作中佩戴”等动态镜头</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>转场自然：88%使用“淡入淡出”“滑动”等柔和转场，无突兀跳跃感</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 数据差的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-danger/20 text-danger">低于平均值的视频（37个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>镜头单一：64%仅使用1-2种固定镜头（如全程正面平视），观众易产生视觉疲劳</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>节奏失衡：32%镜头切换过快（<1秒）导致眩晕感；28%切换过慢（>5秒）导致沉闷感</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>静态为主：70%为“固定角度拍摄产品静止状态”，缺乏动态变化，吸引力弱</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>转场突兀：42%使用“硬切”“闪烁”等强烈转场，打断观看节奏，体验不佳</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Top3表现好的视频素材 -->
+                <div class="mt-6 p-4 bg-indigo-900/30 rounded-lg">
+                    <h4 class="text-lg font-semibold text-white mb-3">Top3表现好的视频素材</h4>
+                    <div class="space-y-2">
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1025 - 画面质量评分96分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1030 - 画面质量评分94分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1035 - 画面质量评分91分</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 维度5：文案结构 -->
+        <section class="dimension-card">
+            <h3 class="section-title">
+                <i class="fa fa-file-text-o text-primary mr-3"></i>
+                维度5：文案结构
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 数据好的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-success/20 text-success">高于平均值的视频（63个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>痛点前置：94%以用户痛点开头（如“地铁通勤太吵？”“耳机总没电？”），快速引发共鸣</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>逻辑递进：82%采用“问题→原因→解决方案→优势→行动”的递进结构，说服力强</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>数据支撑：76%包含具体数据（如“降噪深度40dB”“续航30小时”），增强可信度</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>简洁有力：平均文案长度控制在80字以内，重点信息不超过3个，易理解记忆</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 数据差的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-danger/20 text-danger">低于平均值的视频（37个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>无痛点关联：68%直接介绍产品参数（如“尺寸2.5cm”“重量15g”），与用户需求脱节</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>逻辑混乱：72%文案顺序杂乱（如“先讲价格→再讲外观→回退讲功能”），难以理解</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>缺乏数据：80%仅用“很好”“超强”等模糊描述，无具体数据支撑，可信度低</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>信息过载：64%文案超150字，包含5个以上卖点，观众无法抓住重点</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 维度6：文案文本创意 -->
+        <section class="dimension-card">
+            <h3 class="section-title">
+                <i class="fa fa-lightbulb-o text-primary mr-3"></i>
+                维度6：文案文本创意
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 数据好的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-success/20 text-success">高于平均值的视频（63个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>比喻生动：78%使用生活化比喻（如“降噪效果像在图书馆”“续航像手机充电宝”），易理解</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>情感共鸣：82%包含情感化表达（如“给疲惫的通勤一份宁静”“运动时的音乐伴侣”），打动用户</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>记忆点强：68%有独特slogan（如“小身材，大能量”“一戴，世界就安静了”），易传播</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>口语化表达：90%使用短句和口语化词汇（如“戴久了也不疼”“充电10分钟用2小时”），亲和力强</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 数据差的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-danger/20 text-danger">低于平均值的视频（37个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>语言生硬：76%使用纯参数描述（如“频率响应20Hz-20kHz”），缺乏生动性</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>情感缺失：84%纯理性描述，无情感连接（如“本产品具有降噪功能”），难以打动用户</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>无记忆点：90%文案平淡（如“好耳机，选我们”），缺乏独特性，看完即忘</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>过于书面化：62%使用复杂长句和专业术语，理解门槛高，亲和力差</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Top3表现好的视频素材 -->
+                <div class="mt-6 p-4 bg-indigo-900/30 rounded-lg">
+                    <h4 class="text-lg font-semibold text-white mb-3">Top3表现好的视频素材</h4>
+                    <div class="space-y-2">
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1040 - 镜头技巧评分98分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1045 - 镜头技巧评分95分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1050 - 镜头技巧评分93分</a>
+                    </div>
+                </div>
+                <!-- Top3表现好的视频素材 -->
+                <div class="mt-6 p-4 bg-indigo-900/30 rounded-lg">
+                    <h4 class="text-lg font-semibold text-white mb-3">Top3表现好的视频素材</h4>
+                    <div class="space-y-2">
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1070 - 文案创意评分99分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1075 - 文案创意评分96分</a>
+                        <a href="素材上传_视频管理.html" class="block text-blue-400 hover:text-blue-300 transition-colors" onclick="openInFrame(event, this.href)">🎯 视频ID: 1080 - 文案创意评分94分</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 维度7：口播的音频音色和背景音乐 -->
+        <section class="dimension-card">
+            <h3 class="section-title">
+                <i class="fa fa-volume-up text-primary mr-3"></i>
+                维度7：口播的音频音色和背景音乐
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 数据好的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-success/20 text-success">高于平均值的视频（63个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>音色匹配：86%根据产品定位选择音色（年轻活力款用轻快女声，商务款用沉稳男声）</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>音质清晰：94%无杂音/电流声，音量适中，语速控制在3-4字/秒，易听清</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>音乐适配：82%选择与场景匹配的音乐（运动场景用节奏感强的音乐，降噪场景用轻柔音乐）</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>音效辅助：70%在关键信息处（如“降噪开启”）添加提示音效，增强记忆</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 数据差的视频特征 -->
+                <div>
+                    <span class="dimension-label bg-danger/20 text-danger">低于平均值的视频（37个）特征</span>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>音色违和：64%音色与产品定位不符（如儿童款用低沉男声），体验割裂</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>音质问题：58%存在背景杂音/音量忽大忽小，32%语速过快（>5字/秒），听不清内容</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>音乐不当：46%音乐风格与内容冲突（如讲降噪功能配重金属音乐）；38%音乐音量过大掩盖人声</span>
+                        </li>
+                        <li class="feature-item">
+                            <i class="fa fa-times-circle text-danger mt-1 mr-2"></i>
+                            <span>无音效设计：80%全程无音效，关键信息缺乏听觉强调，记忆点弱</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 综合分析总结 -->
+        <section class="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-12 border-t-4 border-primary">
+            <h3 class="section-title">
+                <i class="fa fa-flag-checkered text-primary mr-3"></i>
+                综合分析总结与优化建议
+            </h3>
+            
+            <div class="space-y-6 text-neutral">
+                <div>
+                    <h4 class="text-lg font-semibold mb-3 text-dark">核心发现</h4>
+                    <p class="mb-4">通过对比100个同一商品推广视频的7维度特征，数据表现优良的视频在以下方面显著优于表现较差的视频：</p>
+                    <ol class="list-decimal pl-5 space-y-2">
+                        <li>转化漏斗各环节表现均衡，尤其在5秒完播率和点击转化率上优势明显</li>
+                        <li>能在3秒内抓住用户注意力，结构清晰且有明确行动指引</li>
+                        <li>产品展示突出，画面质量高，场景真实有代入感</li>
+                        <li>镜头多样且切换节奏合理，动态展示产品特点</li>
+                        <li>文案以用户痛点为起点，逻辑清晰且有数据支撑</li>
+                        <li>文案创意性强，使用生动比喻和情感化表达</li>
+                        <li>音频质量高，音色和音乐与产品定位匹配度高</li>
+                    </ol>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-3 text-dark">优先级优化建议</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-light rounded-lg p-4">
+                            <h5 class="font-medium mb-2 flex items-center">
+                                <i class="fa fa-star text-yellow-500 mr-2"></i>最高优先级
+                            </h5>
+                            <ul class="list-disc pl-5 space-y-1 text-sm">
+                                <li>优化开场3秒内容，直击用户痛点</li>
+                                <li>确保产品在画面中占比充足（>40%）</li>
+                                <li>添加明确的行动指引（CTA）</li>
+                            </ul>
+                        </div>
+                        <div class="bg-light rounded-lg p-4">
+                            <h5 class="font-medium mb-2 flex items-center">
+                                <i class="fa fa-star text-yellow-500 mr-2"></i>高优先级
+                            </h5>
+                            <ul class="list-disc pl-5 space-y-1 text-sm">
+                                <li>控制视频时长在18-25秒区间</li>
+                                <li>使用3-5种不同镜头展示产品</li>
+                                <li>文案中加入具体数据增强可信度</li>
+                            </ul>
+                        </div>
+                        <div class="bg-light rounded-lg p-4">
+                            <h5 class="font-medium mb-2 flex items-center">
+                                <i class="fa fa-star text-yellow-500 mr-2"></i>中优先级
+                            </h5>
+                            <ul class="list-disc pl-5 space-y-1 text-sm">
+                                <li>为关键信息添加文字标注和音效</li>
+                                <li>使用生活化比喻增强文案感染力</li>
+                                <li>选择与产品定位匹配的口播音色</li>
+                            </ul>
+                        </div>
+                        <div class="bg-light rounded-lg p-4">
+                            <h5 class="font-medium mb-2 flex items-center">
+                                <i class="fa fa-star text-yellow-500 mr-2"></i>一般优先级
+                            </h5>
+                            <ul class="list-disc pl-5 space-y-1 text-sm">
+                                <li>优化转场效果，保持自然流畅</li>
+                                <li>统一视频色彩风格与品牌调性</li>
+                                <li>设计独特slogan增强记忆点</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pt-4 border-t border-gray-200">
+                    <h4 class="text-lg font-semibold mb-3 text-dark">预期效果</h4>
+                    <p>按照上述建议优化后，预计可提升：</p>
+                    <div class="flex flex-wrap gap-4 mt-2">
+                        <div class="bg-primary/10 text-primary px-4 py-2 rounded-lg flex items-center">
+                            <i class="fa fa-play-circle mr-2"></i> 完播率提升30-40%
+                        </div>
+                        <div class="bg-primary/10 text-primary px-4 py-2 rounded-lg flex items-center">
+                            <i class="fa fa-mouse-pointer mr-2"></i> 点击转化率提升25-35%
+                        </div>
+                        <div class="bg-primary/10 text-primary px-4 py-2 rounded-lg flex items-center">
+                            <i class="fa fa-shopping-cart mr-2"></i> 购买转化率提升15-25%
+                        </div>
+                    </div>
+                    
+                    <!-- 查看单个视频解析按钮 -->
+                    <div class="mt-6">
+                        <a href="素材上传_视频管理.html" class="inline-flex items-center bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-all shadow-sm hover:shadow" onclick="openInFrame(event, this.href)">
+                            <i class="fa fa-video-camera mr-2"></i> 查看单个视频分析
+                        </a>
+                    </div>
+                    
+                    <!-- Frame弹窗容器 -->
+                    <div id="frameModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+                        <div id="modalContainer" class="bg-gray-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden transition-all duration-300">
+                            <div id="modalHeader" class="p-4 bg-gray-800 flex justify-between items-center border-b border-gray-700 cursor-move">
+                                <h3 id="modalTitle" class="text-xl font-bold text-white">视频素材管理</h3>
+                                <div class="flex space-x-3">
+                                    <button id="minimizeBtn" class="text-gray-400 hover:text-white transition-colors">
+                                        <i class="fas fa-window-minimize text-xl"></i>
+                                    </button>
+                                    <button id="maximizeBtn" class="text-gray-400 hover:text-white transition-colors">
+                                        <i class="fas fa-window-maximize text-xl"></i>
+                                    </button>
+                                    <button onclick="closeFrameModal()" class="text-gray-400 hover:text-white transition-colors">
+                                        <i class="fas fa-times text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="modalContent" class="h-[calc(90vh-80px)]">
+                                <iframe id="modalFrame" src="" class="w-full h-full" frameborder="0"></iframe>
+                            </div>
+                            <div class="resize-handle absolute bottom-0 right-0 w-6 h-6 bg-gray-700 cursor-se-resize rounded-tl-lg flex items-end justify-end">
+                                <div class="w-2 h-2 bg-gray-500 rotate-45 transform translate-x-1 translate-y-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-gray-400 text-sm">© 2023 商品视频解析平台 版权所有</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-primary transition-all">使用说明</a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition-all">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition-all">联系我们</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 生成随机数据
+        function generateData() {
+            const videos = [];
+            for (let i = 1; i <= 100; i++) {
+                const exposure = Math.floor(Math.random() * 10000) + 5000;
+                const play5sRate = Math.random() * 0.4 + 0.5; // 5秒完播率 50%-90%
+                const clickRate = Math.random() * 0.2 + 0.1;  // 点击率 10%-30%
+                const viewRate = Math.random() * 0.8 + 0.5;   // 浏览转化率 50%-130%
+                const orderRate = Math.random() * 0.3 + 0.05; // 下单转化率 5%-35%
+                
+                const play5s = Math.floor(exposure * play5sRate);
+                const click = Math.floor(play5s * clickRate);
+                const view = Math.floor(click * viewRate);
+                const order = Math.floor(view * orderRate);
+                
+                // 计算转化率
+                const play5sRatePercent = (play5s / exposure * 100).toFixed(2);
+                const clickThroughRate = (click / play5s * 100).toFixed(2);
+                const viewRatePercent = (view / click * 100).toFixed(2);
+                const orderRatePercent = (order / view * 100).toFixed(2);
+                const overallConversion = (order / exposure * 100).toFixed(4);
+                
+                videos.push({
+                    id: i,
+                    exposure,
+                    play5s,
+                    click,
+                    view,
+                    order,
+                    play5sRatePercent,
+                    clickThroughRate,
+                    viewRatePercent,
+                    orderRatePercent,
+                    overallConversion
+                });
+            }
+            return videos;
+        }
+
+        // 计算平均值
+        function calculateAverages(videos) {
+            const totalExposure = videos.reduce((sum, video) => sum + video.exposure, 0);
+            const totalPlay5s = videos.reduce((sum, video) => sum + video.play5s, 0);
+            const totalClick = videos.reduce((sum, video) => sum + video.click, 0);
+            const totalView = videos.reduce((sum, video) => sum + video.view, 0);
+            const totalOrder = videos.reduce((sum, video) => sum + video.order, 0);
+            
+            return {
+                exposure: totalExposure / videos.length,
+                play5s: totalPlay5s / videos.length,
+                click: totalClick / videos.length,
+                view: totalView / videos.length,
+                order: totalOrder / videos.length
+            };
+        }
+
+        // 准备图表数据
+        function prepareChartData(videos, averages) {
+            const labels = ['曝光', '5秒完播', '点击', '浏览', '下单'];
+            
+            // 创建每个视频的数据集
+            const videoDatasets = videos.map((video, index) => {
+                // 计算与平均值的比较
+                const aboveAverage = [
+                    video.exposure >= averages.exposure,
+                    video.play5s >= averages.play5s,
+                    video.click >= averages.click,
+                    video.view >= averages.view,
+                    video.order >= averages.order
+                ];
+                
+                return {
+                    label: `视频 ${video.id}`,
+                    data: [video.exposure, video.play5s, video.click, video.view, video.order],
+                    borderColor: 'rgba(158, 158, 158, 0.5)', // 默认灰色
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1.5,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: 'rgba(158, 158, 158, 0.7)',
+                    tension: 0.3,
+                    hidden: index >= 10, // 默认只显示前10条线
+                    segment: {
+                        borderColor: ctx => aboveAverage[ctx.p0DataIndex] ? 'rgba(76, 175, 80, 0.7)' : 'rgba(158, 158, 158, 0.7)'
+                    }
+                };
+            });
+            
+            // 添加平均线数据集
+            const averageDataset = {
+                label: '平均值',
+                data: [averages.exposure, averages.play5s, averages.click, averages.view, averages.order],
+                borderColor: 'rgba(138, 43, 226, 1)',
+                backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                borderWidth: 4,
+                pointRadius: 6,
+                pointHoverRadius: 9,
+                pointBackgroundColor: 'rgba(138, 43, 226, 1)',
+                tension: 0.3,
+                borderDash: [5, 5]
+            };
+            
+            return { labels, datasets: [...videoDatasets, averageDataset] };
+        }
+
+        // 初始化图表
+        let chart;
+        let videosData;
+        let averages;
+        function initChart() {
+            videosData = generateData();
+            averages = calculateAverages(videosData);
+            const chartData = prepareChartData(videosData, averages);
+            
+            // 更新平均值显示
+            document.getElementById('avgExposure').textContent = Math.round(averages.exposure).toLocaleString();
+            document.getElementById('avgPlay5s').textContent = Math.round(averages.play5s).toLocaleString();
+            document.getElementById('avgClick').textContent = Math.round(averages.click).toLocaleString();
+            document.getElementById('avgView').textContent = Math.round(averages.view).toLocaleString();
+            document.getElementById('avgOrder').textContent = Math.round(averages.order).toLocaleString();
+            
+            const ctx = document.getElementById('conversionChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '转化次数',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                color: '#cbd5e1'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                },
+                                color: '#cbd5e1'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '转化环节',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                color: '#cbd5e1'
+                            },
+                            ticks: {
+                                color: '#cbd5e1'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '视频转化路径分析（100个视频数据）',
+                            font: {
+                                size: 18
+                            },
+                            color: '#f8fafc'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label || ''}: ${context.raw.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        // 添加交互功能
+        document.getElementById('toggleLines').addEventListener('click', function() {
+            const datasets = chart.data.datasets;
+            // 前100个是视频数据，最后一个是平均值
+            for (let i = 0; i < datasets.length - 1; i++) {
+                const meta = chart.getDatasetMeta(i);
+                // 切换隐藏状态
+                meta.hidden = !meta.hidden;
+            }
+            chart.update();
+        });
+
+        document.getElementById('highlightBest').addEventListener('click', function() {
+            // 找到转化率最好的视频（下单数/曝光数最高）
+            let bestVideoIndex = 0;
+            let bestConversionRate = 0;
+            
+            for (let i = 0; i < videosData.length; i++) {
+                const conversionRate = videosData[i].order / videosData[i].exposure;
+                if (conversionRate > bestConversionRate) {
+                    bestConversionRate = conversionRate;
+                    bestVideoIndex = i;
+                }
+            }
+            
+            // 重置所有视频线条样式
+            for (let i = 0; i < chart.data.datasets.length - 1; i++) {
+                chart.data.datasets[i].borderWidth = 1.5;
+                chart.data.datasets[i].pointRadius = 3;
+                chart.data.datasets[i].borderColor = 'rgba(158, 158, 158, 0.5)';
+                chart.data.datasets[i].pointBackgroundColor = 'rgba(158, 158, 158, 0.7)';
+            }
+            
+            // 高亮最佳视频
+            chart.data.datasets[bestVideoIndex].borderWidth = 4;
+            chart.data.datasets[bestVideoIndex].pointRadius = 8;
+            chart.data.datasets[bestVideoIndex].borderColor = 'rgba(255, 82, 82, 1)';
+            chart.data.datasets[bestVideoIndex].pointBackgroundColor = 'rgba(255, 82, 82, 1)';
+            
+            chart.update();
+        });
+
+        document.getElementById('highlightWorst').addEventListener('click', function() {
+            // 找到转化率最差的视频（下单数/曝光数最低）
+            let worstVideoIndex = 0;
+            let worstConversionRate = 1; // 初始化为1（100%）
+            
+            for (let i = 0; i < videosData.length; i++) {
+                const conversionRate = videosData[i].order / videosData[i].exposure;
+                if (conversionRate < worstConversionRate) {
+                    worstConversionRate = conversionRate;
+                    worstVideoIndex = i;
+                }
+            }
+            
+            // 重置所有视频线条样式
+            for (let i = 0; i < chart.data.datasets.length - 1; i++) {
+                chart.data.datasets[i].borderWidth = 1.5;
+                chart.data.datasets[i].pointRadius = 3;
+                chart.data.datasets[i].borderColor = 'rgba(158, 158, 158, 0.5)';
+                chart.data.datasets[i].pointBackgroundColor = 'rgba(158, 158, 158, 0.7)';
+            }
+            
+            // 高亮最差视频
+            chart.data.datasets[worstVideoIndex].borderWidth = 4;
+            chart.data.datasets[worstVideoIndex].pointRadius = 8;
+            chart.data.datasets[worstVideoIndex].borderColor = 'rgba(255, 152, 0, 1)';
+            chart.data.datasets[worstVideoIndex].pointBackgroundColor = 'rgba(255, 152, 0, 1)';
+            
+            chart.update();
+        });
+
+        document.getElementById('showAverages').addEventListener('click', function() {
+            // 切换平均线的显示
+            const meta = chart.getDatasetMeta(chart.data.datasets.length - 1);
+            meta.hidden = !meta.hidden;
+            chart.update();
+        });
+
+        document.getElementById('resetView').addEventListener('click', function() {
+            // 重置视图
+            for (let i = 0; i < chart.data.datasets.length - 1; i++) {
+                const meta = chart.getDatasetMeta(i);
+                meta.hidden = i >= 10;
+                chart.data.datasets[i].borderWidth = 1.5;
+                chart.data.datasets[i].pointRadius = 3;
+                chart.data.datasets[i].borderColor = 'rgba(158, 158, 158, 0.5)';
+                chart.data.datasets[i].pointBackgroundColor = 'rgba(158, 158, 158, 0.7)';
+            }
+            
+            // 确保平均线显示
+            const avgMeta = chart.getDatasetMeta(chart.data.datasets.length - 1);
+            avgMeta.hidden = false;
+            
+            chart.update();
+        });
+
+        // 平滑滚动效果
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Frame弹窗功能
+        let isMaximized = false;
+        let originalSize = { width: '', height: '', top: '', left: '' };
+        let isDragging = false;
+        let startX, startY, startLeft, startTop;
+        let isResizing = false;
+        let startWidth, startHeight, startResizeX, startResizeY;
+        
+        function openInFrame(event, url) {
+            event.preventDefault();
+            const modal = document.getElementById('frameModal');
+            const container = document.getElementById('modalContainer');
+            const iframe = document.getElementById('modalFrame');
+            
+            // 重置弹窗状态
+            container.style.width = '90%';
+            container.style.height = '90vh';
+            container.style.top = '';
+            container.style.left = '';
+            container.style.position = 'relative';
+            isMaximized = false;
+            
+            iframe.src = url;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // 防止背景滚动
+        }
+        
+        function closeFrameModal() {
+            const modal = document.getElementById('frameModal');
+            const iframe = document.getElementById('modalFrame');
+            iframe.src = ''; // 清空iframe内容
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // 恢复背景滚动
+        }
+        
+        function minimizeModal() {
+            const modal = document.getElementById('frameModal');
+            const container = document.getElementById('modalContainer');
+            
+            if (modal.classList.contains('minimized')) {
+                // 还原最小化
+                container.style.width = originalSize.width;
+                container.style.height = originalSize.height;
+                container.style.top = originalSize.top;
+                container.style.left = originalSize.left;
+                modal.classList.remove('minimized');
+                document.body.style.overflow = 'hidden';
+            } else {
+                // 最小化
+                originalSize.width = container.style.width;
+                originalSize.height = container.style.height;
+                originalSize.top = container.style.top;
+                originalSize.left = container.style.left;
+                
+                container.style.width = '300px';
+                container.style.height = '60px';
+                container.style.top = 'auto';
+                container.style.left = 'auto';
+                container.style.bottom = '10px';
+                container.style.right = '10px';
+                modal.classList.add('minimized');
+                document.body.style.overflow = ''; // 允许背景滚动
+            }
+        }
+        
+        function toggleMaximize() {
+            const container = document.getElementById('modalContainer');
+            const content = document.getElementById('modalContent');
+            
+            if (isMaximized) {
+                // 还原大小
+                container.style.width = originalSize.width;
+                container.style.height = originalSize.height;
+                container.style.top = originalSize.top;
+                container.style.left = originalSize.left;
+                container.style.position = 'relative';
+                content.style.height = `calc(90vh - 80px)`;
+                isMaximized = false;
+                document.getElementById('maximizeBtn').innerHTML = '<i class="fas fa-window-maximize text-xl"></i>';
+            } else {
+                // 最大化
+                originalSize.width = container.style.width;
+                originalSize.height = container.style.height;
+                originalSize.top = container.style.top;
+                originalSize.left = container.style.left;
+                
+                container.style.width = '100vw';
+                container.style.height = '100vh';
+                container.style.maxWidth = '100vw';
+                container.style.maxHeight = '100vh';
+                container.style.position = 'absolute';
+                container.style.top = '0';
+                container.style.left = '0';
+                container.style.borderRadius = '0';
+                content.style.height = `calc(100vh - 80px)`;
+                isMaximized = true;
+                document.getElementById('maximizeBtn').innerHTML = '<i class="fas fa-window-restore text-xl"></i>';
+            }
+        }
+        
+        // 初始化拖动功能
+        function initDrag() {
+            const header = document.getElementById('modalHeader');
+            const container = document.getElementById('modalContainer');
+            
+            header.addEventListener('mousedown', function(e) {
+                if (isMaximized || document.getElementById('frameModal').classList.contains('minimized')) return;
+                
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                // 设置为绝对定位以便拖动
+                container.style.position = 'absolute';
+                
+                // 获取当前位置
+                const rect = container.getBoundingClientRect();
+                startLeft = rect.left;
+                startTop = rect.top;
+                
+                document.body.style.cursor = 'grabbing';
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                
+                // 计算新位置并设置
+                container.style.left = (startLeft + dx) + 'px';
+                container.style.top = (startTop + dy) + 'px';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    document.body.style.cursor = '';
+                }
+            });
+        }
+        
+        // 初始化调整大小功能
+        function initResize() {
+            const resizeHandle = document.querySelector('.resize-handle');
+            const container = document.getElementById('modalContainer');
+            const content = document.getElementById('modalContent');
+            
+            resizeHandle.addEventListener('mousedown', function(e) {
+                if (isMaximized || document.getElementById('frameModal').classList.contains('minimized')) return;
+                
+                e.preventDefault();
+                isResizing = true;
+                
+                // 设置为绝对定位以便调整大小
+                container.style.position = 'absolute';
+                
+                // 获取当前尺寸和鼠标位置
+                const rect = container.getBoundingClientRect();
+                startWidth = rect.width;
+                startHeight = rect.height;
+                startResizeX = e.clientX;
+                startResizeY = e.clientY;
+                
+                document.body.style.cursor = 'se-resize';
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return;
+                
+                const dx = e.clientX - startResizeX;
+                const dy = e.clientY - startResizeY;
+                
+                // 计算新尺寸并设置最小尺寸限制
+                const newWidth = Math.max(600, startWidth + dx);
+                const newHeight = Math.max(400, startHeight + dy);
+                
+                container.style.width = newWidth + 'px';
+                container.style.height = newHeight + 'px';
+                content.style.height = (newHeight - 80) + 'px'; // 减去header高度
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isResizing) {
+                    isResizing = false;
+                    document.body.style.cursor = '';
+                }
+            });
+        }
+        
+        // 初始化弹窗控制按钮
+        function initModalControls() {
+            document.getElementById('minimizeBtn').addEventListener('click', minimizeModal);
+            document.getElementById('maximizeBtn').addEventListener('click', toggleMaximize);
+        }
+        
+        // 点击模态框外部关闭
+        document.getElementById('frameModal').addEventListener('click', function(event) {
+            if (event.target === this && !document.getElementById('frameModal').classList.contains('minimized')) {
+                closeFrameModal();
+            }
+        });
+        
+        // 页面加载时初始化弹窗功能
+        window.addEventListener('load', function() {
+            initDrag();
+            initResize();
+            initModalControls();
+        });
+
+        // 页面加载时初始化图表
+        window.onload = initChart;
+    </script>
+</body>
+</html>

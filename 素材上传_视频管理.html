@@ -1,0 +1,953 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频管理 - 素材投放</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E88E5',
+                        secondary: '#757575',
+                        success: '#4CAF50',
+                        warning: '#FF9800',
+                        danger: '#F44336',
+                        info: '#2196F3',
+                        bg: {
+                            light: '#F5F5F5',
+                            dark: '#2C3E50'
+                        },
+                        text: {
+                            primary: '#212121',
+                            secondary: '#757575',
+                            light: '#FFFFFF'
+                        },
+                        border: {
+                            light: '#E0E0E0',
+                            dark: '#BDBDBD'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .table-shadow {
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            .btn-hover {
+                @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
+            }
+            .card-hover {
+                @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
+            }
+        }
+    </style>
+    
+    <!-- 自定义样式 -->
+    <style>
+        /* 视频缩略图样式 */
+        .video-thumbnail {
+            position: relative;
+            width: 80px;
+            height: 45px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .video-thumbnail:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .video-thumbnail::after {
+            content: '\f04b';
+            font-family: 'FontAwesome';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 16px;
+            opacity: 0.8;
+            background-color: rgba(0,0,0,0.4);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 状态标签样式 */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        /* 进度条样式 */
+        .progress-bar {
+            height: 4px;
+            background-color: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-value {
+            height: 100%;
+            background-color: #1E88E5;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        /* 下拉菜单样式 */
+        .dropdown-menu {
+            animation: fadeIn 0.2s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 分页控件样式 */
+        .pagination-btn {
+            transition: all 0.2s ease;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .table-responsive {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body class="bg-bg-light min-h-screen">
+    <div class="container mx-auto px-4 py-6">
+        <!-- 页面标题 -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-text-primary">视频管理</h1>
+            <div class="flex gap-3">
+                <button class="bg-primary text-white px-4 py-2 rounded-md flex items-center btn-hover">
+                    <i class="fa fa-upload mr-2"></i> 上传视频
+                </button>
+                <button class="bg-primary text-white px-4 py-2 rounded-md flex items-center btn-hover" onclick="openVideoUploadModal()">
+                    <i class="fa fa-upload mr-2"></i> 上传视频
+                </button>
+            </div>
+        </div>
+        
+        <!-- 顶部筛选栏 -->
+        <div class="bg-white p-4 rounded-lg mb-4 table-shadow">
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- 筛选项目 -->
+                <button class="bg-primary text-white px-4 py-1.5 rounded text-sm">全部</button>
+                <select class="border border-border-light px-4 py-1.5 rounded text-sm bg-white">
+                    <option>任务状态</option>
+                    <option>上传成功</option>
+                    <option>进行中</option>
+                    <option>待开始</option>
+                    <option>上传失败</option>
+                </select>
+                <select class="border border-border-light px-4 py-1.5 rounded text-sm bg-white">
+                    <option>标签</option>
+                    <option>产品展示</option>
+                    <option>宣传视频</option>
+                    <option>教程视频</option>
+                    <option>演示</option>
+                    <option>功能</option>
+                    <option>介绍</option>
+                    <option>产品</option>
+                </select>
+                <select class="border border-border-light px-4 py-1.5 rounded text-sm bg-white">
+                    <option>投放计划</option>
+                    <option>已创建</option>
+                    <option>未创建</option>
+                </select>
+                <div class="flex items-center gap-1 border border-border-light rounded text-sm px-3 py-1">
+                    <input type="date" value="2025-08-30" class="bg-transparent border-none outline-none text-sm">
+                    <span class="text-text-secondary">→</span>
+                    <input type="date" value="2025-08-30" class="bg-transparent border-none outline-none text-sm">
+                    <i class="fa fa-calendar-o text-text-secondary"></i>
+                </div>
+                <select class="border border-border-light px-4 py-1.5 rounded text-sm bg-white">
+                    <option>投后数据</option>
+                    <option>已完成</option>
+                    <option>未开始</option>
+                </select>
+                <select class="border border-border-light px-4 py-1.5 rounded text-sm bg-white">
+                    <option>商户ID</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 搜索筛选区域 -->
+        <div class="bg-white p-4 rounded-lg mb-6 table-shadow">
+            <div class="flex flex-wrap gap-4 mb-4">
+                <!-- 关键词搜索 -->
+                <div class="relative">
+                    <input type="text" placeholder="请输入标题/计划关键词" class="pl-10 pr-4 py-2 border border-border-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                    <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary"></i>
+                </div>
+                
+                <!-- 视频ID搜索 -->
+                <div class="relative">
+                    <input type="text" placeholder="请输入视频ID" class="pl-10 pr-4 py-2 border border-border-light rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                    <i class="fa fa-id-card-o absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary"></i>
+                </div>
+                
+
+            </div>
+            
+            <!-- 搜索按钮 -->
+            <div class="flex gap-2 mt-4">
+                <button class="bg-primary text-white px-6 py-2 rounded-md text-sm hover:bg-primary/90 transition-colors">搜索</button>
+            </div>
+        </div>
+        
+        <!-- 视频列表 -->
+        <div class="bg-white rounded-lg overflow-hidden mb-6 table-shadow">
+            <div class="table-responsive">
+                <table class="w-full">
+                    <thead class="bg-bg-light border-b border-border-light">
+                        <tr>
+                            <th class="px-4 py-3 text-left w-12">
+                                <input type="checkbox" class="rounded border-border-light text-primary focus:ring-primary/30">
+                            </th>
+                            <th class="px-4 py-3 text-left text-text-secondary font-medium">视频信息</th>
+                            <th class="px-4 py-3 text-left text-text-secondary font-medium">标签</th>
+                            <th class="px-4 py-3 text-left text-text-secondary font-medium">上传状态</th>
+                            <th class="px-4 py-3 text-left text-text-secondary font-medium">解析状态</th>
+                            <th class="px-4 py-3 text-left text-text-secondary font-medium">广告语</th>
+                            <th class="px-4 py-3 text-left text-text-secondary font-medium">投放计划</th>
+                            <th class="px-4 py-3 text-left text-text-secondary font-medium">数据回传</th>
+                            <th class="px-4 py-3 text-left text-text-secondary font-medium">诊断</th>
+                            <th class="px-4 py-3 text-left text-text-secondary font-medium">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 视频项1：上传成功 -->
+                        <tr class="border-b border-border-light">
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="rounded border-border-light text-primary focus:ring-primary/30">
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="video-thumbnail" style="background-image: url('https://picsum.photos/id/1/80/45'); background-size: cover; background-position: center;"></div>
+                                    <div>
+                                        <p class="text-text-primary font-medium">产品展示视频1</p>
+                                        <p class="text-text-secondary text-sm">视频ID：100001</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="text-xs bg-bg-light text-text-secondary px-2 py-0.5 rounded">电商</span>
+                                    <span class="text-xs bg-bg-light text-text-secondary px-2 py-0.5 rounded">产品展示</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="status-badge bg-success/10 text-success">上传成功</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="status-badge bg-success/10 text-success">已解析</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-primary">已生成</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-primary">已创建</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="status-badge bg-success/10 text-success">已完成</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="status-badge bg-warning/10 text-warning">待优化</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex gap-2">
+                                    <button class="text-primary text-sm hover:text-primary/80">查看视频解析</button>
+                                    <button class="text-primary text-sm hover:text-primary/80">查看广告语</button>
+                                    <div class="dropdown relative">
+                                        <button class="text-text-secondary text-sm hover:text-text-primary">
+                                            <i class="fa fa-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                            <a href="#" class="block px-4 py-2 text-sm text-text-primary hover:bg-bg-light">编辑视频</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-text-primary hover:bg-bg-light">创建投放计划</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-text-primary hover:bg-bg-light">复制视频</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-danger hover:bg-bg-light">删除视频</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- 视频项2：进行中 -->
+                        <tr class="border-b border-border-light">
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="rounded border-border-light text-primary focus:ring-primary/30">
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="video-thumbnail" style="background-image: url('https://picsum.photos/id/2/80/45'); background-size: cover; background-position: center;"></div>
+                                    <div>
+                                        <p class="text-text-primary font-medium">宣传视频2</p>
+                                        <p class="text-text-secondary text-sm">视频ID：100002</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="text-xs bg-bg-light text-text-secondary px-2 py-0.5 rounded">宣传</span>
+                                    <span class="text-xs bg-bg-light text-text-secondary px-2 py-0.5 rounded">品牌</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div>
+                                    <span class="status-badge bg-info/10 text-info">进行中</span>
+                                    <div class="progress-bar mt-2">
+                                        <div class="progress-value" style="width: 65%"></div>
+                                    </div>
+                                    <p class="text-text-secondary text-xs mt-1">65% · 预计剩余3分钟</p>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="status-badge bg-info/10 text-info">待解析</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未生成</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未创建</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未开始</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未开始</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex gap-2">
+                                    <button class="text-danger text-sm hover:text-danger/80">取消</button>
+                                    <div class="dropdown relative">
+                                        <button class="text-text-secondary text-sm hover:text-text-primary">
+                                            <i class="fa fa-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                            <a href="#" class="block px-4 py-2 text-sm text-text-primary hover:bg-bg-light">查看详情</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-danger hover:bg-bg-light">取消任务</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- 视频项3：待开始 -->
+                        <tr class="border-b border-border-light">
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="rounded border-border-light text-primary focus:ring-primary/30">
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="video-thumbnail" style="background-image: url('https://picsum.photos/id/3/80/45'); background-size: cover; background-position: center;"></div>
+                                    <div>
+                                        <p class="text-text-primary font-medium">教程视频3</p>
+                                        <p class="text-text-secondary text-sm">视频ID：100003</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="text-xs bg-bg-light text-text-secondary px-2 py-0.5 rounded">教程</span>
+                                    <span class="text-xs bg-bg-light text-text-secondary px-2 py-0.5 rounded">使用指南</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="status-badge bg-warning/10 text-warning">待开始</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未开始</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未生成</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未创建</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未开始</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未开始</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex gap-2">
+                                    <button class="text-primary text-sm hover:text-primary/80">开始</button>
+                                    <div class="dropdown relative">
+                                        <button class="text-text-secondary text-sm hover:text-text-primary">
+                                            <i class="fa fa-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                            <a href="#" class="block px-4 py-2 text-sm text-text-primary hover:bg-bg-light">编辑视频</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-danger hover:bg-bg-light">删除视频</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- 视频项4：上传失败 -->
+                        <tr class="border-b border-border-light">
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="rounded border-border-light text-primary focus:ring-primary/30">
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="video-thumbnail" style="background-image: url('https://picsum.photos/id/4/80/45'); background-size: cover; background-position: center;"></div>
+                                    <div>
+                                        <p class="text-text-primary font-medium">产品演示视频4</p>
+                                        <p class="text-text-secondary text-sm">视频ID：100004</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="text-xs bg-bg-light text-text-secondary px-2 py-0.5 rounded">演示</span>
+                                    <span class="text-xs bg-bg-light text-text-secondary px-2 py-0.5 rounded">功能</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div>
+                                    <span class="status-badge bg-danger/10 text-danger">上传失败</span>
+                                    <p class="text-text-secondary text-xs mt-1">错误：网络连接超时</p>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未开始</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未生成</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未创建</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未开始</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-secondary">未开始</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex gap-2">
+                                    <button class="text-primary text-sm hover:text-primary/80">重试</button>
+                                    <div class="dropdown relative">
+                                        <button class="text-text-secondary text-sm hover:text-text-primary">
+                                            <i class="fa fa-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                            <a href="#" class="block px-4 py-2 text-sm text-text-primary hover:bg-bg-light">查看错误日志</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-danger hover:bg-bg-light">删除视频</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- 视频项5：上传成功 -->
+                        <tr>
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="rounded border-border-light text-primary focus:ring-primary/30">
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="video-thumbnail" style="background-image: url('https://picsum.photos/id/5/80/45'); background-size: cover; background-position: center;"></div>
+                                    <div>
+                                        <p class="text-text-primary font-medium">产品介绍视频5</p>
+                                        <p class="text-text-secondary text-sm">视频ID：100005</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="text-xs bg-bg-light text-text-secondary px-2 py-0.5 rounded">介绍</span>
+                                    <span class="text-xs bg-bg-light text-text-secondary px-2 py-0.5 rounded">产品</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="status-badge bg-success/10 text-success">上传成功</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="status-badge bg-success/10 text-success">已解析</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-primary">已生成</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="text-text-primary">已创建</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="status-badge bg-success/10 text-success">已完成</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="status-badge bg-success/10 text-success">优秀</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex gap-2">
+                                    <button class="text-primary text-sm hover:text-primary/80">查看视频解析</button>
+                                    <button class="text-primary text-sm hover:text-primary/80">查看广告语</button>
+                                    <div class="dropdown relative">
+                                        <button class="text-text-secondary text-sm hover:text-text-primary">
+                                            <i class="fa fa-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                            <a href="#" class="block px-4 py-2 text-sm text-text-primary hover:bg-bg-light">编辑视频</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-text-primary hover:bg-bg-light">创建投放计划</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-text-primary hover:bg-bg-light">复制视频</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-danger hover:bg-bg-light">删除视频</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 分页控件 -->
+        <div class="flex justify-between items-center">
+            <!-- 批量操作 -->
+            <div class="flex items-center gap-4">
+                <button class="bg-white border border-border-light text-text-secondary px-4 py-2 rounded-md btn-hover">
+                    批量视频解析
+                </button>
+            </div>
+            
+            <!-- 分页 -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-1">
+                    <button class="pagination-btn w-8 h-8 flex items-center justify-center rounded border border-border-light bg-white text-text-secondary" disabled>
+                        <i class="fa fa-angle-left"></i>
+                    </button>
+                    <button class="pagination-btn w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary text-white">1</button>
+                    <button class="pagination-btn w-8 h-8 flex items-center justify-center rounded border border-border-light bg-white text-text-secondary">2</button>
+                    <button class="pagination-btn w-8 h-8 flex items-center justify-center rounded border border-border-light bg-white text-text-secondary">3</button>
+                    <button class="pagination-btn w-8 h-8 flex items-center justify-center rounded border border-border-light bg-white text-text-secondary">4</button>
+                    <button class="pagination-btn w-8 h-8 flex items-center justify-center rounded border border-border-light bg-white text-text-secondary">5</button>
+                    <button class="pagination-btn w-8 h-8 flex items-center justify-center rounded border border-border-light bg-white text-text-secondary">
+                        <i class="fa fa-angle-right"></i>
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-2 text-text-secondary text-sm">
+                    <span>共9页</span>
+                    <span>跳至</span>
+                    <input type="number" min="1" max="9" value="1" class="w-12 h-8 border border-border-light rounded text-center">
+                    <button class="text-sm">确定</button>
+                </div>
+                
+                <div class="flex items-center gap-2 text-text-secondary text-sm">
+                    <span>每页显示</span>
+                    <select class="h-8 border border-border-light rounded px-2">
+                        <option value="10">10条</option>
+                        <option value="20">20条</option>
+                        <option value="50">50条</option>
+                        <option value="100">100条</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 提示信息 -->
+        <div class="mt-4 text-text-secondary text-sm">
+            <p>视频库仅包含通过本系统上传的视频</p>
+        </div>
+        
+        <!-- 页脚 -->
+        <footer class="mt-8 text-center text-text-secondary text-sm">
+            <p>© 2023 马上豹产品中心 版权所有</p>
+        </footer>
+    </div>
+    
+    <!-- JavaScript交互功能 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. 下拉菜单控制
+            const dropdownButtons = document.querySelectorAll('.dropdown > button');
+            dropdownButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const dropdownMenu = this.nextElementSibling;
+                    if (dropdownMenu) {
+                        dropdownMenu.classList.toggle('hidden');
+                    }
+                });
+            });
+
+            // 点击页面其他地方关闭下拉菜单
+            document.addEventListener('click', function(event) {
+                const dropdowns = document.querySelectorAll('.dropdown');
+                dropdowns.forEach(dropdown => {
+                    if (!dropdown.contains(event.target)) {
+                        const menu = dropdown.querySelector('.dropdown-menu');
+                        if (menu && !menu.classList.contains('hidden')) {
+                            menu.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+
+            // 2. 高级筛选按钮点击事件
+            const advancedFilterButton = document.querySelector('button:has(.fa-filter)');
+            if (advancedFilterButton) {
+                advancedFilterButton.addEventListener('click', function() {
+                    alert('高级筛选功能待实现');
+                });
+            }
+
+            // 3. 顶部筛选栏按钮点击事件
+            const filterButtons = document.querySelectorAll('.bg-white.p-4.rounded-lg.mb-4 button');
+            filterButtons.forEach(button => {
+                if (button.classList.contains('bg-primary') && button.textContent.includes('全部')) {
+                    button.addEventListener('click', function() {
+                        console.log('点击全部筛选');
+                        // 重置所有筛选条件的视觉状态
+                        filterButtons.forEach(btn => {
+                            if (btn.tagName === 'BUTTON') {
+                                btn.classList.remove('bg-primary', 'text-white');
+                                btn.classList.add('bg-bg-light', 'text-text-secondary');
+                            }
+                        });
+                        this.classList.add('bg-primary', 'text-white');
+                        this.classList.remove('bg-bg-light', 'text-text-secondary');
+                    });
+                }
+            });
+
+            // 4. 下拉筛选菜单选择事件
+            const filterSelects = document.querySelectorAll('.bg-white.p-4.rounded-lg.mb-4 select');
+            filterSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    const filterType = this.options[0].text;
+                    const selectedValue = this.value;
+                    if (selectedValue !== filterType) {
+                        console.log(`选择${filterType}: ${selectedValue}`);
+                        // 这里可以添加实际的筛选逻辑
+                    }
+                });
+            });
+
+            // 5. 日期选择器事件
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            dateInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const index = Array.from(dateInputs).indexOf(this);
+                    const dateType = index === 0 ? '开始日期' : '结束日期';
+                    console.log(`${dateType}: ${this.value}`);
+                    // 这里可以添加实际的日期筛选逻辑
+                });
+            });
+
+            // 6. 搜索按钮点击事件
+            const searchButton = document.querySelector('.bg-white.p-4.rounded-lg.mb-6 button.bg-primary');
+            if (searchButton && searchButton.textContent.includes('搜索')) {
+                searchButton.addEventListener('click', function() {
+                    // 获取关键词输入
+                    const keywordInput = document.querySelector('input[placeholder="请输入标题/计划关键词"]');
+                    const videoIdInput = document.querySelector('input[placeholder="请输入视频ID"]');
+                    
+                    let searchParams = {};
+                    if (keywordInput && keywordInput.value.trim()) {
+                        searchParams.keyword = keywordInput.value.trim();
+                    }
+                    if (videoIdInput && videoIdInput.value.trim()) {
+                        searchParams.videoId = videoIdInput.value.trim();
+                    }
+                    
+                    console.log('执行搜索:', searchParams);
+                    // 这里可以添加实际的搜索逻辑
+                });
+            }
+
+            // 3. 搜索功能
+            const searchInputs = document.querySelectorAll('input[placeholder^="请输入"]');
+            searchInputs.forEach(input => {
+                input.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        const searchValue = this.value.trim();
+                        if (searchValue) {
+                            console.log(`搜索: ${searchValue}`);
+                            // 这里可以添加实际的搜索逻辑
+                        }
+                    }
+                });
+            });
+
+            // 4. 任务状态筛选
+            const statusFilters = document.querySelectorAll('.status-filter');
+            statusFilters.forEach(filter => {
+                filter.addEventListener('click', function() {
+                    // 移除所有筛选标签的活跃状态
+                    statusFilters.forEach(f => {
+                        f.classList.remove('active', 'bg-primary', 'text-white');
+                        f.classList.add('bg-bg-light', 'text-text-secondary');
+                    });
+
+                    // 为当前点击的筛选标签添加活跃状态
+                    this.classList.remove('bg-bg-light', 'text-text-secondary');
+                    this.classList.add('active', 'bg-primary', 'text-white');
+
+                    const status = this.getAttribute('data-status');
+                    console.log(`筛选状态: ${status}`);
+                    // 这里可以添加实际的筛选逻辑
+                });
+            });
+
+            // 5. 表格行悬停效果
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.classList.add('hover:bg-bg-light');
+                });
+                row.addEventListener('mouseleave', function() {
+                    this.classList.remove('hover:bg-bg-light');
+                });
+            });
+
+            // 6. 分页控件交互
+            const paginationButtons = document.querySelectorAll('.pagination-btn:not([disabled])');
+            paginationButtons.forEach(button => {
+                if (!button.querySelector('i')) {
+                    // 页码按钮
+                    button.addEventListener('click', function() {
+                        const currentPage = this.textContent.trim();
+                        console.log(`切换到页码: ${currentPage}`);
+                        // 移除所有页码按钮的活跃状态
+                        document.querySelectorAll('.pagination-btn:not([disabled]):not(:has(i))').forEach(btn => {
+                            btn.classList.remove('bg-primary', 'text-white', 'border-primary');
+                            btn.classList.add('bg-white', 'text-text-secondary', 'border-border-light');
+                        });
+                        // 为当前点击的页码按钮添加活跃状态
+                        this.classList.remove('bg-white', 'text-text-secondary', 'border-border-light');
+                        this.classList.add('bg-primary', 'text-white', 'border-primary');
+                        // 更新跳转到输入框的值
+                        const pageInput = document.querySelector('input[type="number"]');
+                        if (pageInput) pageInput.value = currentPage;
+                    });
+                } else {
+                    // 上一页/下一页按钮
+                    button.addEventListener('click', function() {
+                        const icon = this.querySelector('i');
+                        if (icon.classList.contains('fa-angle-left')) {
+                            console.log('上一页');
+                        } else {
+                            console.log('下一页');
+                        }
+                        // 这里可以添加实际的翻页逻辑
+                    });
+                }
+            });
+
+            // 7. 跳页功能
+            const gotoPageButtons = document.querySelectorAll('button');
+            gotoPageButtons.forEach(button => {
+                if (button.textContent.includes('确定') && button.parentElement.textContent.includes('跳至')) {
+                    button.addEventListener('click', function() {
+                        const pageInput = button.parentElement.querySelector('input[type="number"]');
+                        if (pageInput) {
+                            const page = parseInt(pageInput.value);
+                            if (page >= 1 && page <= 9) {
+                                console.log('跳转到页码:', page);
+                                // 这里可以添加实际的跳转逻辑
+                            } else {
+                                alert('请输入有效的页码(1-9)');
+                            }
+                        }
+                    });
+                }
+            });
+
+            // 8. 每页显示数量选择
+            const pageSizeSelect = document.querySelector('select');
+            if (pageSizeSelect) {
+                pageSizeSelect.addEventListener('change', function() {
+                    const pageSize = this.value;
+                    console.log('每页显示数量:', pageSize);
+                    // 这里可以添加实际的分页大小调整逻辑
+                });
+            }
+
+            // 9. 上传视频按钮点击事件
+            const uploadButton = document.querySelector('button:has(.fa-upload)');
+            if (uploadButton) {
+                uploadButton.addEventListener('click', function() {
+                    console.log('点击上传视频，打开创建视频上传任务弹窗');
+                    // 创建弹窗容器
+                    const popupOverlay = document.createElement('div');
+                    popupOverlay.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center';
+                    popupOverlay.style.display = 'flex';
+                    
+                    // 创建弹窗主体
+                    const popupContainer = document.createElement('div');
+                    popupContainer.className = 'bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[98vh] h-[95vh] overflow-hidden flex flex-col';
+                    
+                    // 创建弹窗头部
+                    const popupHeader = document.createElement('div');
+                    popupHeader.className = 'flex justify-between items-center p-4 border-b border-border-light';
+                    popupHeader.innerHTML = '<h2 class="text-lg font-semibold text-text-primary">创建视频上传任务</h2>';
+                    
+                    // 创建关闭按钮
+                    const closeButton = document.createElement('button');
+                    closeButton.className = 'text-text-secondary hover:text-text-primary';
+                    closeButton.innerHTML = '<i class="fa fa-times text-xl"></i>';
+                    closeButton.addEventListener('click', function() {
+                        document.body.removeChild(popupOverlay);
+                    });
+                    
+                    popupHeader.appendChild(closeButton);
+                    
+                    // 创建弹窗内容区域（iframe）
+                    const popupContent = document.createElement('iframe');
+                    popupContent.src = '创建视频上传任务.html';
+                    popupContent.className = 'flex-1 w-full border-0';
+                    popupContent.title = '创建视频上传任务';
+                    
+                    // 组装弹窗
+                    popupContainer.appendChild(popupHeader);
+                    popupContainer.appendChild(popupContent);
+                    popupOverlay.appendChild(popupContainer);
+                    
+                    // 添加到页面
+                    document.body.appendChild(popupOverlay);
+                    
+                    // 点击遮罩层关闭弹窗
+                    popupOverlay.addEventListener('click', function(e) {
+                        if (e.target === popupOverlay) {
+                            document.body.removeChild(popupOverlay);
+                        }
+                    });
+                });
+            }
+
+            // 10. 表格中的各种按钮点击事件
+            const actionButtons = document.querySelectorAll('button:not(.pagination-btn):not(.status-filter):not([type="checkbox"])');
+            actionButtons.forEach(button => {
+                if (!button.matches('.dropdown button') && 
+                    !button.textContent.includes('批量视频解析') && 
+                    !button.textContent.includes('高级筛选') && 
+                    !button.textContent.includes('确定') && 
+                    !button.textContent.includes('开始') && 
+                    !button.textContent.includes('重试')) {
+                    button.addEventListener('click', function() {
+                        const actionText = this.textContent.trim();
+                        console.log(`执行操作: ${actionText}`);
+                        // 根据不同的操作执行不同的逻辑
+                        if (actionText.includes('查看')) {
+                            alert(`${actionText}功能待实现`);
+                        } else if (actionText.includes('创建')) {
+                            alert(`${actionText}功能待实现`);
+                        } else if (actionText.includes('重试')) {
+                            alert(`${actionText}功能待实现`);
+                        } else if (actionText.includes('编辑')) {
+                            alert(`${actionText}功能待实现`);
+                        } else if (actionText.includes('删除')) {
+                            if (confirm('确定要删除此视频吗？')) {
+                                console.log('删除视频');
+                                // 这里可以添加实际的删除逻辑
+                            }
+                        } else if (actionText.includes('取消')) {
+                            if (confirm('确定要取消此任务吗？')) {
+                                console.log('取消任务');
+                                // 这里可以添加实际的取消逻辑
+                            }
+                        } else if (actionText.includes('开始')) {
+                            alert(`${actionText}功能待实现`);
+                        }
+                    });
+                }
+            });
+
+            // 11. 视频缩略图点击事件
+            const videoThumbnails = document.querySelectorAll('.video-thumbnail');
+            videoThumbnails.forEach(thumbnail => {
+                thumbnail.addEventListener('click', function() {
+                    const videoTitle = this.nextElementSibling.textContent;
+                    console.log(`预览视频: ${videoTitle}`);
+                    alert(`视频预览功能待实现\n视频标题: ${videoTitle}`);
+                });
+            });
+
+            // 12. 批量视频解析按钮点击事件
+            const batchParseButtons = document.querySelectorAll('button');
+            batchParseButtons.forEach(button => {
+                if (button.textContent.includes('批量视频解析')) {
+                    button.addEventListener('click', function() {
+                        const checkedBoxes = document.querySelectorAll('tbody input[type="checkbox"]:checked');
+                        if (checkedBoxes.length > 0) {
+                            console.log(`批量解析 ${checkedBoxes.length} 个视频`);
+                            alert(`批量解析功能待实现\n已选择 ${checkedBoxes.length} 个视频`);
+                        } else {
+                            alert('请至少选择一个视频进行批量解析');
+                        }
+                    });
+                }
+            });
+
+            // 13. 全选/取消全选功能
+            const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
+            const itemCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    const isChecked = this.checked;
+                    itemCheckboxes.forEach(checkbox => {
+                        checkbox.checked = isChecked;
+                    });
+                });
+            }
+
+            // 单个复选框变化时检查是否需要更新全选状态
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const allChecked = Array.from(itemCheckboxes).every(cb => cb.checked);
+                    const noneChecked = Array.from(itemCheckboxes).every(cb => !cb.checked);
+                    
+                    if (selectAllCheckbox) {
+                        selectAllCheckbox.checked = allChecked;
+                        selectAllCheckbox.indeterminate = !allChecked && !noneChecked;
+                    }
+                });
+            });
+        });
+        
+        // 打开视频上传弹窗
+        window.openVideoUploadModal = function() {
+            // 打开创建视频上传任务.html页面
+            window.open('创建视频上传任务.html', '_blank', 'width=800,height=600');
+        }
+    </script>
+</body>
+</html>
